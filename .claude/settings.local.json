@@ -9,5 +9,9 @@
   "statusLine": {
     "type": "command",
     "command": "python .claude/scripts/context-monitor.py"
-  }
+  },
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ],
+  "enableAllProjectMcpServers": true
 }

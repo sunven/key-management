@@ -12,15 +12,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       if (account?.provider === 'google' && user.email) {
         // Check if user exists
-        const existingUser = await db.query.users.findFirst({
-          where: eq(users.email, user.email),
-        });
+        const existingUsers = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, user.email))
+          .limit(1);
 
         // If user doesn't exist, create them
-        if (!existingUser) {
+        if (existingUsers.length === 0) {
           await db.insert(users).values({
             email: user.email,
             name: user.name || null,
@@ -30,16 +32,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true;
     },
-    async session({ session, token }) {
-      if (session.user && token.email) {
-        // Get user from database to include ID in session
-        const dbUser = await db.query.users.findFirst({
-          where: eq(users.email, token.email),
-        });
+    async jwt({ token, account }) {
+      // On sign in or if ID is missing, fetch user ID from database and store in token
+      if (token.email && (!token.id || account?.provider === 'google')) {
+        const dbUsers = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, token.email))
+          .limit(1);
 
-        if (dbUser) {
-          session.user.id = dbUser.id.toString();
+        if (dbUsers.length > 0) {
+          token.id = dbUsers[0].id.toString();
         }
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Add user ID from token to session
+      if (session.user && token.id) {
+        session.user.id = token.id as string;
       }
       return session;
     },
