@@ -19,10 +19,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ProviderDialog } from './provider-dialog';
-import type { Provider } from '@/lib/db/schema';
+import type { Provider, Token } from '@/lib/db/schema';
 
 interface ProviderWithTokenCount extends Provider {
-  tokens: any[];
+  tokens: Token[];
 }
 
 export function ProviderList() {

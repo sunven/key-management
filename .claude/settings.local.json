@@ -3,15 +3,17 @@
     "allow": [
       "Bash(cat:*)",
       "Bash(pnpm add:*)",
-      "Bash(pnpm dlx:*)"
+      "Bash(pnpm dlx:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm list:*)",
+      "Bash(pnpm info:*)",
+      "Bash(pnpm why:*)",
+      "Bash(pnpm remove:*)"
     ]
   },
-  "statusLine": {
-    "type": "command",
-    "command": "python .claude/scripts/context-monitor.py"
-  },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "shadcn"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

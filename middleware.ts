@@ -1,8 +1,9 @@
 import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import type { Session } from 'next-auth';
 
-export default auth((req: NextRequest & { auth: any }) => {
+export default auth((req: NextRequest & { auth: Session | null }) => {
   const { pathname } = req.nextUrl;
 
   // Allow access to sign-in page and auth callback routes

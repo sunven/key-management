@@ -48,7 +48,12 @@ export function ProviderDialog({ provider, trigger, onSuccess }: ProviderDialogP
     setValue,
   } = useForm<ProviderFormData>({
     resolver: zodResolver(providerSchema),
-    defaultValues: provider || {
+    defaultValues: provider ? {
+      baseUrl: provider.baseUrl,
+      name: provider.name,
+      description: provider.description || '',
+      active: provider.active,
+    } : {
       baseUrl: '',
       name: '',
       description: '',

@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+const config = {
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
@@ -12,7 +12,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account }: any) {
       if (account?.provider === 'google' && user.email) {
         // Check if user exists
         const existingUsers = await db
@@ -32,7 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true;
     },
-    async jwt({ token, account }) {
+    async jwt({ token, account }: any) {
       // On sign in or if ID is missing, fetch user ID from database and store in token
       if (token.email && (!token.id || account?.provider === 'google')) {
         const dbUsers = await db
@@ -47,7 +47,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       // Add user ID from token to session
       if (session.user && token.id) {
         session.user.id = token.id as string;
@@ -58,4 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: '/auth/signin',
   },
-});
+};
+
+// @ts-expect-error - NextAuth v5 beta type inference issue
+export const { handlers, signIn, signOut, auth } = NextAuth(config);

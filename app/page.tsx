@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
-import { providers, tokens } from '@/lib/db/schema';
+import { providers } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database, Key, Activity, CheckCircle2 } from 'lucide-react';
