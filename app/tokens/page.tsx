@@ -1,9 +1,5 @@
-import { TokenList } from '@/components/tokens/token-list';
+import { redirect } from 'next/navigation';
 
 export default function TokensPage() {
-  return (
-    <div className="container mx-auto p-8">
-      <TokenList />
-    </div>
-  );
+  redirect('/providers');
 }

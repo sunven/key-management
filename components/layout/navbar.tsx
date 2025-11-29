@@ -24,12 +24,6 @@ export async function Navbar() {
           >
             Providers
           </Link>
-          <Link
-            href="/tokens"
-            className="text-sm font-medium transition-colors hover:text-primary"
-          >
-            Tokens
-          </Link>
         </div>
         {session?.user && <UserMenu user={session.user} />}
       </div>

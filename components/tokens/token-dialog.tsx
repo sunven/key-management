@@ -40,9 +40,10 @@ interface TokenDialogProps {
   token?: TokenWithProvider;
   trigger: React.ReactNode;
   onSuccess: () => void;
+  preSelectedProviderId?: number;
 }
 
-export function TokenDialog({ token, trigger, onSuccess }: TokenDialogProps) {
+export function TokenDialog({ token, trigger, onSuccess, preSelectedProviderId }: TokenDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -63,7 +64,7 @@ export function TokenDialog({ token, trigger, onSuccess }: TokenDialogProps) {
           token: token.token,
         }
       : {
-          providerId: '',
+          providerId: preSelectedProviderId?.toString() || '',
           token: '',
         },
   });
@@ -82,10 +83,16 @@ export function TokenDialog({ token, trigger, onSuccess }: TokenDialogProps) {
       }
     };
 
-    if (open) {
+    if (open && !preSelectedProviderId) {
       fetchProviders();
     }
-  }, [open]);
+  }, [open, preSelectedProviderId]);
+
+  useEffect(() => {
+    if (preSelectedProviderId && open) {
+      setValue('providerId', preSelectedProviderId.toString());
+    }
+  }, [preSelectedProviderId, open, setValue]);
 
   const onSubmit = async (data: TokenFormData) => {
     setLoading(true);
@@ -131,27 +138,29 @@ export function TokenDialog({ token, trigger, onSuccess }: TokenDialogProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="providerId">Provider</Label>
-              <Select
-                value={selectedProviderId}
-                onValueChange={(value) => setValue('providerId', value)}
-              >
-                <SelectTrigger id="providerId">
-                  <SelectValue placeholder="Select a provider" />
-                </SelectTrigger>
-                <SelectContent>
-                  {providers.map((provider) => (
-                    <SelectItem key={provider.id} value={provider.id.toString()}>
-                      {provider.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.providerId && (
-                <p className="text-sm text-destructive">{errors.providerId.message}</p>
-              )}
-            </div>
+            {!preSelectedProviderId && (
+              <div className="grid gap-2">
+                <Label htmlFor="providerId">Provider</Label>
+                <Select
+                  value={selectedProviderId}
+                  onValueChange={(value) => setValue('providerId', value)}
+                >
+                  <SelectTrigger id="providerId">
+                    <SelectValue placeholder="Select a provider" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {providers.map((provider) => (
+                      <SelectItem key={provider.id} value={provider.id.toString()}>
+                        {provider.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.providerId && (
+                  <p className="text-sm text-destructive">{errors.providerId.message}</p>
+                )}
+              </div>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="token">Token</Label>
               <Input

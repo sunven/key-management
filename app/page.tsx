@@ -131,13 +131,7 @@ export default async function Home() {
             <Link href="/providers" className="block">
               <Button variant="outline" className="w-full justify-start">
                 <Database className="mr-2 h-4 w-4" />
-                Manage Providers
-              </Button>
-            </Link>
-            <Link href="/tokens" className="block">
-              <Button variant="outline" className="w-full justify-start">
-                <Key className="mr-2 h-4 w-4" />
-                Manage Tokens
+                Manage Providers & Tokens
               </Button>
             </Link>
           </CardContent>

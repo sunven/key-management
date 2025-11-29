@@ -1,9 +1,9 @@
-import { ProviderList } from '@/components/providers/provider-list';
+import { ProviderTokenList } from '@/components/providers/provider-token-list';
 
 export default function ProvidersPage() {
   return (
     <div className="container mx-auto p-8">
-      <ProviderList />
+      <ProviderTokenList />
     </div>
   );
 }
