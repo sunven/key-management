@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import type { Provider } from '@prisma/client';
@@ -124,7 +125,7 @@ export function ProviderDialog({ provider, trigger, onSuccess }: ProviderDialogP
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">Description (Optional)</Label>
-              <Input
+              <Textarea
                 id="description"
                 placeholder="API provider for AI services"
                 {...register('description')}

@@ -20,7 +20,12 @@
       "Bash(node --version:*)",
       "Bash(pnpm install:*)",
       "Bash(pnpm db:generate)",
-      "Bash(pnpm db:migrate:*)"
+      "Bash(pnpm db:migrate:*)",
+      "Bash(find:*)",
+      "Bash(pnpm db:push:*)",
+      "Bash(pnpm db:studio:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)"
     ]
   },
   "enableAllProjectMcpServers": true,

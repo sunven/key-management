@@ -282,6 +282,7 @@ export function ProviderTokenList() {
                                 <TableHeader>
                                   <TableRow>
                                     <TableHead>Token</TableHead>
+                                    <TableHead>Description</TableHead>
                                     <TableHead>Created At</TableHead>
                                     <TableHead>Updated At</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
@@ -320,6 +321,9 @@ export function ProviderTokenList() {
                                             )}
                                           </Button>
                                         </div>
+                                      </TableCell>
+                                      <TableCell className="text-muted-foreground">
+                                        {token.description || '-'}
                                       </TableCell>
                                       <TableCell className="text-muted-foreground text-sm">
                                         {formatDateTime(token.createdAt)}

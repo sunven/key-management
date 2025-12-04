@@ -22,12 +22,14 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import type { Token, Provider } from '@prisma/client';
 
 const tokenSchema = z.object({
   providerId: z.string().min(1, 'Provider is required'),
   token: z.string().min(1, 'Token is required'),
+  description: z.string().optional(),
 });
 
 type TokenFormData = z.infer<typeof tokenSchema>;
@@ -62,10 +64,12 @@ export function TokenDialog({ token, trigger, onSuccess, preSelectedProviderId }
       ? {
           providerId: token.providerId.toString(),
           token: token.token,
+          description: token.description || '',
         }
       : {
           providerId: preSelectedProviderId?.toString() || '',
           token: '',
+          description: '',
         },
   });
 
@@ -104,8 +108,9 @@ export function TokenDialog({ token, trigger, onSuccess, preSelectedProviderId }
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...data,
           providerId: parseInt(data.providerId),
+          token: data.token,
+          description: data.description,
         }),
       });
 
@@ -171,6 +176,17 @@ export function TokenDialog({ token, trigger, onSuccess, preSelectedProviderId }
               />
               {errors.token && (
                 <p className="text-sm text-destructive">{errors.token.message}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description (Optional)</Label>
+              <Textarea
+                id="description"
+                placeholder="Add a description for this token..."
+                {...register('description')}
+              />
+              {errors.description && (
+                <p className="text-sm text-destructive">{errors.description.message}</p>
               )}
             </div>
           </div>

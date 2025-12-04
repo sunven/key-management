@@ -41,12 +41,13 @@ model Provider {
 
 // Tokens table
 model Token {
-  id         Int      @id @default(autoincrement())
-  providerId Int      @map("provider_id")
-  token      String
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
-  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  id          Int      @id @default(autoincrement())
+  providerId  Int      @map("provider_id")
+  token       String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
   @@map("tokens")
 }

@@ -6,6 +6,7 @@ import { z } from 'zod';
 const tokenSchema = z.object({
   token: z.string().min(1, 'Token is required').optional(),
   providerId: z.number().int().positive().optional(),
+  description: z.string().optional(),
 });
 
 // GET a specific token
@@ -91,10 +92,18 @@ export async function PUT(
       }
     }
 
+    // Separate providerId from other fields
+    const { providerId, ...updateData } = validatedData;
+
     const updatedToken = await prisma.token.update({
       where: { id: parseInt(id) },
       data: {
-        ...validatedData,
+        ...updateData,
+        ...(providerId && {
+          provider: {
+            connect: { id: providerId },
+          },
+        }),
         updatedAt: new Date(),
       },
     });
