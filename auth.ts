@@ -1,8 +1,6 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
-import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { prisma } from '@/lib/db/prisma';
 
 const config = {
   providers: [
@@ -14,35 +12,31 @@ const config = {
   callbacks: {
     async signIn({ user, account }: any) {
       if (account?.provider === 'google' && user.email) {
-        // Check if user exists
-        const existingUsers = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, user.email))
-          .limit(1);
-
-        // If user doesn't exist, create them
-        if (existingUsers.length === 0) {
-          await db.insert(users).values({
+        // Upsert user: create if doesn't exist, update if exists
+        await prisma.user.upsert({
+          where: { email: user.email },
+          create: {
             email: user.email,
             name: user.name || null,
             image: user.image || null,
-          });
-        }
+          },
+          update: {
+            name: user.name || null,
+            image: user.image || null,
+          },
+        });
       }
       return true;
     },
     async jwt({ token, account }: any) {
       // On sign in or if ID is missing, fetch user ID from database and store in token
       if (token.email && (!token.id || account?.provider === 'google')) {
-        const dbUsers = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, token.email))
-          .limit(1);
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+        });
 
-        if (dbUsers.length > 0) {
-          token.id = dbUsers[0].id.toString();
+        if (dbUser) {
+          token.id = dbUser.id.toString();
         }
       }
       return token;

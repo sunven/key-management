@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { db } from '@/lib/db';
-import { providers } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 const providerSchema = z.object({
@@ -21,11 +19,15 @@ export async function GET() {
   }
 
   try {
-    const userProviders = await db.query.providers.findMany({
-      where: eq(providers.userId, parseInt(session.user.id)),
-      orderBy: (providers, { desc }) => [desc(providers.createdAt)],
-      with: {
+    const userProviders = await prisma.provider.findMany({
+      where: {
+        userId: parseInt(session.user.id),
+      },
+      include: {
         tokens: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 
@@ -48,13 +50,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = providerSchema.parse(body);
 
-    const [newProvider] = await db
-      .insert(providers)
-      .values({
+    const newProvider = await prisma.provider.create({
+      data: {
         ...validatedData,
         userId: parseInt(session.user.id),
-      })
-      .returning();
+      },
+    });
 
     return NextResponse.json(newProvider, { status: 201 });
   } catch (error) {

@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ProviderDialog } from './provider-dialog';
-import type { Provider, Token } from '@/lib/db/schema';
+import type { Provider, Token } from '@prisma/client';
 
 interface ProviderWithTokenCount extends Provider {
   tokens: Token[];

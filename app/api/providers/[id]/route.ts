@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { db } from '@/lib/db';
-import { providers } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 const providerSchema = z.object({
@@ -25,12 +23,12 @@ export async function GET(
   }
 
   try {
-    const provider = await db.query.providers.findFirst({
-      where: and(
-        eq(providers.id, parseInt(id)),
-        eq(providers.userId, parseInt(session.user.id))
-      ),
-      with: {
+    const provider = await prisma.provider.findFirst({
+      where: {
+        id: parseInt(id),
+        userId: parseInt(session.user.id),
+      },
+      include: {
         tokens: true,
       },
     });
@@ -62,28 +60,28 @@ export async function PUT(
     const body = await request.json();
     const validatedData = providerSchema.parse(body);
 
-    // Verify ownership
-    const existing = await db.query.providers.findFirst({
-      where: and(
-        eq(providers.id, parseInt(id)),
-        eq(providers.userId, parseInt(session.user.id))
-      ),
+    // Verify ownership and update in one operation
+    const updatedProvider = await prisma.provider.updateMany({
+      where: {
+        id: parseInt(id),
+        userId: parseInt(session.user.id),
+      },
+      data: {
+        ...validatedData,
+        updatedAt: new Date(),
+      },
     });
 
-    if (!existing) {
+    if (updatedProvider.count === 0) {
       return NextResponse.json({ error: 'Provider not found' }, { status: 404 });
     }
 
-    const [updatedProvider] = await db
-      .update(providers)
-      .set({
-        ...validatedData,
-        updatedAt: new Date(),
-      })
-      .where(eq(providers.id, parseInt(id)))
-      .returning();
+    // Fetch and return the updated provider
+    const provider = await prisma.provider.findUnique({
+      where: { id: parseInt(id) },
+    });
 
-    return NextResponse.json(updatedProvider);
+    return NextResponse.json(provider);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
@@ -106,19 +104,17 @@ export async function DELETE(
   }
 
   try {
-    // Verify ownership
-    const existing = await db.query.providers.findFirst({
-      where: and(
-        eq(providers.id, parseInt(id)),
-        eq(providers.userId, parseInt(session.user.id))
-      ),
+    // Delete with ownership check in one operation
+    const deletedProvider = await prisma.provider.deleteMany({
+      where: {
+        id: parseInt(id),
+        userId: parseInt(session.user.id),
+      },
     });
 
-    if (!existing) {
+    if (deletedProvider.count === 0) {
       return NextResponse.json({ error: 'Provider not found' }, { status: 404 });
     }
-
-    await db.delete(providers).where(eq(providers.id, parseInt(id)));
 
     return NextResponse.json({ success: true });
   } catch (error) {

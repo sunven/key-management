@@ -9,7 +9,7 @@ A modern, secure key management application built with Next.js 16, React 19, and
 - **Provider Management**: CRUD operations for API providers
 - **Token Management**: Secure storage with masked display (click to reveal)
 - **Modern UI**: Built with shadcn/ui components and Tailwind CSS v4
-- **Database**: Supabase PostgreSQL with Drizzle ORM
+- **Database**: Supabase PostgreSQL with Prisma ORM
 - **Type-safe**: Full TypeScript support with strict mode
 
 ## Tech Stack
@@ -17,7 +17,7 @@ A modern, secure key management application built with Next.js 16, React 19, and
 - **Framework**: Next.js 16 (App Router)
 - **React**: Version 19.2.0
 - **Database**: Supabase PostgreSQL
-- **ORM**: Drizzle ORM
+- **ORM**: Prisma ORM
 - **Authentication**: NextAuth.js v5
 - **UI Components**: shadcn/ui
 - **Styling**: Tailwind CSS v4
@@ -90,7 +90,7 @@ openssl rand -base64 32
 Generate and push the database schema to Supabase:
 
 \`\`\`bash
-# Generate migrations
+# Generate Prisma Client
 pnpm db:generate
 
 # Push to Supabase
@@ -112,9 +112,10 @@ pnpm dev          # Start development server
 pnpm build        # Build for production
 pnpm start        # Start production server
 pnpm lint         # Run ESLint
-pnpm db:generate  # Generate Drizzle migrations
+pnpm db:generate  # Generate Prisma Client
 pnpm db:push      # Push schema to database
-pnpm db:studio    # Open Drizzle Studio (database GUI)
+pnpm db:migrate   # Create and apply migrations
+pnpm db:studio    # Open Prisma Studio (database GUI)
 \`\`\`
 
 ## Database Schema
@@ -163,12 +164,12 @@ key-management/
 │   └── ui/                 # shadcn/ui components
 ├── lib/                    # Utilities
 │   ├── db/                 # Database
-│   │   ├── schema.ts       # Drizzle schema
-│   │   └── index.ts        # Database client
+│   │   └── prisma.ts       # Prisma client
 │   └── utils.ts            # Utility functions
+├── prisma/
+│   └── schema.prisma       # Prisma schema
 ├── auth.ts                 # NextAuth configuration
-├── middleware.ts           # Auth middleware
-└── drizzle.config.ts       # Drizzle configuration
+└── middleware.ts           # Auth middleware
 \`\`\`
 
 ## Features in Detail

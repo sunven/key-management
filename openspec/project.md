@@ -23,7 +23,7 @@
 **后端：**
 - **Next.js API Routes** - RESTful API 端点
 - **NextAuth.js v5** - Google OAuth 身份验证
-- **Drizzle ORM** - 类型安全的数据库查询，支持关系查询
+- **Prisma ORM** - 类型安全的数据库查询，支持关系查询
 - **Supabase PostgreSQL** - 托管数据库（事务模式）
 
 **开发工具：**
@@ -53,14 +53,14 @@
 - API 路由：`app/api/*/route.ts`
 - UI 组件：`components/ui/*`（shadcn - 不要直接编辑）
 - 功能组件：`components/{feature}/*`（providers、tokens）
-- 数据库：`lib/db/schema.ts`（单一真实来源）
+- 数据库：`prisma/schema.prisma`（单一真实来源）
 - 认证：`auth.ts`（NextAuth 配置）
 
 **代码质量规则：**
-- 除非绝对必要，否则不使用 `any` 类型
+- 除非绝对必要,否则不使用 `any` 类型
 - 在异步操作中始终使用 try/catch 处理错误
 - 永远不要将敏感数据（令牌、密码）记录到控制台
-- 对所有 INSERT/UPDATE 操作使用 `.returning()`
+- 对所有 INSERT/UPDATE 操作包含返回数据
 - 在 API 路由中始终使用 Zod schema 验证输入
 
 ### Architecture Patterns
@@ -72,7 +72,7 @@
 - 表单/对话框：客户端组件（使用 React Hook Form）
 
 **数据获取：**
-- 服务器组件：直接 Drizzle 查询
+- 服务器组件：直接 Prisma 查询
 - 客户端组件：通过 `fetch()` 从 API 路由获取
 - 不使用共享数据获取库（无 React Query、SWR）
 - 刷新模式：回调（`onSuccess`）到父组件
@@ -92,7 +92,7 @@ tokens（提供商所有）
 - 在所有查询中按 `userId` 过滤（用户隔离）
 - 验证 GET/UPDATE/DELETE 操作的所有权
 - 对未找到或未授权返回 404（不泄露资源存在性）
-- 使用 `and(eq(table.id, id), eq(table.userId, userId))` 进行所有权检查
+- 使用 `where: { id, userId }` 进行所有权检查
 
 **认证流程：**
 1. 通过 NextAuth.js 使用 Google OAuth
@@ -160,7 +160,7 @@ tokens（提供商所有）
 - 中间件处理重定向到登录页面
 
 **数据库：**
-- 始终先修改 `lib/db/schema.ts`，然后生成迁移
+- 始终先修改 `prisma/schema.prisma`，然后生成迁移
 - 开发使用 `pnpm db:push`，生产使用迁移
 - 永远不要直接编辑数据库 schema
 - 外键约束强制引用完整性
@@ -171,7 +171,7 @@ tokens（提供商所有）
 - React 19 自动 JSX 转换（无需导入 React）
 
 **性能：**
-- 使用关系查询获取连接数据（`with: { tokens: true }`）
+- 使用关系查询获取连接数据（`include: { tokens: true }`）
 - 最小化客户端 JavaScript（优先使用服务器组件）
 - 当前无缓存策略（直接数据库查询）
 
@@ -179,9 +179,9 @@ tokens（提供商所有）
 
 **Supabase (PostgreSQL)：**
 - 托管数据库服务
-- 通过 `postgres.js` 驱动连接（事务模式）
+- 通过 Prisma Client 连接（事务模式）
 - 环境变量：`DATABASE_URL`、`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- 通过 Drizzle ORM 进行直接 PostgreSQL 查询
+- 通过 Prisma ORM 进行直接 PostgreSQL 查询
 
 **Google OAuth：**
 - 通过 NextAuth.js 的身份验证提供商

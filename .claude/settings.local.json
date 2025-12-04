@@ -10,7 +10,11 @@
       "Bash(pnpm info:*)",
       "Bash(pnpm why:*)",
       "Bash(pnpm remove:*)",
-      "Bash(pnpm openspec:*)"
+      "Bash(pnpm openspec:*)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm prisma generate:*)",
+      "Bash(pnpm prisma migrate:*)",
+      "Bash(pnpm prisma db push:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

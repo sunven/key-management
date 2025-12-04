@@ -1,7 +1,5 @@
 import { auth } from '@/auth';
-import { db } from '@/lib/db';
-import { providers } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { prisma } from '@/lib/db/prisma';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database, Key, Activity, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
@@ -17,9 +15,11 @@ export default async function Home() {
   // Fetch stats
   const userId = parseInt(session.user.id);
 
-  const userProviders = await db.query.providers.findMany({
-    where: eq(providers.userId, userId),
-    with: {
+  const userProviders = await prisma.provider.findMany({
+    where: {
+      userId,
+    },
+    include: {
       tokens: true,
     },
   });

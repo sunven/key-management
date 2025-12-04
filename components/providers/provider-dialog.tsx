@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import type { Provider } from '@/lib/db/schema';
+import type { Provider } from '@prisma/client';
 
 const providerSchema = z.object({
   baseUrl: z.string().url('Please enter a valid URL'),

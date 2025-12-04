@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { db } from '@/lib/db';
-import { tokens, providers } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 const tokenSchema = z.object({
@@ -23,14 +21,19 @@ export async function GET(
   }
 
   try {
-    const token = await db.query.tokens.findFirst({
-      where: eq(tokens.id, parseInt(id)),
-      with: {
+    const token = await prisma.token.findFirst({
+      where: {
+        id: parseInt(id),
+        provider: {
+          userId: parseInt(session.user.id),
+        },
+      },
+      include: {
         provider: true,
       },
     });
 
-    if (!token || token.provider.userId !== parseInt(session.user.id)) {
+    if (!token) {
       return NextResponse.json({ error: 'Token not found' }, { status: 404 });
     }
 
@@ -58,24 +61,29 @@ export async function PUT(
     const validatedData = tokenSchema.parse(body);
 
     // Verify ownership
-    const existing = await db.query.tokens.findFirst({
-      where: eq(tokens.id, parseInt(id)),
-      with: {
+    const existing = await prisma.token.findFirst({
+      where: {
+        id: parseInt(id),
+        provider: {
+          userId: parseInt(session.user.id),
+        },
+      },
+      include: {
         provider: true,
       },
     });
 
-    if (!existing || existing.provider.userId !== parseInt(session.user.id)) {
+    if (!existing) {
       return NextResponse.json({ error: 'Token not found' }, { status: 404 });
     }
 
     // If updating providerId, verify the new provider belongs to the user
     if (validatedData.providerId) {
-      const provider = await db.query.providers.findFirst({
-        where: and(
-          eq(providers.id, validatedData.providerId),
-          eq(providers.userId, parseInt(session.user.id))
-        ),
+      const provider = await prisma.provider.findFirst({
+        where: {
+          id: validatedData.providerId,
+          userId: parseInt(session.user.id),
+        },
       });
 
       if (!provider) {
@@ -83,14 +91,13 @@ export async function PUT(
       }
     }
 
-    const [updatedToken] = await db
-      .update(tokens)
-      .set({
+    const updatedToken = await prisma.token.update({
+      where: { id: parseInt(id) },
+      data: {
         ...validatedData,
         updatedAt: new Date(),
-      })
-      .where(eq(tokens.id, parseInt(id)))
-      .returning();
+      },
+    });
 
     return NextResponse.json(updatedToken);
   } catch (error) {
@@ -115,19 +122,19 @@ export async function DELETE(
   }
 
   try {
-    // Verify ownership
-    const existing = await db.query.tokens.findFirst({
-      where: eq(tokens.id, parseInt(id)),
-      with: {
-        provider: true,
+    // Delete with ownership check in one operation
+    const deletedToken = await prisma.token.deleteMany({
+      where: {
+        id: parseInt(id),
+        provider: {
+          userId: parseInt(session.user.id),
+        },
       },
     });
 
-    if (!existing || existing.provider.userId !== parseInt(session.user.id)) {
+    if (deletedToken.count === 0) {
       return NextResponse.json({ error: 'Token not found' }, { status: 404 });
     }
-
-    await db.delete(tokens).where(eq(tokens.id, parseInt(id)));
 
     return NextResponse.json({ success: true });
   } catch (error) {

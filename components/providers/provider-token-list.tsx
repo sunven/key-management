@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ProviderDialog } from './provider-dialog';
 import { TokenDialog } from '@/components/tokens/token-dialog';
-import type { Provider, Token } from '@/lib/db/schema';
+import type { Provider, Token } from '@prisma/client';
 
 interface ProviderWithTokens extends Provider {
   tokens: Token[];

@@ -23,7 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **multi-user key management application** for securely storing and managing API provider credentials and tokens. Built with Next.js 16 (App Router), React 19, TypeScript, Supabase (PostgreSQL), Drizzle ORM, NextAuth.js v5, and shadcn/ui components.
+This is a **multi-user key management application** for securely storing and managing API provider credentials and tokens. Built with Next.js 16 (App Router), React 19, TypeScript, Supabase (PostgreSQL), Prisma ORM, NextAuth.js v5, and shadcn/ui components.
 
 **Core Features:**
 - Google OAuth authentication with multi-user isolation
@@ -43,9 +43,10 @@ pnpm lint         # Run ESLint
 
 ### Database Operations
 ```bash
-pnpm db:generate  # Generate Drizzle migrations from schema
+pnpm db:generate  # Generate Prisma Client from schema
+pnpm db:migrate   # Create and apply migrations
 pnpm db:push      # Push schema changes to Supabase (no migrations)
-pnpm db:studio    # Open Drizzle Studio (visual database browser)
+pnpm db:studio    # Open Prisma Studio (visual database browser)
 ```
 
 **Important:** This project uses `pnpm` as the package manager (pnpm-lock.yaml present).
@@ -56,7 +57,7 @@ pnpm db:studio    # Open Drizzle Studio (visual database browser)
 - **Framework**: Next.js 16 (App Router, React Server Components)
 - **React**: 19.2.0 with automatic JSX transform
 - **Database**: Supabase PostgreSQL (hosted)
-- **ORM**: Drizzle ORM with relational queries
+- **ORM**: Prisma ORM with relational queries
 - **Authentication**: NextAuth.js v5 with Google OAuth
 - **UI**: shadcn/ui (New York style) with Tailwind CSS v4
 - **Validation**: Zod schemas
@@ -75,11 +76,11 @@ providers (user_id FK with CASCADE delete)
 tokens (provider_id FK with CASCADE delete)
 ```
 
-**Key schema details** (`lib/db/schema.ts`):
+**Key schema details** (`prisma/schema.prisma`):
 - `users`: Auto-synced during Google OAuth sign-in (see `auth.ts` callbacks)
 - `providers`: Each provider belongs to one user; deleting a user cascades to providers
 - `tokens`: Each token belongs to one provider; deleting a provider cascades to tokens
-- All tables use Drizzle relations for type-safe joins (`with: { tokens: true }`)
+- All tables use Prisma relations for type-safe joins (`include: { tokens: true }`)
 
 **User isolation enforcement:**
 - Database level: Foreign key `userId` on providers table
@@ -124,12 +125,12 @@ export async function GET() {
 All API routes follow a **consistent pattern** for user isolation:
 
 **List/Create pattern** (`/api/providers/route.ts`, `/api/tokens/route.ts`):
-- `GET`: Query with `where: eq(table.userId, userId)` or filter results by ownership
+- `GET`: Query with `where: { userId }` or filter results by ownership
 - `POST`: Validate with Zod, insert with `userId` from session
 - Always check session before database operations
 
 **Get/Update/Delete pattern** (`/api/providers/[id]/route.ts`, `/api/tokens/[id]/route.ts`):
-- Verify ownership with `and(eq(table.id, id), eq(table.userId, userId))`
+- Verify ownership with `where: { id, userId }`
 - Return 404 if not found OR not owned by user (don't leak existence)
 - Use `params` as `Promise<{ id: string }>` (Next.js 16 requirement)
 
@@ -148,7 +149,7 @@ All API routes follow a **consistent pattern** for user isolation:
 - User Menu (`components/layout/user-menu.tsx`): Client Component (uses `signOut` from `next-auth/react`)
 
 **Data fetching pattern:**
-- Server Components: Direct database queries via Drizzle
+- Server Components: Direct database queries via Prisma
 - Client Components: Fetch from API routes using `fetch()`
 - No shared data fetching library (no React Query, SWR, etc.)
 
@@ -165,9 +166,8 @@ All API routes follow a **consistent pattern** for user isolation:
 - `types/next-auth.d.ts`: TypeScript augmentation for session.user.id
 
 **Database:**
-- `lib/db/schema.ts`: Drizzle schema with relations (users, providers, tokens)
-- `lib/db/index.ts`: Database client (Supabase connection via postgres.js)
-- `drizzle.config.ts`: Drizzle Kit configuration for migrations
+- `prisma/schema.prisma`: Prisma schema with relations (users, providers, tokens)
+- `lib/db/prisma.ts`: Prisma Client instance (database connection)
 
 **API Routes:**
 - `app/api/auth/[...nextauth]/route.ts`: NextAuth.js handlers export
@@ -221,24 +221,27 @@ Required environment variables (see `.env.example`):
 
 **Adding a new entity (e.g., "Projects"):**
 
-1. **Schema** (`lib/db/schema.ts`):
-   ```typescript
-   export const projects = pgTable('projects', {
-     id: serial('id').primaryKey(),
-     userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+1. **Schema** (`prisma/schema.prisma`):
+   ```prisma
+   model Project {
+     id        Int      @id @default(autoincrement())
+     userId    Int
+     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
      // ... other fields
-   });
+     createdAt DateTime @default(now())
+     updatedAt DateTime @updatedAt
+   }
    ```
 
 2. **Run migration**:
    ```bash
-   pnpm db:generate  # Creates migration
-   pnpm db:push      # Applies to database
+   pnpm db:generate  # Generate Prisma Client
+   pnpm db:migrate   # Create and apply migration
    ```
 
 3. **API routes** (`app/api/projects/route.ts`):
    - Follow existing provider/token route patterns
-   - Enforce user isolation with `eq(projects.userId, userId)`
+   - Enforce user isolation with `where: { userId }`
 
 4. **Components** (`components/projects/`):
    - Create `project-list.tsx` and `project-dialog.tsx`
@@ -262,13 +265,14 @@ All forms use **React Hook Form + Zod**:
 
 ### Database Queries
 
-**Drizzle ORM patterns used:**
-- Relational queries: `db.query.providers.findMany({ with: { tokens: true } })`
-- Filtering: `where: eq(table.field, value)` or `and(condition1, condition2)`
-- Mutations: `db.insert(table).values({}).returning()`
-- Updates: `db.update(table).set({}).where().returning()`
+**Prisma ORM patterns used:**
+- Relational queries: `prisma.provider.findMany({ include: { tokens: true } })`
+- Filtering: `where: { field: value }` or `where: { field1: value1, field2: value2 }`
+- Mutations: `prisma.table.create({ data: {...} })`
+- Updates: `prisma.table.update({ where: { id }, data: {...} })`
+- Deletes: `prisma.table.delete({ where: { id } })`
 
-**Always use `.returning()` for INSERT/UPDATE to get the modified row.**
+**Prisma automatically returns the created/updated row without needing `.returning()`**
 
 ### Next.js 16 Specifics
 
@@ -291,10 +295,10 @@ pnpm dlx shadcn@latest add [component-name]
 4. Inspect session with `console.log(await auth())` in API route
 
 **Database schema changes:**
-1. Modify `lib/db/schema.ts`
-2. Run `pnpm db:generate` to create migration
-3. Run `pnpm db:push` to apply (or use migrations for production)
-4. Never edit database directly; always change schema.ts first
+1. Modify `prisma/schema.prisma`
+2. Run `pnpm db:generate` to generate Prisma Client
+3. Run `pnpm db:migrate` to create and apply migration (or `pnpm db:push` for prototyping)
+4. Never edit database directly; always change schema.prisma first
 
 ## Setup Requirements
 
@@ -303,7 +307,7 @@ Before running the application, developers must:
 1. Create Supabase project and get connection string
 2. Set up Google OAuth credentials (see README.md)
 3. Configure `.env.local` with all required variables
-4. Run `pnpm db:push` to create database tables
+4. Run `pnpm db:push` or `pnpm db:migrate` to create database tables
 5. Ensure Google OAuth redirect URI is `http://localhost:3100/api/auth/callback/google`
 
 If authentication fails, users will be stuck in redirect loop - check environment variables first.
