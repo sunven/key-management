@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronRight, Eye, EyeOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronDown, ChevronRight, Eye, EyeOff, Copy, Check } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -13,11 +13,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { ProviderDialog } from './provider-dialog';
 import { TokenDialog } from '@/components/tokens/token-dialog';
 import type { Provider, Token } from '@prisma/client';
@@ -26,11 +30,18 @@ interface ProviderWithTokens extends Provider {
   tokens: Token[];
 }
 
+type DeleteTarget =
+  | { type: 'provider'; provider: ProviderWithTokens }
+  | { type: 'token'; tokenId: number }
+  | null;
+
 export function ProviderTokenList() {
   const [providers, setProviders] = useState<ProviderWithTokens[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedProviders, setExpandedProviders] = useState<Set<number>>(new Set());
   const [visibleTokens, setVisibleTokens] = useState<Set<number>>(new Set());
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
+  const [copiedTokenId, setCopiedTokenId] = useState<number | null>(null);
 
   const fetchProviders = async () => {
     try {
@@ -73,6 +84,29 @@ export function ProviderTokenList() {
     });
   };
 
+  const copyToken = async (token: string, tokenId: number) => {
+    try {
+      await navigator.clipboard.writeText(token);
+      setCopiedTokenId(tokenId);
+      setTimeout(() => setCopiedTokenId(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy token:', error);
+      alert('Failed to copy token to clipboard');
+    }
+  };
+
+  const formatDateTime = (date: Date | string) => {
+    return new Date(date).toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+  };
+
   const maskToken = (token: string) => {
     if (token.length <= 8) {
       return '***';
@@ -82,46 +116,36 @@ export function ProviderTokenList() {
 
   const handleDeleteProvider = async (id: number) => {
     const provider = providers.find(p => p.id === id);
-    const tokenCount = provider?.tokens?.length || 0;
-
-    const message = tokenCount > 0
-      ? `Are you sure you want to delete this provider? All ${tokenCount} associated token(s) will be deleted.`
-      : 'Are you sure you want to delete this provider?';
-
-    if (!confirm(message)) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/providers/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) throw new Error('Failed to delete provider');
-
-      fetchProviders();
-    } catch (error) {
-      console.error('Error deleting provider:', error);
-      alert('Failed to delete provider. Please try again.');
-    }
+    if (!provider) return;
+    setDeleteTarget({ type: 'provider', provider });
   };
 
   const handleDeleteToken = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this token?')) {
-      return;
-    }
+    setDeleteTarget({ type: 'token', tokenId: id });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
 
     try {
-      const response = await fetch(`/api/tokens/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) throw new Error('Failed to delete token');
+      if (deleteTarget.type === 'provider') {
+        const response = await fetch(`/api/providers/${deleteTarget.provider.id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Failed to delete provider');
+      } else {
+        const response = await fetch(`/api/tokens/${deleteTarget.tokenId}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Failed to delete token');
+      }
 
       fetchProviders();
     } catch (error) {
-      console.error('Error deleting token:', error);
-      alert('Failed to delete token. Please try again.');
+      console.error('Error deleting:', error);
+      alert(`Failed to delete ${deleteTarget.type}. Please try again.`);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -130,22 +154,23 @@ export function ProviderTokenList() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Providers & Tokens</h2>
-          <p className="text-muted-foreground">Manage your API providers and tokens</p>
+    <>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Providers & Tokens</h2>
+            <p className="text-muted-foreground">Manage your API providers and tokens</p>
+          </div>
+          <ProviderDialog
+            trigger={
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Provider
+              </Button>
+            }
+            onSuccess={fetchProviders}
+          />
         </div>
-        <ProviderDialog
-          trigger={
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Provider
-            </Button>
-          }
-          onSuccess={fetchProviders}
-        />
-      </div>
 
       {providers.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
@@ -171,7 +196,9 @@ export function ProviderTokenList() {
                 <TableHead>Description</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Tokens</TableHead>
-                <TableHead className="w-[70px]"></TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead>Updated At</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -203,39 +230,37 @@ export function ProviderTokenList() {
                       </Badge>
                     </TableCell>
                     <TableCell>{provider.tokens?.length || 0}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {formatDateTime(provider.createdAt)}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {formatDateTime(provider.updatedAt)}
+                    </TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <ProviderDialog
-                            provider={provider}
-                            trigger={
-                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                              </DropdownMenuItem>
-                            }
-                            onSuccess={fetchProviders}
-                          />
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => handleDeleteProvider(provider.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex justify-end gap-2">
+                        <ProviderDialog
+                          provider={provider}
+                          trigger={
+                            <Button variant="ghost" size="icon">
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          }
+                          onSuccess={fetchProviders}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteProvider(provider.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
 
                   {expandedProviders.has(provider.id) && (
                     <TableRow>
-                      <TableCell colSpan={7} className="bg-muted/50">
+                      <TableCell colSpan={9} className="bg-muted/50">
                         <div className="p-4 space-y-4">
                           <div className="flex justify-between items-center">
                             <h3 className="text-sm font-semibold">Tokens for {provider.name}</h3>
@@ -257,9 +282,9 @@ export function ProviderTokenList() {
                                 <TableHeader>
                                   <TableRow>
                                     <TableHead>Token</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead className="w-[70px]"></TableHead>
+                                    <TableHead>Created At</TableHead>
+                                    <TableHead>Updated At</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -282,43 +307,45 @@ export function ProviderTokenList() {
                                               <Eye className="h-3 w-3" />
                                             )}
                                           </Button>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6"
+                                            onClick={() => copyToken(token.token, token.id)}
+                                          >
+                                            {copiedTokenId === token.id ? (
+                                              <Check className="h-3 w-3 text-green-600" />
+                                            ) : (
+                                              <Copy className="h-3 w-3" />
+                                            )}
+                                          </Button>
                                         </div>
                                       </TableCell>
-                                      <TableCell>
-                                        <Badge variant={provider.active ? 'default' : 'secondary'}>
-                                          {provider.active ? 'Active' : 'Inactive'}
-                                        </Badge>
+                                      <TableCell className="text-muted-foreground text-sm">
+                                        {formatDateTime(token.createdAt)}
                                       </TableCell>
-                                      <TableCell className="text-muted-foreground">
-                                        {new Date(token.createdAt).toLocaleDateString()}
+                                      <TableCell className="text-muted-foreground text-sm">
+                                        {formatDateTime(token.updatedAt)}
                                       </TableCell>
                                       <TableCell>
-                                        <DropdownMenu>
-                                          <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                              <MoreHorizontal className="h-4 w-4" />
-                                            </Button>
-                                          </DropdownMenuTrigger>
-                                          <DropdownMenuContent align="end">
-                                            <TokenDialog
-                                              token={{ ...token, provider }}
-                                              trigger={
-                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                                  <Pencil className="mr-2 h-4 w-4" />
-                                                  Edit
-                                                </DropdownMenuItem>
-                                              }
-                                              onSuccess={fetchProviders}
-                                            />
-                                            <DropdownMenuItem
-                                              className="text-destructive"
-                                              onClick={() => handleDeleteToken(token.id)}
-                                            >
-                                              <Trash2 className="mr-2 h-4 w-4" />
-                                              Delete
-                                            </DropdownMenuItem>
-                                          </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        <div className="flex justify-end gap-2">
+                                          <TokenDialog
+                                            token={{ ...token, provider }}
+                                            trigger={
+                                              <Button variant="ghost" size="icon">
+                                                <Pencil className="h-4 w-4" />
+                                              </Button>
+                                            }
+                                            onSuccess={fetchProviders}
+                                          />
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleDeleteToken(token.id)}
+                                          >
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                          </Button>
+                                        </div>
                                       </TableCell>
                                     </TableRow>
                                   ))}
@@ -350,6 +377,31 @@ export function ProviderTokenList() {
           </Table>
         </div>
       )}
-    </div>
+      </div>
+
+      {/* Unified Delete Dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {deleteTarget?.type === 'provider' ? 'Delete Provider' : 'Delete Token'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.type === 'provider'
+                ? (deleteTarget.provider.tokens.length > 0
+                    ? `Are you sure you want to delete "${deleteTarget.provider.name}"? All ${deleteTarget.provider.tokens.length} associated token(s) will be deleted. This action cannot be undone.`
+                    : `Are you sure you want to delete "${deleteTarget.provider.name}"? This action cannot be undone.`)
+                : 'Are you sure you want to delete this token? This action cannot be undone.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
