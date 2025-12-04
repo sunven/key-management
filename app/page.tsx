@@ -15,6 +15,7 @@ export default async function Home() {
   // Fetch stats
   const userId = parseInt(session.user.id);
 
+  console.time('provider:find')
   const userProviders = await prisma.provider.findMany({
     where: {
       userId,
@@ -23,6 +24,7 @@ export default async function Home() {
       tokens: true,
     },
   });
+  console.timeEnd('provider:find')
 
   const activeProviders = userProviders.filter((p) => p.active).length;
   const totalTokens = userProviders.reduce((sum, p) => sum + (p.tokens?.length || 0), 0);
