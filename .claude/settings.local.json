@@ -14,7 +14,13 @@
       "Bash(mkdir:*)",
       "Bash(pnpm prisma generate:*)",
       "Bash(pnpm prisma migrate:*)",
-      "Bash(pnpm prisma db push:*)"
+      "Bash(pnpm prisma db push:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:www.prisma.io)",
+      "Bash(node --version:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm db:generate)",
+      "Bash(pnpm db:migrate:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
