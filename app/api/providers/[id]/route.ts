@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db/prisma';
+import { providerUpdateSchema } from '@/lib/schemas';
 import { z } from 'zod';
-
-const providerSchema = z.object({
-  baseUrl: z.string().url('Invalid URL format').optional(),
-  name: z.string().min(1, 'Name is required').optional(),
-  description: z.string().optional(),
-  active: z.boolean().optional(),
-});
 
 // GET a specific provider
 export async function GET(
@@ -58,7 +52,7 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const validatedData = providerSchema.parse(body);
+    const validatedData = providerUpdateSchema.parse(body);
 
     // Verify ownership and update in one operation
     const updatedProvider = await prisma.provider.updateMany({

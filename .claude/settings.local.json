@@ -25,7 +25,8 @@
       "Bash(pnpm db:push:*)",
       "Bash(pnpm db:studio:*)",
       "Bash(lsof:*)",
-      "Bash(xargs kill -9)"
+      "Bash(xargs kill -9)",
+      "Bash(git log:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

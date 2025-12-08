@@ -2,6 +2,38 @@ import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
 import { prisma } from '@/lib/db/prisma';
 
+interface SignInParams {
+  user: {
+    email?: string | null;
+    name?: string | null;
+    image?: string | null;
+  };
+  account: {
+    provider: string;
+  } | null;
+}
+
+interface JWTParams {
+  token: {
+    email?: string | null;
+    id?: string;
+  };
+  account: {
+    provider: string;
+  } | null;
+}
+
+interface SessionParams {
+  session: {
+    user?: {
+      id?: string;
+    };
+  };
+  token: {
+    id?: string;
+  };
+}
+
 const config = {
   providers: [
     Google({
@@ -10,7 +42,7 @@ const config = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account }: any) {
+    async signIn({ user, account }: SignInParams) {
       if (account?.provider === 'google' && user.email) {
         // Upsert user: create if doesn't exist, update if exists
         await prisma.user.upsert({
@@ -28,7 +60,7 @@ const config = {
       }
       return true;
     },
-    async jwt({ token, account }: any) {
+    async jwt({ token, account }: JWTParams) {
       // On sign in or if ID is missing, fetch user ID from database and store in token
       if (token.email && (!token.id || account?.provider === 'google')) {
         const dbUser = await prisma.user.findUnique({
@@ -41,10 +73,10 @@ const config = {
       }
       return token;
     },
-    async session({ session, token }: any) {
+    async session({ session, token }: SessionParams) {
       // Add user ID from token to session
       if (session.user && token.id) {
-        session.user.id = token.id as string;
+        session.user.id = token.id;
       }
       return session;
     },

@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db/prisma';
+import { providerSchema } from '@/lib/schemas';
 import { z } from 'zod';
-
-const providerSchema = z.object({
-  baseUrl: z.string().url('Invalid URL format'),
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  active: z.boolean().default(true),
-});
 
 // GET all providers for the authenticated user
 export async function GET() {

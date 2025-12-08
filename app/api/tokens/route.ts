@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db/prisma';
+import { tokenSchema } from '@/lib/schemas';
 import { z } from 'zod';
-
-const tokenSchema = z.object({
-  providerId: z.number().int().positive('Provider ID is required'),
-  token: z.string().min(1, 'Token is required'),
-  description: z.string().optional(),
-});
 
 // GET all tokens for the authenticated user
 export async function GET() {

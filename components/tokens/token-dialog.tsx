@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { toast } from 'sonner';
+import { tokenFormSchema, type TokenFormData } from '@/lib/schemas';
 import {
   Dialog,
   DialogContent,
@@ -25,14 +26,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import type { Token, Provider } from '@prisma/client';
-
-const tokenSchema = z.object({
-  providerId: z.string().min(1, 'Provider is required'),
-  token: z.string().min(1, 'Token is required'),
-  description: z.string().optional(),
-});
-
-type TokenFormData = z.infer<typeof tokenSchema>;
 
 interface TokenWithProvider extends Token {
   provider: Provider;
@@ -59,7 +52,7 @@ export function TokenDialog({ token, trigger, onSuccess, preSelectedProviderId }
     setValue,
     watch,
   } = useForm<TokenFormData>({
-    resolver: zodResolver(tokenSchema),
+    resolver: zodResolver(tokenFormSchema),
     defaultValues: token
       ? {
           providerId: token.providerId.toString(),
@@ -123,7 +116,7 @@ export function TokenDialog({ token, trigger, onSuccess, preSelectedProviderId }
       onSuccess();
     } catch (error) {
       console.error('Error saving token:', error);
-      alert('Failed to save token. Please try again.');
+      toast.error('Failed to save token. Please try again.');
     } finally {
       setLoading(false);
     }

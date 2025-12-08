@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db/prisma';
+import { tokenUpdateSchema } from '@/lib/schemas';
 import { z } from 'zod';
-
-const tokenSchema = z.object({
-  token: z.string().min(1, 'Token is required').optional(),
-  providerId: z.number().int().positive().optional(),
-  description: z.string().optional(),
-});
 
 // GET a specific token
 export async function GET(
@@ -59,7 +54,7 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const validatedData = tokenSchema.parse(body);
+    const validatedData = tokenUpdateSchema.parse(body);
 
     // Verify ownership
     const existing = await prisma.token.findFirst({

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { Plus, Pencil, Trash2, ChevronDown, ChevronRight, Eye, EyeOff, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   Table,
   TableBody,
@@ -91,7 +92,7 @@ export function ProviderTokenList() {
       setTimeout(() => setCopiedTokenId(null), 2000);
     } catch (error) {
       console.error('Failed to copy token:', error);
-      alert('Failed to copy token to clipboard');
+      toast.error('Failed to copy token to clipboard');
     }
   };
 
@@ -143,7 +144,7 @@ export function ProviderTokenList() {
       fetchProviders();
     } catch (error) {
       console.error('Error deleting:', error);
-      alert(`Failed to delete ${deleteTarget.type}. Please try again.`);
+      toast.error(`Failed to delete ${deleteTarget.type}. Please try again.`);
     } finally {
       setDeleteTarget(null);
     }
@@ -203,8 +204,8 @@ export function ProviderTokenList() {
             </TableHeader>
             <TableBody>
               {providers.map((provider) => (
-                <>
-                  <TableRow key={provider.id}>
+                <Fragment key={provider.id}>
+                  <TableRow>
                     <TableCell>
                       <Button
                         variant="ghost"
@@ -375,7 +376,7 @@ export function ProviderTokenList() {
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </Fragment>
               ))}
             </TableBody>
           </Table>

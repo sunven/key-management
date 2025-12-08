@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { toast } from 'sonner';
+import { providerSchema, type ProviderFormData } from '@/lib/schemas';
 import {
   Dialog,
   DialogContent,
@@ -19,15 +20,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import type { Provider } from '@prisma/client';
-
-const providerSchema = z.object({
-  baseUrl: z.string().url('Please enter a valid URL'),
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  active: z.boolean(),
-});
-
-type ProviderFormData = z.infer<typeof providerSchema>;
 
 interface ProviderDialogProps {
   provider?: Provider;
@@ -85,7 +77,7 @@ export function ProviderDialog({ provider, trigger, onSuccess }: ProviderDialogP
       onSuccess();
     } catch (error) {
       console.error('Error saving provider:', error);
-      alert('Failed to save provider. Please try again.');
+      toast.error('Failed to save provider. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   Table,
   TableBody,
@@ -61,7 +62,7 @@ export function ProviderList() {
       fetchProviders();
     } catch (error) {
       console.error('Error deleting provider:', error);
-      alert('Failed to delete provider. Please try again.');
+      toast.error('Failed to delete provider. Please try again.');
     }
   };
 
