@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Table,
@@ -12,14 +12,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { GroupDialog } from './group-dialog';
 import { GroupItemList } from './group-item-list';
+import { GlobalTagSearch } from './global-tag-search';
 import type { Group, GroupItem, ItemTag } from '@prisma/client';
 
 interface GroupItemWithTags extends GroupItem {
@@ -116,6 +111,8 @@ export function GroupList() {
         />
       </div>
 
+      <GlobalTagSearch />
+
       {groups.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground mb-4">No groups yet</p>
@@ -184,32 +181,25 @@ export function GroupList() {
                         {new Date(group.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <GroupDialog
-                              group={group}
-                              trigger={
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                  <Pencil className="mr-2 h-4 w-4" />
-                                  Edit
-                                </DropdownMenuItem>
-                              }
-                              onSuccess={fetchGroups}
-                            />
-                            <DropdownMenuItem
-                              className="text-destructive"
-                              onClick={() => handleDelete(group.id)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center gap-1">
+                          <GroupDialog
+                            group={group}
+                            trigger={
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            }
+                            onSuccess={fetchGroups}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => handleDelete(group.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                     {isExpanded && (

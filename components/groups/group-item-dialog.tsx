@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -40,6 +40,7 @@ export function GroupItemDialog({
 }: GroupItemDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const isEdit = !!item;
 
   const {
@@ -64,6 +65,19 @@ export function GroupItemDialog({
         },
   });
 
+  // Fetch all available tags for autocomplete
+  const fetchTagSuggestions = useCallback(async () => {
+    try {
+      const response = await fetch('/api/tags');
+      if (response.ok) {
+        const tags = await response.json();
+        setTagSuggestions(tags);
+      }
+    } catch (error) {
+      console.error('Error fetching tag suggestions:', error);
+    }
+  }, []);
+
   // Reset form when dialog opens with different item
   useEffect(() => {
     if (open) {
@@ -80,8 +94,10 @@ export function GroupItemDialog({
               tags: [],
             }
       );
+      // Fetch suggestions when dialog opens
+      fetchTagSuggestions();
     }
-  }, [open, item, reset]);
+  }, [open, item, reset, fetchTagSuggestions]);
 
   const onSubmit = async (data: GroupItemFormData) => {
     setLoading(true);
@@ -159,7 +175,9 @@ export function GroupItemDialog({
                   <TagInput
                     value={field.value || []}
                     onChange={field.onChange}
-                    placeholder="Type and press Enter to add tag"
+                    placeholder="Type or select existing tags"
+                    suggestions={tagSuggestions}
+                    onFetchSuggestions={fetchTagSuggestions}
                   />
                 )}
               />

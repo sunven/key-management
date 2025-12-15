@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, KeyboardEvent } from 'react';
+import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,8 @@ interface TagInputProps {
   placeholder?: string;
   maxTags?: number;
   disabled?: boolean;
+  suggestions?: string[];
+  onFetchSuggestions?: () => void;
 }
 
 export function TagInput({
@@ -19,19 +21,37 @@ export function TagInput({
   placeholder = 'Add tag...',
   maxTags = 20,
   disabled = false,
+  suggestions = [],
+  onFetchSuggestions,
 }: TagInputProps) {
   const [inputValue, setInputValue] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Filter suggestions based on input and exclude already selected tags
+  const filteredSuggestions = suggestions.filter(
+    (tag) =>
+      !value.includes(tag) &&
+      tag.toLowerCase().includes(inputValue.toLowerCase())
+  );
+
+  // Fetch suggestions when component mounts or gets focus
+  useEffect(() => {
+    if (onFetchSuggestions && suggestions.length === 0) {
+      onFetchSuggestions();
+    }
+  }, [onFetchSuggestions, suggestions.length]);
 
   const addTag = (tag: string) => {
     const trimmedTag = tag.trim();
-    if (
-      trimmedTag &&
-      !value.includes(trimmedTag) &&
-      value.length < maxTags
-    ) {
+    if (trimmedTag && !value.includes(trimmedTag) && value.length < maxTags) {
       onChange([...value, trimmedTag]);
     }
     setInputValue('');
+    setShowSuggestions(false);
+    setSelectedIndex(-1);
   };
 
   const removeTag = (tagToRemove: string) => {
@@ -39,9 +59,36 @@ export function TagInput({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (showSuggestions && filteredSuggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedIndex((prev) =>
+          prev < filteredSuggestions.length - 1 ? prev + 1 : prev
+        );
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+        return;
+      }
+      if (e.key === 'Enter' && selectedIndex >= 0) {
+        e.preventDefault();
+        addTag(filteredSuggestions[selectedIndex]);
+        return;
+      }
+      if (e.key === 'Escape') {
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+        return;
+      }
+    }
+
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      addTag(inputValue);
+      if (inputValue.trim()) {
+        addTag(inputValue);
+      }
     } else if (e.key === 'Backspace' && !inputValue && value.length > 0) {
       removeTag(value[value.length - 1]);
     }
@@ -61,7 +108,36 @@ export function TagInput({
       });
     } else {
       setInputValue(newValue);
+      setShowSuggestions(true);
+      setSelectedIndex(-1);
     }
+  };
+
+  const handleFocus = () => {
+    setShowSuggestions(true);
+    if (onFetchSuggestions) {
+      onFetchSuggestions();
+    }
+  };
+
+  const handleBlur = () => {
+    // Delay hiding suggestions to allow click events on suggestions
+    setTimeout(() => {
+      if (
+        !suggestionsRef.current?.contains(document.activeElement) &&
+        document.activeElement !== inputRef.current
+      ) {
+        setShowSuggestions(false);
+        if (inputValue.trim()) {
+          addTag(inputValue);
+        }
+      }
+    }, 150);
+  };
+
+  const handleSuggestionClick = (tag: string) => {
+    addTag(tag);
+    inputRef.current?.focus();
   };
 
   return (
@@ -83,18 +159,43 @@ export function TagInput({
         ))}
       </div>
       {!disabled && value.length < maxTags && (
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          onBlur={() => {
-            if (inputValue.trim()) {
-              addTag(inputValue);
-            }
-          }}
-        />
+        <div className="relative">
+          <Input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder={placeholder}
+            autoComplete="off"
+          />
+          {showSuggestions && filteredSuggestions.length > 0 && (
+            <div
+              ref={suggestionsRef}
+              className="absolute z-50 w-full mt-1 max-h-48 overflow-auto rounded-md border bg-popover p-1 shadow-md"
+            >
+              {filteredSuggestions.map((tag, index) => (
+                <div
+                  key={tag}
+                  className={`relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none ${
+                    index === selectedIndex
+                      ? 'bg-accent text-accent-foreground'
+                      : 'hover:bg-accent hover:text-accent-foreground'
+                  }`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleSuggestionClick(tag)}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                >
+                  <Badge variant="outline" className="mr-2">
+                    {tag}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       )}
       {value.length >= maxTags && (
         <p className="text-sm text-muted-foreground">

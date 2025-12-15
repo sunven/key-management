@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, MoreHorizontal, Pencil, Trash2, Copy, Check } from 'lucide-react';
+import { Plus, Pencil, Trash2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Table,
@@ -13,12 +13,6 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { GroupItemDialog } from './group-item-dialog';
 import { TagFilter } from './tag-filter';
 import type { GroupItem, ItemTag } from '@prisma/client';
@@ -163,33 +157,26 @@ export function GroupItemList({ groupId, items, onRefresh }: GroupItemListProps)
                     </div>
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <GroupItemDialog
-                          groupId={groupId}
-                          item={item}
-                          trigger={
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                          }
-                          onSuccess={onRefresh}
-                        />
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex items-center gap-1">
+                      <GroupItemDialog
+                        groupId={groupId}
+                        item={item}
+                        trigger={
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        }
+                        onSuccess={onRefresh}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
