@@ -19,6 +19,7 @@ model User {
   image     String?
   createdAt DateTime   @default(now()) @map("created_at")
   providers Provider[]
+  groups    Group[]
 
   @@map("users")
 }
@@ -50,4 +51,45 @@ model Token {
   provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
   @@map("tokens")
+}
+
+// Groups table - independent from Provider-Token system
+model Group {
+  id          Int         @id @default(autoincrement())
+  userId      Int         @map("user_id")
+  name        String
+  description String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       GroupItem[]
+
+  @@map("groups")
+}
+
+// Group Items table - key-value pairs within a group
+model GroupItem {
+  id        Int       @id @default(autoincrement())
+  groupId   Int       @map("group_id")
+  key       String
+  value     String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  tags      ItemTag[]
+
+  @@unique([groupId, key])
+  @@map("group_items")
+}
+
+// Item Tags table - tags for group items
+model ItemTag {
+  id        Int       @id @default(autoincrement())
+  itemId    Int       @map("item_id")
+  tag       String
+  createdAt DateTime  @default(now()) @map("created_at")
+  item      GroupItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([tag])
+  @@map("item_tags")
 }

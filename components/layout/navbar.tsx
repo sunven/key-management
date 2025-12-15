@@ -24,6 +24,12 @@ export async function Navbar() {
           >
             Providers
           </Link>
+          <Link
+            href="/groups"
+            className="text-sm font-medium transition-colors hover:text-primary"
+          >
+            Groups
+          </Link>
         </div>
         {session?.user && <UserMenu user={session.user} />}
       </div>
