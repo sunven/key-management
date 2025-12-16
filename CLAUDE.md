@@ -30,6 +30,7 @@ This is a **multi-user key management application** for securely storing and man
 - Provider management (API base URLs and metadata)
 - Token management with masked display (click to reveal)
 - Group management (key-value storage with tagging system)
+- **Group sharing** (public links and private email invitations)
 - Full CRUD operations with user-scoped access control
 
 ## Commands
@@ -76,11 +77,17 @@ users (from NextAuth)
   │     ↓ (one-to-many)
   │     └── tokens (provider_id FK with CASCADE delete)
   │
-  └── groups (user_id FK with CASCADE delete)
+  ├── groups (user_id FK with CASCADE delete)
+  │     ↓ (one-to-many)
+  │     ├── group_items (group_id FK with CASCADE delete)
+  │     │     ↓ (one-to-many)
+  │     │     └── item_tags (item_id FK with CASCADE delete)
+  │     │
+  │     └── share (one-to-one, optional)
+  │
+  └── shares (user_id FK with CASCADE delete)
         ↓ (one-to-many)
-        └── group_items (group_id FK with CASCADE delete)
-              ↓ (one-to-many)
-              └── item_tags (item_id FK with CASCADE delete)
+        └── share_invitations (share_id FK with CASCADE delete)
 ```
 
 **Key schema details** ([prisma/schema.prisma](prisma/schema.prisma)):
@@ -90,6 +97,8 @@ users (from NextAuth)
 - `groups`: Independent key-value storage system per user (separate from providers/tokens)
 - `group_items`: Key-value pairs within a group (unique constraint on groupId + key)
 - `item_tags`: Tags for group items with indexing for fast search
+- `shares`: Share records linking users to groups (one group can have at most one share)
+- `share_invitations`: Email invitations for private shares with status tracking
 - All tables use Prisma relations for type-safe joins (`include: { tokens: true }`)
 
 **User isolation enforcement:**
@@ -186,12 +195,14 @@ All API routes follow a **consistent pattern** for user isolation:
 - [app/api/tokens/*](app/api/tokens/): Token CRUD with provider ownership verification
 - [app/api/groups/*](app/api/groups/): Group CRUD with nested items and tags
 - [app/api/tags/*](app/api/tags/): Tag search and management
+- [app/api/shares/*](app/api/shares/): Share management (create, list, revoke, content access, invitations)
 
 **UI Components:**
 - [components/ui/*](components/ui/): shadcn/ui base components (do not edit directly)
 - [components/providers/](components/providers/): Provider management components
 - [components/tokens/](components/tokens/): Token management components
 - [components/groups/](components/groups/): Group management with tag filtering and search
+- [components/shares/](components/shares/): Share management components
 
 ### Environment Variables
 
@@ -208,6 +219,10 @@ Required environment variables (create `.env.local` in project root):
 - `AUTH_GOOGLE_ID`: Google OAuth client ID
 - `AUTH_GOOGLE_SECRET`: Google OAuth client secret
 - `NEXTAUTH_URL`: App URL (http://localhost:3100 for dev)
+
+**Email Service (Resend):**
+- `RESEND_API_KEY`: Resend API key for sending invitation emails
+- `RESEND_FROM_EMAIL`: Sender email address (e.g., noreply@yourdomain.com)
 
 ### TypeScript Configuration
 
@@ -300,6 +315,39 @@ All forms use **React Hook Form + Zod**:
 - Global tag search across all groups ([app/api/tags/search/route.ts](app/api/tags/search/route.ts))
 - Tag filtering within groups
 - Use cases: Environment variables, configuration sets, API keys not tied to specific providers
+
+### Group Sharing Feature
+
+**Groups can be shared with others via two modes:**
+
+1. **Public Share**: Anyone with the link can view (no login required)
+2. **Private Share**: Only invited users can view (requires login and invitation acceptance)
+
+**Key implementation details:**
+- Share ID uses `cuid()` for URL-safe, unpredictable IDs
+- One group can have at most one active share (unique constraint on `groupId`)
+- Deleting a share cascades to all invitations
+- Invitations track status: `PENDING`, `ACCEPTED`, `REJECTED`
+
+**Share API endpoints** ([app/api/shares/](app/api/shares/)):
+- `POST /api/shares` - Create share (public or private with emails)
+- `GET /api/shares` - List user's shares
+- `DELETE /api/shares/[shareId]` - Revoke share
+- `GET /api/shares/[shareId]/content` - Get share content (with permission check)
+- `POST /api/shares/[shareId]/accept` - Accept invitation
+- `POST /api/shares/[shareId]/reject` - Reject invitation
+- `POST /api/shares/[shareId]/invitations/[email]/resend` - Resend invitation email
+
+**Share pages:**
+- `/shares` - Manage user's shares ([app/shares/page.tsx](app/shares/page.tsx))
+- `/share/[shareId]` - View shared content ([app/share/[shareId]/page.tsx](app/share/[shareId]/page.tsx))
+- `/share/[shareId]/accept` - Accept invitation ([app/share/[shareId]/accept/page.tsx](app/share/[shareId]/accept/page.tsx))
+- `/share/[shareId]/reject` - Reject invitation ([app/share/[shareId]/reject/page.tsx](app/share/[shareId]/reject/page.tsx))
+
+**Email invitations:**
+- Uses Resend SDK ([lib/email.ts](lib/email.ts))
+- Invitation tokens encode email + shareId in base64url ([lib/share-utils.ts](lib/share-utils.ts))
+- HTML email template with accept/reject buttons
 
 ### Database Queries
 

@@ -20,6 +20,7 @@ model User {
   createdAt DateTime   @default(now()) @map("created_at")
   providers Provider[]
   groups    Group[]
+  shares    Share[]
 
   @@map("users")
 }
@@ -63,6 +64,7 @@ model Group {
   updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items       GroupItem[]
+  share       Share?
 
   @@map("groups")
 }
@@ -92,4 +94,48 @@ model ItemTag {
 
   @@index([tag])
   @@map("item_tags")
+}
+
+// Share type enum
+enum ShareType {
+  PUBLIC
+  PRIVATE
+}
+
+// Invitation status enum
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// Shares table - for sharing groups
+model Share {
+  id          String            @id @default(cuid())
+  userId      Int               @map("user_id")
+  groupId     Int               @unique @map("group_id")
+  type        ShareType
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group       Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  invitations ShareInvitation[]
+
+  @@index([userId])
+  @@map("shares")
+}
+
+// Share invitations table - for private share invitations
+model ShareInvitation {
+  id          Int              @id @default(autoincrement())
+  shareId     String           @map("share_id")
+  email       String
+  status      InvitationStatus @default(PENDING)
+  invitedAt   DateTime         @default(now()) @map("invited_at")
+  respondedAt DateTime?        @map("responded_at")
+  share       Share            @relation(fields: [shareId], references: [id], onDelete: Cascade)
+
+  @@unique([shareId, email])
+  @@index([email])
+  @@map("share_invitations")
 }

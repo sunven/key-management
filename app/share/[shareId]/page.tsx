@@ -1,0 +1,293 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import {
+  Share2,
+  Globe,
+  Lock,
+  Info,
+  AlertTriangle,
+  LogIn,
+  CheckCircle,
+  Copy,
+  Check,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { toast } from 'sonner';
+
+interface ShareItem {
+  id: number;
+  key: string;
+  value: string;
+  tags: Array<{ id: number; tag: string }>;
+}
+
+interface ShareData {
+  id: string;
+  type: string;
+  group: {
+    id: number;
+    name: string;
+    description: string | null;
+    items: ShareItem[];
+  };
+  owner: {
+    name: string | null;
+    email: string;
+  };
+}
+
+interface AccessResult {
+  canView: boolean;
+  reason?: string;
+  needsLogin?: boolean;
+  needsAcceptance?: boolean;
+  share?: ShareData;
+}
+
+export default function ShareViewPage() {
+  const params = useParams();
+  const router = useRouter();
+  const shareId = params.shareId as string;
+
+  const [loading, setLoading] = useState(true);
+  const [accessResult, setAccessResult] = useState<AccessResult | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchShareContent = async () => {
+      try {
+        const response = await fetch(`/api/shares/${shareId}/content`);
+        const data = await response.json();
+        setAccessResult(data);
+      } catch (error) {
+        console.error('Error fetching share:', error);
+        setAccessResult({
+          canView: false,
+          reason: 'Failed to load share content',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShareContent();
+  }, [shareId]);
+
+  const handleCopyValue = async (key: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedKey(key);
+      toast.success('Value copied to clipboard');
+      setTimeout(() => setCopiedKey(null), 2000);
+    } catch {
+      toast.error('Failed to copy value');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent"></div>
+          <div className="text-cyan-600 font-mono text-sm animate-pulse">
+            LOADING_SHARE_CONTENT...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle access denied cases
+  if (!accessResult?.canView) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-8 h-8 text-rose-400" />
+            </div>
+            <CardTitle className="text-rose-400 font-mono">ACCESS_DENIED</CardTitle>
+            <CardDescription className="text-cyan-600/70 font-mono text-sm">
+              {accessResult?.reason || 'You do not have permission to view this share'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {accessResult?.needsLogin && (
+              <Button
+                onClick={() => router.push(`/auth/signin?callbackUrl=/share/${shareId}`)}
+                className="w-full bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 font-mono"
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                LOGIN_TO_VIEW
+              </Button>
+            )}
+            {accessResult?.needsAcceptance && (
+              <Button
+                onClick={() => router.push(`/share/${shareId}/accept`)}
+                className="w-full bg-emerald-950/50 text-emerald-400 border border-emerald-800/50 hover:bg-emerald-900/50 font-mono"
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                ACCEPT_INVITATION
+              </Button>
+            )}
+            <Link href="/">
+              <Button
+                variant="outline"
+                className="w-full bg-transparent text-cyan-600 border-cyan-800/50 hover:bg-slate-900/50 font-mono"
+              >
+                RETURN_HOME
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { share } = accessResult;
+  if (!share) return null;
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-cyan-100">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Read-only Alert */}
+        <Alert className="mb-6 bg-cyan-950/30 border-cyan-500/50 text-cyan-400">
+          <Info className="h-4 w-4" />
+          <AlertDescription className="font-mono text-sm">
+            This is a read-only share. You can view the content but cannot make changes.
+          </AlertDescription>
+        </Alert>
+
+        {/* Share Header */}
+        <Card className="mb-6 bg-slate-950/90 border-cyan-800/50">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-cyan-950/50 border border-cyan-800/50">
+                  <Share2 className="h-6 w-6 text-cyan-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 font-mono">
+                    {share.group.name}
+                  </CardTitle>
+                  <CardDescription className="text-cyan-600/70 font-mono text-sm">
+                    {share.group.description || '// No description'}
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge
+                variant="outline"
+                className={`font-mono text-xs ${
+                  share.type === 'PUBLIC'
+                    ? 'border-cyan-500/50 text-cyan-400 bg-cyan-950/30'
+                    : 'border-fuchsia-500/50 text-fuchsia-400 bg-fuchsia-950/30'
+                }`}
+              >
+                {share.type === 'PUBLIC' ? (
+                  <Globe className="h-3 w-3 mr-1" />
+                ) : (
+                  <Lock className="h-3 w-3 mr-1" />
+                )}
+                {share.type}
+              </Badge>
+            </div>
+            <div className="mt-4 text-cyan-600/70 font-mono text-xs">
+              Shared by: {share.owner.name || share.owner.email}
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Items Table */}
+        <Card className="bg-slate-950/90 border-cyan-800/50">
+          <CardHeader>
+            <CardTitle className="text-cyan-400 font-mono text-lg">
+              ITEMS ({share.group.items.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {share.group.items.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-cyan-600/70 font-mono text-sm">No items in this group</p>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-cyan-800/50 overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-cyan-800/50 hover:bg-transparent">
+                      <TableHead className="text-cyan-500 font-mono text-xs uppercase">
+                        Key
+                      </TableHead>
+                      <TableHead className="text-cyan-500 font-mono text-xs uppercase">
+                        Value
+                      </TableHead>
+                      <TableHead className="text-cyan-500 font-mono text-xs uppercase">
+                        Tags
+                      </TableHead>
+                      <TableHead className="text-cyan-500 font-mono text-xs uppercase w-16"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {share.group.items.map((item) => (
+                      <TableRow
+                        key={item.id}
+                        className="border-cyan-800/30 hover:bg-cyan-950/20 transition-colors"
+                      >
+                        <TableCell className="font-mono text-cyan-100 font-medium">
+                          {item.key}
+                        </TableCell>
+                        <TableCell className="font-mono text-cyan-300 text-sm max-w-xs truncate">
+                          {item.value}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {item.tags.map((tag) => (
+                              <Badge
+                                key={tag.id}
+                                variant="secondary"
+                                className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 font-mono text-xs"
+                              >
+                                {tag.tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCopyValue(item.key, item.value)}
+                            className="h-8 w-8 p-0 text-cyan-500 hover:text-cyan-300 hover:bg-cyan-950/50"
+                          >
+                            {copiedKey === item.key ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

@@ -30,6 +30,12 @@ export async function Navbar() {
           >
             GROUPS
           </Link>
+          <Link
+            href="/shares"
+            className="text-sm font-medium transition-all duration-300 font-mono text-slate-400 hover:text-cyan-400 hover:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]"
+          >
+            SHARES
+          </Link>
         </div>
         {session?.user && <UserMenu user={session.user} />}
       </div>

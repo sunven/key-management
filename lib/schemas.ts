@@ -73,3 +73,33 @@ export const groupItemUpdateSchema = z.object({
 });
 
 export type GroupItemFormData = z.infer<typeof groupItemSchema>;
+
+// Share schemas
+export const shareTypeSchema = z.enum(['PUBLIC', 'PRIVATE']);
+
+export const shareSchema = z
+  .object({
+    groupId: z.number().int().positive('Group ID is required'),
+    type: shareTypeSchema,
+    emails: z.array(z.string().email('Invalid email address')).optional(),
+  })
+  .refine(
+    (data) => {
+      // PRIVATE shares must have at least one email
+      if (data.type === 'PRIVATE') {
+        return data.emails && data.emails.length > 0;
+      }
+      return true;
+    },
+    {
+      message: 'At least one email is required for private shares',
+      path: ['emails'],
+    }
+  );
+
+export type ShareFormData = z.infer<typeof shareSchema>;
+export type ShareType = z.infer<typeof shareTypeSchema>;
+
+// Share invitation schemas
+export const invitationStatusSchema = z.enum(['PENDING', 'ACCEPTED', 'REJECTED']);
+export type InvitationStatus = z.infer<typeof invitationStatusSchema>;

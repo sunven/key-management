@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Search, Database, Layers, ChevronRight, Settings2 } from 'lucide-react';
+import { Plus, Search, Database, Layers, ChevronRight, Settings2, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GroupDialog } from './group-dialog';
+import { ShareDialog } from './share-dialog';
 import { GroupItemList } from './group-item-list';
 import { GlobalTagSearch } from './global-tag-search';
 import type { Group, GroupItem, ItemTag } from '@prisma/client';
@@ -28,6 +29,9 @@ export function GroupList() {
   const [loading, setLoading] = useState(true);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareGroupId, setShareGroupId] = useState<number | null>(null);
+  const [shareGroupName, setShareGroupName] = useState('');
 
   const fetchGroups = async () => {
     try {
@@ -75,6 +79,12 @@ export function GroupList() {
       console.error('Error deleting group:', error);
       toast.error('Failed to delete group. Please try again.');
     }
+  };
+
+  const handleOpenShareDialog = (groupId: number, groupName: string) => {
+    setShareGroupId(groupId);
+    setShareGroupName(groupName);
+    setShareDialogOpen(true);
   };
 
   const filteredGroups = groups.filter((group) =>
@@ -198,6 +208,15 @@ export function GroupList() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 border-cyan-800/50 text-cyan-500 hover:bg-cyan-950/50 hover:text-cyan-300 hover:border-cyan-500/50 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] bg-slate-950/50"
+                    onClick={() => handleOpenShareDialog(selectedGroup.id, selectedGroup.name)}
+                  >
+                    <Share2 className="mr-2 h-3 w-3" />
+                    SHARE
+                  </Button>
                   <GroupDialog
                     group={selectedGroup}
                     trigger={
@@ -238,6 +257,17 @@ export function GroupList() {
           )}
         </div>
       </div>
+
+      {/* Share Dialog */}
+      {shareGroupId && (
+        <ShareDialog
+          groupId={shareGroupId}
+          groupName={shareGroupName}
+          open={shareDialogOpen}
+          onOpenChange={setShareDialogOpen}
+          onSuccess={fetchGroups}
+        />
+      )}
     </div>
   );
 }
