@@ -34,7 +34,7 @@ export function TagFilter({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-mono text-cyan-600/80 uppercase tracking-wider">
+        <span className="text-xs font-mono text-cyan-500/70 uppercase tracking-wider">
           FILTER_BY_TAGS:
         </span>
         {selectedTags.length > 0 && (
@@ -42,7 +42,7 @@ export function TagFilter({
             variant="ghost"
             size="sm"
             onClick={clearFilter}
-            className="h-6 px-2 text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-100 font-mono"
+            className="h-6 px-2 text-xs text-rose-500 hover:text-rose-400 hover:bg-rose-950/30 font-mono"
           >
             CLEAR_FILTER
           </Button>
@@ -55,8 +55,8 @@ export function TagFilter({
             variant="outline"
             className={`cursor-pointer transition-all duration-300 font-mono text-xs ${
               selectedTags.includes(tag)
-                ? 'bg-cyan-100 text-cyan-700 border-cyan-400 shadow-[0_0_5px_rgba(6,182,212,0.2)]'
-                : 'bg-white text-slate-500 border-cyan-200 hover:border-cyan-300 hover:text-cyan-600'
+                ? 'bg-cyan-950/50 text-cyan-400 border-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]'
+                : 'bg-slate-900/50 text-slate-500 border-slate-800 hover:border-cyan-500/50 hover:text-cyan-400 hover:shadow-[0_0_5px_rgba(6,182,212,0.3)]'
             }`}
             onClick={() => toggleTag(tag)}
           >

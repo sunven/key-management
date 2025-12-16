@@ -67,21 +67,31 @@ export function ProviderList() {
   };
 
   if (loading) {
-    return <div className="text-center py-8 text-muted-foreground">Loading providers...</div>;
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent shadow-[0_0_10px_rgba(6,182,212,0.5)]"></div>
+          <div className="text-cyan-600 font-mono text-sm animate-pulse uppercase tracking-widest">Loading Providers...</div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center bg-slate-900/30 p-4 rounded-lg border border-cyan-900/30 backdrop-blur-sm">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Providers</h2>
-          <p className="text-muted-foreground">Manage your API providers</p>
+          <h2 className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 font-mono drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">Providers</h2>
+          <p className="text-cyan-600/70 font-mono text-xs flex items-center gap-2">
+            <span className="text-fuchsia-500">{'//'}</span>
+            Manage your API providers
+          </p>
         </div>
         <ProviderDialog
           trigger={
-            <Button>
+            <Button className="bg-slate-900/50 text-cyan-500 border border-cyan-800/50 hover:bg-cyan-950/50 hover:text-cyan-300 hover:border-cyan-500 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]">
               <Plus className="mr-2 h-4 w-4" />
-              Add Provider
+              ADD_PROVIDER
             </Button>
           }
           onSuccess={fetchProviders}
@@ -89,68 +99,68 @@ export function ProviderList() {
       </div>
 
       {providers.length === 0 ? (
-        <div className="text-center py-12 border-2 border-dashed rounded-lg">
-          <p className="text-muted-foreground mb-4">No providers yet</p>
+        <div className="text-center py-12 border border-dashed border-cyan-900/50 rounded-lg bg-slate-900/20 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
+          <p className="text-cyan-900/50 font-mono mb-4 animate-pulse">NO_PROVIDERS_DETECTED</p>
           <ProviderDialog
             trigger={
-              <Button variant="outline">
+              <Button variant="outline" className="border-cyan-800/50 text-cyan-600 hover:bg-cyan-950/30 hover:text-cyan-400 font-mono">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Your First Provider
+                INIT_FIRST_PROVIDER
               </Button>
             }
             onSuccess={fetchProviders}
           />
         </div>
       ) : (
-        <div className="border rounded-lg">
+        <div className="border border-cyan-800/50 rounded-lg bg-slate-900/20 overflow-hidden shadow-[0_0_30px_rgba(6,182,212,0.05)]">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Base URL</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Tokens</TableHead>
+            <TableHeader className="bg-slate-950/80 backdrop-blur-md">
+              <TableRow className="border-b-cyan-800/50 hover:bg-transparent">
+                <TableHead className="text-cyan-500/70 font-mono text-xs uppercase tracking-wider pl-4">Name</TableHead>
+                <TableHead className="text-cyan-500/70 font-mono text-xs uppercase tracking-wider">Base URL</TableHead>
+                <TableHead className="text-cyan-500/70 font-mono text-xs uppercase tracking-wider">Description</TableHead>
+                <TableHead className="text-cyan-500/70 font-mono text-xs uppercase tracking-wider">Status</TableHead>
+                <TableHead className="text-cyan-500/70 font-mono text-xs uppercase tracking-wider">Tokens</TableHead>
                 <TableHead className="w-[70px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {providers.map((provider) => (
-                <TableRow key={provider.id}>
-                  <TableCell className="font-medium">{provider.name}</TableCell>
-                  <TableCell className="max-w-xs truncate">{provider.baseUrl}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {provider.description || '-'}
+                <TableRow key={provider.id} className="border-b-cyan-900/30 hover:bg-cyan-950/20 transition-colors group">
+                  <TableCell className="font-medium font-mono text-cyan-300 pl-4 drop-shadow-[0_0_3px_rgba(6,182,212,0.3)]">{provider.name}</TableCell>
+                  <TableCell className="max-w-xs truncate font-mono text-xs text-slate-400">{provider.baseUrl}</TableCell>
+                  <TableCell className="text-slate-500 font-mono text-xs">
+                    {provider.description || '// No description'}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={provider.active ? 'default' : 'secondary'}>
-                      {provider.active ? 'Active' : 'Inactive'}
+                    <Badge variant={provider.active ? 'default' : 'secondary'} className={`font-mono text-[10px] ${provider.active ? 'bg-emerald-950/30 text-emerald-400 border-emerald-800/50 shadow-[0_0_5px_rgba(16,185,129,0.3)]' : 'bg-slate-900/50 text-slate-500 border-slate-800'}`}>
+                      {provider.active ? 'ACTIVE' : 'INACTIVE'}
                     </Badge>
                   </TableCell>
-                  <TableCell>{provider.tokens?.length || 0}</TableCell>
+                  <TableCell className="font-mono text-fuchsia-400">{provider.tokens?.length || 0}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-cyan-600 hover:text-cyan-400 hover:bg-cyan-950/50 hover:shadow-[0_0_10px_rgba(6,182,212,0.3)] transition-all">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="bg-slate-950/95 border-cyan-800/50 backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.15)]">
                         <ProviderDialog
                           provider={provider}
                           trigger={
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              <Pencil className="mr-2 h-4 w-4" />
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-cyan-400 hover:text-cyan-200 focus:text-cyan-200 hover:bg-cyan-950/30 focus:bg-cyan-950/30 cursor-pointer font-mono text-xs uppercase tracking-wider">
+                              <Pencil className="mr-2 h-3 w-3" />
                               Edit
                             </DropdownMenuItem>
                           }
                           onSuccess={fetchProviders}
                         />
                         <DropdownMenuItem
-                          className="text-destructive"
+                          className="text-rose-500 hover:text-rose-300 focus:text-rose-300 hover:bg-rose-950/30 focus:bg-rose-950/30 cursor-pointer font-mono text-xs uppercase tracking-wider"
                           onClick={() => handleDelete(provider.id)}
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
+                          <Trash2 className="mr-2 h-3 w-3" />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

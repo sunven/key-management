@@ -79,13 +79,13 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-white border-cyan-200 text-slate-900 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
+      <DialogContent className="sm:max-w-[500px] bg-slate-950/90 border-cyan-800/50 text-cyan-100 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/20">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle className="text-cyan-600 font-mono tracking-wider uppercase">
+            <DialogTitle className="text-cyan-400 font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
               {isEdit ? 'EDIT_SYSTEM_GROUP' : 'INIT_NEW_GROUP'}
             </DialogTitle>
-            <DialogDescription className="text-slate-500 font-mono text-xs">
+            <DialogDescription className="text-cyan-600/70 font-mono text-xs">
               {isEdit
                 ? '// Update group configuration parameters.'
                 : '// Initialize a new configuration node cluster.'}
@@ -93,27 +93,27 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name" className="text-cyan-600/80 font-mono text-xs uppercase">Name</Label>
+              <Label htmlFor="name" className="text-cyan-500 font-mono text-xs uppercase tracking-wider">Name</Label>
               <Input 
                 id="name" 
                 placeholder="SYSTEM_NODE_01" 
                 {...register('name')} 
-                className="bg-white border-cyan-200 text-cyan-700 placeholder:text-cyan-600/50 font-mono focus:border-cyan-400 focus:ring-cyan-400/20"
+                className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.name && (
-                <p className="text-sm text-rose-500 font-mono">{errors.name.message}</p>
+                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.name.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description" className="text-cyan-600/80 font-mono text-xs uppercase">Description</Label>
+              <Label htmlFor="description" className="text-cyan-500 font-mono text-xs uppercase tracking-wider">Description</Label>
               <Textarea
                 id="description"
                 placeholder="// Optional system description"
                 {...register('description')}
-                className="bg-white border-cyan-200 text-cyan-700 placeholder:text-cyan-600/50 font-mono focus:border-cyan-400 focus:ring-cyan-400/20 min-h-[100px]"
+                className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 min-h-[100px] transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.description && (
-                <p className="text-sm text-rose-500 font-mono">{errors.description.message}</p>
+                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.description.message}</p>
               )}
             </div>
           </div>
@@ -121,11 +121,11 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
             <Button 
               type="submit" 
               disabled={loading}
-              className="bg-white text-cyan-600 border border-cyan-200 hover:bg-cyan-50 hover:text-cyan-700 transition-all font-mono uppercase tracking-wider"
+              className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 hover:text-cyan-300 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all font-mono uppercase tracking-wider"
             >
               {loading ? (
                 <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent mr-2" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent mr-2 shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
                   PROCESSING...
                 </>
               ) : (

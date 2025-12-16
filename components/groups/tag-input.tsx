@@ -147,14 +147,14 @@ export function TagInput({
           <Badge 
             key={tag} 
             variant="outline" 
-            className="gap-1 bg-white border-cyan-200 text-cyan-700 hover:bg-cyan-50 font-mono"
+            className="gap-1 bg-cyan-950/50 border-cyan-800/50 text-cyan-400 hover:bg-cyan-900/50 shadow-[0_0_5px_rgba(6,182,212,0.2)] font-mono"
           >
             {tag}
             {!disabled && (
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                className="ml-1 hover:text-red-500 transition-colors"
+                className="ml-1 hover:text-rose-500 transition-colors"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -174,26 +174,26 @@ export function TagInput({
             onBlur={handleBlur}
             placeholder={placeholder}
             autoComplete="off"
-            className="bg-white/50 border-cyan-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-cyan-400 focus-visible:border-cyan-400 font-mono"
+            className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 placeholder:text-cyan-900/50 focus-visible:ring-cyan-500/20 focus-visible:border-cyan-500 font-mono transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
           />
           {showSuggestions && filteredSuggestions.length > 0 && (
             <div
               ref={suggestionsRef}
-              className="absolute z-50 w-full mt-1 max-h-48 overflow-auto rounded-md border border-cyan-200 bg-white p-1 shadow-[0_0_20px_rgba(6,182,212,0.1)]"
+              className="absolute z-50 w-full mt-1 max-h-48 overflow-auto rounded-md border border-cyan-800/50 bg-slate-950/95 p-1 shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-sm"
             >
               {filteredSuggestions.map((tag, index) => (
                 <div
                   key={tag}
-                  className={`relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none font-mono ${
+                  className={`relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none font-mono transition-colors ${
                     index === selectedIndex
-                      ? 'bg-cyan-50 text-cyan-900'
-                      : 'hover:bg-cyan-50 hover:text-cyan-900 text-slate-700'
+                      ? 'bg-cyan-950/50 text-cyan-300'
+                      : 'hover:bg-cyan-950/30 hover:text-cyan-400 text-slate-400'
                   }`}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handleSuggestionClick(tag)}
                   onMouseEnter={() => setSelectedIndex(index)}
                 >
-                  <Badge variant="outline" className="mr-2 border-cyan-200 text-cyan-600 bg-white/50">
+                  <Badge variant="outline" className="mr-2 border-cyan-800/50 text-cyan-500 bg-slate-900/50">
                     {tag}
                   </Badge>
                 </div>
@@ -203,7 +203,7 @@ export function TagInput({
         </div>
       )}
       {value.length >= maxTags && (
-        <p className="text-sm text-slate-500 font-mono">
+        <p className="text-sm text-rose-500/70 font-mono">
           Maximum {maxTags} tags reached
         </p>
       )}

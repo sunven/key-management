@@ -108,10 +108,10 @@ export function GlobalTagSearch() {
   }
 
   return (
-    <div className="space-y-4 p-4 border border-cyan-200 rounded-lg bg-white/60 backdrop-blur-sm shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+    <div className="space-y-4 p-4 border border-cyan-800/50 rounded-lg bg-slate-900/80 backdrop-blur-sm shadow-[0_0_20px_rgba(6,182,212,0.05)]">
       <div className="flex items-center gap-2">
-        <Search className="h-4 w-4 text-cyan-600" />
-        <h3 className="font-medium text-cyan-600 font-mono tracking-wider uppercase text-sm">Cross-Group Tag Search</h3>
+        <Search className="h-4 w-4 text-cyan-500" />
+        <h3 className="font-medium text-cyan-500 font-mono tracking-wider uppercase text-sm drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]">Cross-Group Tag Search</h3>
       </div>
 
       <div className="space-y-2">
@@ -120,7 +120,7 @@ export function GlobalTagSearch() {
           placeholder="FILTER_TAGS..."
           value={tagFilter}
           onChange={(e) => setTagFilter(e.target.value)}
-          className="max-w-xs bg-white border-cyan-200 text-cyan-700 placeholder:text-cyan-600/50 font-mono text-sm focus:border-cyan-400 focus:ring-cyan-400/20"
+          className="max-w-xs bg-slate-950/50 border-cyan-900/50 text-cyan-100 placeholder:text-cyan-900/50 font-mono text-sm focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
         />
         <div className="flex flex-wrap gap-2">
           {filteredTags.map((tag) => (
@@ -129,8 +129,8 @@ export function GlobalTagSearch() {
               variant="outline"
               className={`cursor-pointer transition-all duration-300 font-mono ${
                 selectedTags.includes(tag) 
-                  ? 'bg-cyan-100 text-cyan-700 border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.2)]' 
-                  : 'bg-white text-slate-500 border-cyan-200 hover:border-cyan-300 hover:text-cyan-600'
+                  ? 'bg-cyan-950/50 text-cyan-400 border-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]' 
+                  : 'bg-slate-900/50 text-slate-500 border-slate-800 hover:border-cyan-500/50 hover:text-cyan-400 hover:shadow-[0_0_5px_rgba(6,182,212,0.3)]'
               }`}
               onClick={() => toggleTag(tag)}
             >
@@ -143,18 +143,18 @@ export function GlobalTagSearch() {
 
       {selectedTags.length > 0 && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-cyan-600/80 font-mono">
-            SELECTED: <span className="text-cyan-700">{selectedTags.join(', ')}</span>
+          <span className="text-sm text-cyan-500/70 font-mono">
+            SELECTED: <span className="text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">{selectedTags.join(', ')}</span>
           </span>
-          <Button variant="ghost" size="sm" onClick={clearSelection} className="text-rose-500 hover:text-rose-600 hover:bg-rose-100 h-6 text-xs uppercase font-mono tracking-wider">
+          <Button variant="ghost" size="sm" onClick={clearSelection} className="text-rose-500 hover:text-rose-400 hover:bg-rose-950/30 h-6 text-xs uppercase font-mono tracking-wider">
             Clear
           </Button>
         </div>
       )}
 
       {loading && (
-        <div className="flex items-center gap-2 text-cyan-600/80 font-mono text-sm animate-pulse">
-          <div className="h-2 w-2 rounded-full bg-cyan-500"></div>
+        <div className="flex items-center gap-2 text-cyan-500/80 font-mono text-sm animate-pulse">
+          <div className="h-2 w-2 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)]"></div>
           SEARCHING_DATABASE...
         </div>
       )}
@@ -166,34 +166,34 @@ export function GlobalTagSearch() {
       )}
 
       {searchResults.length > 0 && (
-        <div className="border border-cyan-200 rounded-lg bg-white/50 overflow-hidden mt-4">
+        <div className="border border-cyan-800/50 rounded-lg bg-slate-900/50 overflow-hidden mt-4 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
           <Table>
-            <TableHeader className="bg-cyan-50/50">
-              <TableRow className="border-b-cyan-200 hover:bg-transparent">
-                <TableHead className="text-cyan-700/70 font-mono text-xs uppercase">Group</TableHead>
-                <TableHead className="text-cyan-700/70 font-mono text-xs uppercase">Key</TableHead>
-                <TableHead className="text-cyan-700/70 font-mono text-xs uppercase">Value</TableHead>
-                <TableHead className="text-cyan-700/70 font-mono text-xs uppercase">Tags</TableHead>
+            <TableHeader className="bg-slate-950/80">
+              <TableRow className="border-b-cyan-800/50 hover:bg-transparent">
+                <TableHead className="text-cyan-500/70 font-mono text-xs uppercase tracking-wider">Group</TableHead>
+                <TableHead className="text-cyan-500/70 font-mono text-xs uppercase tracking-wider">Key</TableHead>
+                <TableHead className="text-cyan-500/70 font-mono text-xs uppercase tracking-wider">Value</TableHead>
+                <TableHead className="text-cyan-500/70 font-mono text-xs uppercase tracking-wider">Tags</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {searchResults.map((item) => (
-                <TableRow key={item.id} className="border-b-cyan-100 hover:bg-cyan-50/30 transition-colors">
-                  <TableCell className="font-medium text-slate-700">{item.group.name}</TableCell>
-                  <TableCell className="font-mono text-sm text-cyan-700">{item.key}</TableCell>
+                <TableRow key={item.id} className="border-b-cyan-900/30 hover:bg-cyan-950/20 transition-colors">
+                  <TableCell className="font-medium text-slate-400">{item.group.name}</TableCell>
+                  <TableCell className="font-mono text-sm text-fuchsia-400 drop-shadow-[0_0_3px_rgba(232,121,249,0.3)]">{item.key}</TableCell>
                   <TableCell className="max-w-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate font-mono text-sm text-slate-600">
+                    <div className="flex items-center gap-2 group/value">
+                      <span className="truncate font-mono text-sm text-slate-400 group-hover/value:text-slate-300 transition-colors">
                         {item.value}
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 shrink-0 text-cyan-400 hover:text-cyan-600 hover:bg-cyan-100"
+                        className="h-6 w-6 shrink-0 text-cyan-600 hover:text-cyan-400 hover:bg-cyan-950/50 opacity-0 group-hover/value:opacity-100 transition-all duration-300"
                         onClick={() => handleCopyValue(item.id, item.value)}
                       >
                         {copiedId === item.id ? (
-                          <Check className="h-3 w-3 text-emerald-500" />
+                          <Check className="h-3 w-3 text-emerald-500 drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]" />
                         ) : (
                           <Copy className="h-3 w-3" />
                         )}
@@ -206,10 +206,10 @@ export function GlobalTagSearch() {
                         <Badge
                           key={tag.id}
                           variant="outline"
-                          className={`text-xs font-mono border-cyan-200 ${
+                          className={`text-xs font-mono border-cyan-800/50 ${
                             selectedTags.includes(tag.tag)
-                              ? 'bg-cyan-100 text-cyan-700 border-cyan-400 shadow-[0_0_5px_rgba(6,182,212,0.2)]'
-                              : 'bg-cyan-50 text-cyan-700'
+                              ? 'bg-cyan-950/50 text-cyan-400 border-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.2)]'
+                              : 'bg-cyan-950/30 text-cyan-400'
                           }`}
                         >
                           {tag.tag}

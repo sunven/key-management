@@ -86,11 +86,11 @@ export function ProviderDialog({ provider, trigger, onSuccess }: ProviderDialogP
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-slate-900 border-cyan-800 text-cyan-100 shadow-[0_0_50px_rgba(6,182,212,0.15)]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Edit Provider' : 'Add New Provider'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-mono text-cyan-400">{isEdit ? 'EDIT_PROVIDER' : 'ADD_NEW_PROVIDER'}</DialogTitle>
+            <DialogDescription className="text-slate-400 font-mono text-sm">
               {isEdit
                 ? 'Update the provider information below.'
                 : 'Add a new API provider to manage tokens.'}
@@ -98,46 +98,49 @@ export function ProviderDialog({ provider, trigger, onSuccess }: ProviderDialogP
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="OpenAI" {...register('name')} />
+              <Label htmlFor="name" className="text-cyan-600 font-mono text-xs uppercase">Name</Label>
+              <Input id="name" placeholder="OpenAI" {...register('name')} className="bg-slate-950/50 border-cyan-900/50 text-cyan-100 focus:border-cyan-500 focus:ring-cyan-500/20 font-mono" />
               {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
+                <p className="text-sm text-rose-500 font-mono">{errors.name.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="baseUrl">Base URL</Label>
+              <Label htmlFor="baseUrl" className="text-cyan-600 font-mono text-xs uppercase">Base URL</Label>
               <Input
                 id="baseUrl"
                 placeholder="https://api.openai.com"
                 {...register('baseUrl')}
+                className="bg-slate-950/50 border-cyan-900/50 text-cyan-100 focus:border-cyan-500 focus:ring-cyan-500/20 font-mono"
               />
               {errors.baseUrl && (
-                <p className="text-sm text-destructive">{errors.baseUrl.message}</p>
+                <p className="text-sm text-rose-500 font-mono">{errors.baseUrl.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description (Optional)</Label>
+              <Label htmlFor="description" className="text-cyan-600 font-mono text-xs uppercase">Description (Optional)</Label>
               <Textarea
                 id="description"
                 placeholder="API provider for AI services"
                 {...register('description')}
+                className="bg-slate-950/50 border-cyan-900/50 text-cyan-100 focus:border-cyan-500 focus:ring-cyan-500/20 font-mono"
               />
             </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="active">Active</Label>
+            <div className="flex items-center justify-between p-3 rounded-lg border border-cyan-900/30 bg-slate-950/30">
+              <Label htmlFor="active" className="text-cyan-600 font-mono text-xs uppercase">Active Status</Label>
               <Switch
                 id="active"
                 checked={activeValue}
                 onCheckedChange={(checked) => setValue('active', checked)}
+                className="data-[state=checked]:bg-cyan-600 data-[state=unchecked]:bg-slate-700"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white font-mono">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+            <Button type="submit" disabled={loading} className="bg-cyan-600 hover:bg-cyan-500 text-white font-mono shadow-[0_0_10px_rgba(8,145,178,0.5)]">
+              {loading ? 'SAVING...' : isEdit ? 'UPDATE_PROVIDER' : 'CREATE_PROVIDER'}
             </Button>
           </DialogFooter>
         </form>

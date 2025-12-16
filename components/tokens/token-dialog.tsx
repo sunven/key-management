@@ -125,11 +125,11 @@ export function TokenDialog({ token, trigger, onSuccess, preSelectedProviderId }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-slate-900 border-cyan-800 text-cyan-100 shadow-[0_0_50px_rgba(6,182,212,0.15)]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Edit Token' : 'Add New Token'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-mono text-cyan-400">{isEdit ? 'EDIT_TOKEN' : 'ADD_NEW_TOKEN'}</DialogTitle>
+            <DialogDescription className="text-slate-400 font-mono text-sm">
               {isEdit
                 ? 'Update the token information below.'
                 : 'Add a new API token for a provider.'}
@@ -138,57 +138,59 @@ export function TokenDialog({ token, trigger, onSuccess, preSelectedProviderId }
           <div className="grid gap-4 py-4">
             {!preSelectedProviderId && (
               <div className="grid gap-2">
-                <Label htmlFor="providerId">Provider</Label>
+                <Label htmlFor="providerId" className="text-cyan-600 font-mono text-xs uppercase">Provider</Label>
                 <Select
                   value={selectedProviderId}
                   onValueChange={(value) => setValue('providerId', value)}
                 >
-                  <SelectTrigger id="providerId">
-                    <SelectValue placeholder="Select a provider" />
+                  <SelectTrigger id="providerId" className="bg-slate-950/50 border-cyan-900/50 text-cyan-100 focus:border-cyan-500 focus:ring-cyan-500/20 font-mono">
+                    <SelectValue placeholder="SELECT_PROVIDER" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-slate-900 border-cyan-800 text-cyan-100">
                     {providers.map((provider) => (
-                      <SelectItem key={provider.id} value={provider.id.toString()}>
+                      <SelectItem key={provider.id} value={provider.id.toString()} className="focus:bg-cyan-950/50 focus:text-cyan-400 font-mono">
                         {provider.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {errors.providerId && (
-                  <p className="text-sm text-destructive">{errors.providerId.message}</p>
+                  <p className="text-sm text-rose-500 font-mono">{errors.providerId.message}</p>
                 )}
               </div>
             )}
             <div className="grid gap-2">
-              <Label htmlFor="token">Token</Label>
+              <Label htmlFor="token" className="text-cyan-600 font-mono text-xs uppercase">Token</Label>
               <Input
                 id="token"
                 type="password"
                 placeholder="sk-..."
                 {...register('token')}
+                className="bg-slate-950/50 border-cyan-900/50 text-cyan-100 focus:border-cyan-500 focus:ring-cyan-500/20 font-mono"
               />
               {errors.token && (
-                <p className="text-sm text-destructive">{errors.token.message}</p>
+                <p className="text-sm text-rose-500 font-mono">{errors.token.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description (Optional)</Label>
+              <Label htmlFor="description" className="text-cyan-600 font-mono text-xs uppercase">Description (Optional)</Label>
               <Textarea
                 id="description"
                 placeholder="Add a description for this token..."
                 {...register('description')}
+                className="bg-slate-950/50 border-cyan-900/50 text-cyan-100 focus:border-cyan-500 focus:ring-cyan-500/20 font-mono"
               />
               {errors.description && (
-                <p className="text-sm text-destructive">{errors.description.message}</p>
+                <p className="text-sm text-rose-500 font-mono">{errors.description.message}</p>
               )}
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white font-mono">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+            <Button type="submit" disabled={loading} className="bg-cyan-600 hover:bg-cyan-500 text-white font-mono shadow-[0_0_10px_rgba(8,145,178,0.5)]">
+              {loading ? 'SAVING...' : isEdit ? 'UPDATE_TOKEN' : 'CREATE_TOKEN'}
             </Button>
           </DialogFooter>
         </form>
