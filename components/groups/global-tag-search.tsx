@@ -108,26 +108,30 @@ export function GlobalTagSearch() {
   }
 
   return (
-    <div className="space-y-4 mb-6 p-4 border rounded-lg bg-muted/30">
+    <div className="space-y-4 p-4 border border-cyan-200 rounded-lg bg-white/60 backdrop-blur-sm shadow-[0_0_20px_rgba(6,182,212,0.1)]">
       <div className="flex items-center gap-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <h3 className="font-medium">Cross-Group Tag Search</h3>
+        <Search className="h-4 w-4 text-cyan-600" />
+        <h3 className="font-medium text-cyan-600 font-mono tracking-wider uppercase text-sm">Cross-Group Tag Search</h3>
       </div>
 
       <div className="space-y-2">
         <Input
           type="text"
-          placeholder="Filter tags..."
+          placeholder="FILTER_TAGS..."
           value={tagFilter}
           onChange={(e) => setTagFilter(e.target.value)}
-          className="max-w-xs"
+          className="max-w-xs bg-white border-cyan-200 text-cyan-700 placeholder:text-cyan-600/50 font-mono text-sm focus:border-cyan-400 focus:ring-cyan-400/20"
         />
         <div className="flex flex-wrap gap-2">
           {filteredTags.map((tag) => (
             <Badge
               key={tag}
-              variant={selectedTags.includes(tag) ? 'default' : 'outline'}
-              className="cursor-pointer"
+              variant="outline"
+              className={`cursor-pointer transition-all duration-300 font-mono ${
+                selectedTags.includes(tag) 
+                  ? 'bg-cyan-100 text-cyan-700 border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.2)]' 
+                  : 'bg-white text-slate-500 border-cyan-200 hover:border-cyan-300 hover:text-cyan-600'
+              }`}
               onClick={() => toggleTag(tag)}
             >
               {tag}
@@ -139,54 +143,57 @@ export function GlobalTagSearch() {
 
       {selectedTags.length > 0 && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
-            Selected: {selectedTags.join(', ')}
+          <span className="text-sm text-cyan-600/80 font-mono">
+            SELECTED: <span className="text-cyan-700">{selectedTags.join(', ')}</span>
           </span>
-          <Button variant="ghost" size="sm" onClick={clearSelection}>
+          <Button variant="ghost" size="sm" onClick={clearSelection} className="text-rose-500 hover:text-rose-600 hover:bg-rose-100 h-6 text-xs uppercase font-mono tracking-wider">
             Clear
           </Button>
         </div>
       )}
 
       {loading && (
-        <p className="text-sm text-muted-foreground">Searching...</p>
+        <div className="flex items-center gap-2 text-cyan-600/80 font-mono text-sm animate-pulse">
+          <div className="h-2 w-2 rounded-full bg-cyan-500"></div>
+          SEARCHING_DATABASE...
+        </div>
       )}
 
       {!loading && selectedTags.length > 0 && searchResults.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          No items found with the selected tags.
+        <p className="text-sm text-rose-500/80 font-mono">
+          ERROR: NO_MATCHING_ITEMS_FOUND
         </p>
       )}
 
       {searchResults.length > 0 && (
-        <div className="border rounded-lg bg-background">
+        <div className="border border-cyan-200 rounded-lg bg-white/50 overflow-hidden mt-4">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Group</TableHead>
-                <TableHead>Key</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Tags</TableHead>
+            <TableHeader className="bg-cyan-50/50">
+              <TableRow className="border-b-cyan-200 hover:bg-transparent">
+                <TableHead className="text-cyan-700/70 font-mono text-xs uppercase">Group</TableHead>
+                <TableHead className="text-cyan-700/70 font-mono text-xs uppercase">Key</TableHead>
+                <TableHead className="text-cyan-700/70 font-mono text-xs uppercase">Value</TableHead>
+                <TableHead className="text-cyan-700/70 font-mono text-xs uppercase">Tags</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {searchResults.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.group.name}</TableCell>
-                  <TableCell className="font-mono text-sm">{item.key}</TableCell>
+                <TableRow key={item.id} className="border-b-cyan-100 hover:bg-cyan-50/30 transition-colors">
+                  <TableCell className="font-medium text-slate-700">{item.group.name}</TableCell>
+                  <TableCell className="font-mono text-sm text-cyan-700">{item.key}</TableCell>
                   <TableCell className="max-w-xs">
                     <div className="flex items-center gap-2">
-                      <span className="truncate font-mono text-sm text-muted-foreground">
+                      <span className="truncate font-mono text-sm text-slate-600">
                         {item.value}
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 shrink-0"
+                        className="h-6 w-6 shrink-0 text-cyan-400 hover:text-cyan-600 hover:bg-cyan-100"
                         onClick={() => handleCopyValue(item.id, item.value)}
                       >
                         {copiedId === item.id ? (
-                          <Check className="h-3 w-3 text-green-500" />
+                          <Check className="h-3 w-3 text-emerald-500" />
                         ) : (
                           <Copy className="h-3 w-3" />
                         )}
@@ -198,12 +205,12 @@ export function GlobalTagSearch() {
                       {item.tags.map((tag) => (
                         <Badge
                           key={tag.id}
-                          variant={
+                          variant="outline"
+                          className={`text-xs font-mono border-cyan-200 ${
                             selectedTags.includes(tag.tag)
-                              ? 'default'
-                              : 'secondary'
-                          }
-                          className="text-xs"
+                              ? 'bg-cyan-100 text-cyan-700 border-cyan-400 shadow-[0_0_5px_rgba(6,182,212,0.2)]'
+                              : 'bg-cyan-50 text-cyan-700'
+                          }`}
                         >
                           {tag.tag}
                         </Badge>

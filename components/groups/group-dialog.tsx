@@ -79,42 +79,58 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-white border-cyan-200 text-slate-900 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Edit Group' : 'Add New Group'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-cyan-600 font-mono tracking-wider uppercase">
+              {isEdit ? 'EDIT_SYSTEM_GROUP' : 'INIT_NEW_GROUP'}
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 font-mono text-xs">
               {isEdit
-                ? 'Update the group information below.'
-                : 'Create a new group to organize your key-value configurations.'}
+                ? '// Update group configuration parameters.'
+                : '// Initialize a new configuration node cluster.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="OpenAI Production" {...register('name')} />
+              <Label htmlFor="name" className="text-cyan-600/80 font-mono text-xs uppercase">Name</Label>
+              <Input 
+                id="name" 
+                placeholder="SYSTEM_NODE_01" 
+                {...register('name')} 
+                className="bg-white border-cyan-200 text-cyan-700 placeholder:text-cyan-600/50 font-mono focus:border-cyan-400 focus:ring-cyan-400/20"
+              />
               {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
+                <p className="text-sm text-rose-500 font-mono">{errors.name.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description (Optional)</Label>
+              <Label htmlFor="description" className="text-cyan-600/80 font-mono text-xs uppercase">Description</Label>
               <Textarea
                 id="description"
-                placeholder="Production configuration for OpenAI API"
+                placeholder="// Optional system description"
                 {...register('description')}
+                className="bg-white border-cyan-200 text-cyan-700 placeholder:text-cyan-600/50 font-mono focus:border-cyan-400 focus:ring-cyan-400/20 min-h-[100px]"
               />
               {errors.description && (
-                <p className="text-sm text-destructive">{errors.description.message}</p>
+                <p className="text-sm text-rose-500 font-mono">{errors.description.message}</p>
               )}
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="bg-white text-cyan-600 border border-cyan-200 hover:bg-cyan-50 hover:text-cyan-700 transition-all font-mono uppercase tracking-wider"
+            >
+              {loading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent mr-2" />
+                  PROCESSING...
+                </>
+              ) : (
+                isEdit ? 'UPDATE_NODE' : 'INITIALIZE_NODE'
+              )}
             </Button>
           </DialogFooter>
         </form>

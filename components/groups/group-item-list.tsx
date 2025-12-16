@@ -80,8 +80,8 @@ export function GroupItemList({ groupId, items, onRefresh }: GroupItemListProps)
   };
 
   return (
-    <div className="space-y-4 pl-8 pr-4 pb-4">
-      <div className="flex justify-between items-start gap-4">
+    <div className="h-full flex flex-col space-y-4 p-6">
+      <div className="flex justify-between items-start gap-4 flex-shrink-0">
         <TagFilter
           availableTags={availableTags}
           selectedTags={selectedTags}
@@ -90,9 +90,9 @@ export function GroupItemList({ groupId, items, onRefresh }: GroupItemListProps)
         <GroupItemDialog
           groupId={groupId}
           trigger={
-            <Button size="sm">
+            <Button size="sm" className="bg-white text-cyan-600 border border-cyan-200 hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-300 font-mono text-xs">
               <Plus className="mr-2 h-4 w-4" />
-              Add Item
+              ADD_ITEM
             </Button>
           }
           onSuccess={onRefresh}
@@ -100,43 +100,43 @@ export function GroupItemList({ groupId, items, onRefresh }: GroupItemListProps)
       </div>
 
       {filteredItems.length === 0 ? (
-        <div className="text-center py-6 border-2 border-dashed rounded-lg">
-          <p className="text-muted-foreground">
+        <div className="flex-1 flex items-center justify-center border border-dashed border-cyan-200 rounded-lg bg-white/50 m-1">
+          <p className="text-cyan-600/50 font-mono text-sm">
             {items.length === 0
-              ? 'No items in this group yet'
-              : 'No items match the selected tags'}
+              ? 'NO_ITEMS_DETECTED'
+              : 'FILTER_MATCH_FAILED'}
           </p>
         </div>
       ) : (
-        <div className="border rounded-lg">
+        <div className="flex-1 overflow-auto border border-cyan-200 rounded-lg bg-white/60 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">Key</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead className="w-[200px]">Tags</TableHead>
+            <TableHeader className="bg-cyan-50/50 sticky top-0 z-10 backdrop-blur-md">
+              <TableRow className="border-b-cyan-200 hover:bg-transparent">
+                <TableHead className="w-[200px] text-cyan-700/70 font-mono text-xs uppercase pl-4">Key</TableHead>
+                <TableHead className="text-cyan-700/70 font-mono text-xs uppercase">Value</TableHead>
+                <TableHead className="w-[200px] text-cyan-700/70 font-mono text-xs uppercase">Tags</TableHead>
                 <TableHead className="w-[70px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium font-mono text-sm">
+                <TableRow key={item.id} className="border-b-cyan-100 hover:bg-cyan-50/30 transition-colors group">
+                  <TableCell className="font-medium font-mono text-sm text-cyan-700 pl-4">
                     {item.key}
                   </TableCell>
                   <TableCell className="max-w-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate font-mono text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 group/value">
+                      <span className="truncate font-mono text-sm text-slate-600">
                         {item.value}
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 shrink-0"
+                        className="h-6 w-6 shrink-0 text-cyan-400 hover:text-cyan-600 hover:bg-cyan-100 opacity-0 group-hover/value:opacity-100 transition-opacity"
                         onClick={() => handleCopyValue(item.id, item.value)}
                       >
                         {copiedId === item.id ? (
-                          <Check className="h-3 w-3 text-green-500" />
+                          <Check className="h-3 w-3 text-emerald-500" />
                         ) : (
                           <Copy className="h-3 w-3" />
                         )}
@@ -147,22 +147,26 @@ export function GroupItemList({ groupId, items, onRefresh }: GroupItemListProps)
                     <div className="flex flex-wrap gap-1">
                       {item.tags.length > 0 ? (
                         item.tags.map((tag) => (
-                          <Badge key={tag.id} variant="secondary" className="text-xs">
+                          <Badge 
+                            key={tag.id} 
+                            variant="outline" 
+                            className="text-[10px] font-mono bg-cyan-50/50 text-cyan-700 border-cyan-200"
+                          >
                             {tag.tag}
                           </Badge>
                         ))
                       ) : (
-                        <span className="text-muted-foreground">-</span>
+                        <span className="text-slate-300 text-xs">-</span>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <GroupItemDialog
                         groupId={groupId}
                         item={item}
                         trigger={
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-100">
                             <Pencil className="h-4 w-4" />
                           </Button>
                         }
@@ -171,7 +175,7 @@ export function GroupItemList({ groupId, items, onRefresh }: GroupItemListProps)
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-100"
                         onClick={() => handleDelete(item.id)}
                       >
                         <Trash2 className="h-4 w-4" />

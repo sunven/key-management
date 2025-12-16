@@ -136,38 +136,46 @@ export function GroupItemDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] bg-white border-cyan-200 text-slate-900 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Edit Item' : 'Add New Item'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-cyan-600 font-mono tracking-wider uppercase">
+              {isEdit ? 'MODIFY_CONFIG_ITEM' : 'INSERT_NEW_ITEM'}
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 font-mono text-xs">
               {isEdit
-                ? 'Update the key-value configuration below.'
-                : 'Add a new key-value pair to this group.'}
+                ? '// Update the key-value configuration below.'
+                : '// Add a new key-value pair to this group.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="key">Key</Label>
-              <Input id="key" placeholder="api_endpoint" {...register('key')} />
+              <Label htmlFor="key" className="text-cyan-600/80 font-mono text-xs uppercase">Key</Label>
+              <Input 
+                id="key" 
+                placeholder="CONFIG_KEY_NAME" 
+                {...register('key')} 
+                className="bg-white border-cyan-200 text-cyan-700 placeholder:text-cyan-600/50 font-mono focus:border-cyan-400 focus:ring-cyan-400/20"
+              />
               {errors.key && (
-                <p className="text-sm text-destructive">{errors.key.message}</p>
+                <p className="text-sm text-rose-500 font-mono">{errors.key.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="value">Value</Label>
+              <Label htmlFor="value" className="text-cyan-600/80 font-mono text-xs uppercase">Value</Label>
               <Textarea
                 id="value"
-                placeholder="https://api.openai.com/v1"
+                placeholder="// Configuration value..."
                 rows={3}
                 {...register('value')}
+                className="bg-white border-cyan-200 text-cyan-700 placeholder:text-cyan-600/50 font-mono focus:border-cyan-400 focus:ring-cyan-400/20"
               />
               {errors.value && (
-                <p className="text-sm text-destructive">{errors.value.message}</p>
+                <p className="text-sm text-rose-500 font-mono">{errors.value.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label>Tags (Optional)</Label>
+              <Label className="text-cyan-600/80 font-mono text-xs uppercase">Tags</Label>
               <Controller
                 name="tags"
                 control={control}
@@ -175,25 +183,33 @@ export function GroupItemDialog({
                   <TagInput
                     value={field.value || []}
                     onChange={field.onChange}
-                    placeholder="Type or select existing tags"
+                    placeholder="ADD_TAGS..."
                     suggestions={tagSuggestions}
                     onFetchSuggestions={fetchTagSuggestions}
                   />
                 )}
               />
               {errors.tags && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-rose-500 font-mono">
                   {errors.tags.message || (errors.tags as unknown as { root?: { message?: string } })?.root?.message}
                 </p>
               )}
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="bg-white text-cyan-600 border border-cyan-200 hover:bg-cyan-50 hover:text-cyan-700 transition-all font-mono uppercase tracking-wider"
+            >
+              {loading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent mr-2" />
+                  PROCESSING...
+                </>
+              ) : (
+                isEdit ? 'UPDATE_ITEM' : 'INSERT_ITEM'
+              )}
             </Button>
           </DialogFooter>
         </form>

@@ -34,17 +34,17 @@ export function TagFilter({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground">
-          Filter by tags:
+        <span className="text-xs font-mono text-cyan-600/80 uppercase tracking-wider">
+          FILTER_BY_TAGS:
         </span>
         {selectedTags.length > 0 && (
           <Button
             variant="ghost"
             size="sm"
             onClick={clearFilter}
-            className="h-6 px-2 text-xs"
+            className="h-6 px-2 text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-100 font-mono"
           >
-            Clear filter
+            CLEAR_FILTER
           </Button>
         )}
       </div>
@@ -52,8 +52,12 @@ export function TagFilter({
         {availableTags.map((tag) => (
           <Badge
             key={tag}
-            variant={selectedTags.includes(tag) ? 'default' : 'outline'}
-            className="cursor-pointer"
+            variant="outline"
+            className={`cursor-pointer transition-all duration-300 font-mono text-xs ${
+              selectedTags.includes(tag)
+                ? 'bg-cyan-100 text-cyan-700 border-cyan-400 shadow-[0_0_5px_rgba(6,182,212,0.2)]'
+                : 'bg-white text-slate-500 border-cyan-200 hover:border-cyan-300 hover:text-cyan-600'
+            }`}
             onClick={() => toggleTag(tag)}
           >
             {tag}
