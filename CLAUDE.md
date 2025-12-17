@@ -23,12 +23,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **multi-user key management application** for securely storing and managing API provider credentials and tokens. Built with Next.js 16 (App Router), React 19, TypeScript, Supabase (PostgreSQL), Prisma ORM, NextAuth.js v5, and shadcn/ui components.
+This is a **multi-user configuration management application** for securely storing and managing configuration groups with sharing capabilities. Built with Next.js 16 (App Router), React 19, TypeScript, Supabase (PostgreSQL), Prisma ORM, NextAuth.js v5, and shadcn/ui components.
 
 **Core Features:**
 - Google OAuth authentication with multi-user isolation
-- Provider management (API base URLs and metadata)
-- Token management with masked display (click to reveal)
 - Group management (key-value storage with tagging system)
 - **Group sharing** (public links and private email invitations)
 - Full CRUD operations with user-scoped access control
@@ -73,10 +71,6 @@ The application uses a **multi-table relational schema** with user isolation enf
 ```
 users (from NextAuth)
   ↓ (one-to-many)
-  ├── providers (user_id FK with CASCADE delete)
-  │     ↓ (one-to-many)
-  │     └── tokens (provider_id FK with CASCADE delete)
-  │
   ├── groups (user_id FK with CASCADE delete)
   │     ↓ (one-to-many)
   │     ├── group_items (group_id FK with CASCADE delete)
@@ -92,19 +86,17 @@ users (from NextAuth)
 
 **Key schema details** ([prisma/schema.prisma](prisma/schema.prisma)):
 - `users`: Auto-synced during Google OAuth sign-in (see [auth.ts](auth.ts) callbacks)
-- `providers`: Each provider belongs to one user; deleting a user cascades to providers
-- `tokens`: Each token belongs to one provider; deleting a provider cascades to tokens
-- `groups`: Independent key-value storage system per user (separate from providers/tokens)
+- `groups`: Key-value storage system per user with tagging
 - `group_items`: Key-value pairs within a group (unique constraint on groupId + key)
 - `item_tags`: Tags for group items with indexing for fast search
 - `shares`: Share records linking users to groups (one group can have at most one share)
 - `share_invitations`: Email invitations for private shares with status tracking
-- All tables use Prisma relations for type-safe joins (`include: { tokens: true }`)
+- All tables use Prisma relations for type-safe joins (`include: { items: true }`)
 
 **User isolation enforcement:**
-- Database level: Foreign key `userId` on providers and groups tables
+- Database level: Foreign key `userId` on groups tables
 - API level: All routes filter by `session.user.id` (see API routes below)
-- Never query providers/tokens/groups without checking ownership
+- Never query groups without checking ownership
 
 ### Authentication Flow
 
@@ -143,18 +135,18 @@ export async function GET() {
 
 All API routes follow a **consistent pattern** for user isolation:
 
-**List/Create pattern** ([app/api/providers/route.ts](app/api/providers/route.ts), [app/api/tokens/route.ts](app/api/tokens/route.ts), [app/api/groups/route.ts](app/api/groups/route.ts)):
+**List/Create pattern** ([app/api/groups/route.ts](app/api/groups/route.ts), [app/api/shares/route.ts](app/api/shares/route.ts)):
 - `GET`: Query with `where: { userId }` or filter results by ownership
 - `POST`: Validate with Zod, insert with `userId` from session
 - Always check session before database operations
 
-**Get/Update/Delete pattern** ([app/api/providers/[id]/route.ts](app/api/providers/[id]/route.ts), [app/api/tokens/[id]/route.ts](app/api/tokens/[id]/route.ts), [app/api/groups/[id]/route.ts](app/api/groups/[id]/route.ts)):
+**Get/Update/Delete pattern** ([app/api/groups/[id]/route.ts](app/api/groups/[id]/route.ts)):
 - Verify ownership with `where: { id, userId }`
 - Return 404 if not found OR not owned by user (don't leak existence)
 - Use `params` as `Promise<{ id: string }>` (Next.js 16 requirement)
 
 **Common mistakes to avoid:**
-- ❌ Querying all providers/tokens without user filter
+- ❌ Querying all groups without user filter
 - ❌ Using OAuth user ID instead of database user ID
 - ❌ Forgetting to parse `session.user.id` to integer
 - ❌ Not awaiting `params` in dynamic routes (`await params`)
@@ -163,7 +155,7 @@ All API routes follow a **consistent pattern** for user isolation:
 
 **Server vs Client Components:**
 - Pages ([app/*/page.tsx](app/page.tsx)): Server Components that fetch data
-- Lists/Dialogs ([components/providers/*](components/providers/), [components/tokens/*](components/tokens/), [components/groups/*](components/groups/)): Client Components with `'use client'`
+- Lists/Dialogs ([components/groups/*](components/groups/), [components/shares/*](components/shares/)): Client Components with `'use client'`
 - Layout ([components/layout/navbar.tsx](components/layout/navbar.tsx)): Server Component
 - User Menu ([components/layout/user-menu.tsx](components/layout/user-menu.tsx)): Client Component (uses `signOut` from `next-auth/react`)
 
@@ -185,22 +177,18 @@ All API routes follow a **consistent pattern** for user isolation:
 - [types/next-auth.d.ts](types/next-auth.d.ts): TypeScript augmentation for session.user.id
 
 **Database:**
-- [prisma/schema.prisma](prisma/schema.prisma): Prisma schema with relations (users, providers, tokens, groups, group_items, item_tags)
+- [prisma/schema.prisma](prisma/schema.prisma): Prisma schema with relations (users, groups, group_items, item_tags, shares, share_invitations)
 - [lib/db/prisma.ts](lib/db/prisma.ts): Prisma Client instance (database connection)
 - [lib/schemas.ts](lib/schemas.ts): Zod validation schemas for all entities
 
 **API Routes:**
 - [app/api/auth/[...nextauth]/route.ts](app/api/auth/[...nextauth]/route.ts): NextAuth.js handlers export
-- [app/api/providers/*](app/api/providers/): Provider CRUD with user isolation
-- [app/api/tokens/*](app/api/tokens/): Token CRUD with provider ownership verification
 - [app/api/groups/*](app/api/groups/): Group CRUD with nested items and tags
 - [app/api/tags/*](app/api/tags/): Tag search and management
 - [app/api/shares/*](app/api/shares/): Share management (create, list, revoke, content access, invitations)
 
 **UI Components:**
 - [components/ui/*](components/ui/): shadcn/ui base components (do not edit directly)
-- [components/providers/](components/providers/): Provider management components
-- [components/tokens/](components/tokens/): Token management components
 - [components/groups/](components/groups/): Group management with tag filtering and search
 - [components/shares/](components/shares/): Share management components
 
@@ -281,7 +269,7 @@ This project uses **OpenSpec** for managing architectural changes and feature pr
    ```
 
 3. **API routes** (`app/api/projects/route.ts`):
-   - Follow existing provider/token route patterns
+   - Follow existing group/share route patterns
    - Enforce user isolation with `where: { userId }`
 
 4. **Components** (`components/projects/`):
@@ -297,24 +285,16 @@ All forms use **React Hook Form + Zod**:
 - Handle submission with try/catch, show errors via `toast.error()` from `sonner`
 - Success feedback via `toast.success()` or callback refresh
 
-### Token Security
-
-**Token masking implementation:**
-- Stored as plain text in database (application-level encryption not implemented)
-- Masked in UI: `maskToken()` shows `***...last4chars`
-- Click eye icon to reveal (state in `visibleTokens: Set<number>`)
-- Never log tokens to console or error messages
-
 ### Groups Feature
 
-**Groups provide flexible key-value storage separate from providers/tokens:**
+**Groups provide flexible key-value storage:**
 - Each group contains multiple key-value items
 - Items can have multiple tags for organization and search
 - Tag validation: alphanumeric, Chinese characters, hyphens, underscores only (see [lib/schemas.ts](lib/schemas.ts))
 - Unique constraint: `groupId + key` must be unique
 - Global tag search across all groups ([app/api/tags/search/route.ts](app/api/tags/search/route.ts))
 - Tag filtering within groups
-- Use cases: Environment variables, configuration sets, API keys not tied to specific providers
+- Use cases: Environment variables, configuration sets, any key-value data
 
 ### Group Sharing Feature
 
@@ -352,7 +332,7 @@ All forms use **React Hook Form + Zod**:
 ### Database Queries
 
 **Prisma ORM patterns used:**
-- Relational queries: `prisma.provider.findMany({ include: { tokens: true } })`
+- Relational queries: `prisma.group.findMany({ include: { items: true } })`
 - Filtering: `where: { field: value }` or `where: { field1: value1, field2: value2 }`
 - Mutations: `prisma.table.create({ data: {...} })`
 - Updates: `prisma.table.update({ where: { id }, data: {...} })`

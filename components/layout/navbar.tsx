@@ -19,12 +19,6 @@ export async function Navbar() {
             DASHBOARD
           </Link>
           <Link
-            href="/providers"
-            className="text-sm font-medium transition-all duration-300 font-mono text-slate-400 hover:text-cyan-400 hover:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]"
-          >
-            PROVIDERS
-          </Link>
-          <Link
             href="/groups"
             className="text-sm font-medium transition-all duration-300 font-mono text-slate-400 hover:text-cyan-400 hover:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]"
           >

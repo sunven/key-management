@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import {
   Share2,
@@ -218,7 +218,7 @@ export function ShareList() {
           </TableHeader>
           <TableBody>
             {shares.map((share) => (
-              <>
+              <React.Fragment key={share.id}>
                 <TableRow
                   key={share.id}
                   className="border-cyan-800/30 hover:bg-cyan-950/20 transition-colors"
@@ -347,7 +347,7 @@ export function ShareList() {
                     </TableCell>
                   </TableRow>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </TableBody>
         </Table>

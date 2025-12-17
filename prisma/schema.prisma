@@ -13,48 +13,18 @@ datasource db {
 
 // Users table (synced from NextAuth)
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
   name      String?
   image     String?
-  createdAt DateTime   @default(now()) @map("created_at")
-  providers Provider[]
+  createdAt DateTime @default(now()) @map("created_at")
   groups    Group[]
   shares    Share[]
 
   @@map("users")
 }
 
-// Providers table
-model Provider {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @map("user_id")
-  baseUrl     String   @map("base_url")
-  name        String
-  description String?
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tokens      Token[]
-
-  @@map("providers")
-}
-
-// Tokens table
-model Token {
-  id          Int      @id @default(autoincrement())
-  providerId  Int      @map("provider_id")
-  token       String
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-
-  @@map("tokens")
-}
-
-// Groups table - independent from Provider-Token system
+// Groups table
 model Group {
   id          Int         @id @default(autoincrement())
   userId      Int         @map("user_id")

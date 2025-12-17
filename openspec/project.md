@@ -2,13 +2,14 @@
 
 ## Purpose
 
-这是一个**多用户密钥管理应用**，用于安全存储和管理 API 提供商的凭证和令牌。该应用使团队和个人能够在一个安全的、用户隔离的环境中集中管理他们的 API 密钥、令牌和提供商配置。
+这是一个**多用户配置管理应用**，用于安全存储和管理配置组和共享。该应用使团队和个人能够在一个安全的、用户隔离的环境中集中管理他们的配置数据，并通过公共或私有链接进行共享。
 
 **核心目标：**
-- 为多个用户提供 API 提供商凭证的安全存储
+- 为多个用户提供配置组（Groups）的安全存储
 - 在数据库和 API 层面强制执行严格的用户隔离
-- 提供直观的 UI 来管理提供商和令牌，具备安全功能（令牌遮罩）
+- 提供直观的 UI 来管理配置组和共享功能
 - 支持完整的 CRUD 操作，具有适当的身份验证和授权
+- 支持通过公共链接或私有邀请共享配置组
 
 ## Tech Stack
 
@@ -42,17 +43,17 @@
 - 对象形状优先使用 `interface`，联合/交叉类型使用 `type`
 
 **命名约定：**
-- 文件：kebab-case（`provider-list.tsx`、`token-dialog.tsx`）
-- 组件：PascalCase（`ProviderList`、`TokenDialog`）
+- 文件：kebab-case（`group-list.tsx`、`share-dialog.tsx`）
+- 组件：PascalCase（`GroupList`、`ShareDialog`）
 - 函数/变量：camelCase（`getUserId`、`currentSession`）
 - 常量：真正的常量使用 UPPER_SNAKE_CASE
-- 数据库表：复数小写（`users`、`providers`、`tokens`）
+- 数据库表：复数小写（`users`、`groups`、`shares`）
 
 **文件组织：**
 - 页面：`app/*/page.tsx`
 - API 路由：`app/api/*/route.ts`
 - UI 组件：`components/ui/*`（shadcn - 不要直接编辑）
-- 功能组件：`components/{feature}/*`（providers、tokens）
+- 功能组件：`components/{feature}/*`（groups、shares）
 - 数据库：`prisma/schema.prisma`（单一真实来源）
 - 认证：`auth.ts`（NextAuth 配置）
 
@@ -81,9 +82,13 @@
 ```
 users（NextAuth 自动同步）
   ↓ userId FK（CASCADE delete）
-providers（用户所有）
-  ↓ providerId FK（CASCADE delete）
-tokens（提供商所有）
+  ├── groups（用户所有的配置组）
+  │     ↓ groupId FK（CASCADE delete）
+  │     └── group_items（配置项）
+  │           ↓ itemId FK（CASCADE delete）
+  │           └── item_tags（标签）
+  │
+  └── shares（用户创建的共享）
 ```
 
 **API 路由模式：**
@@ -127,31 +132,38 @@ tokens（提供商所有）
 
 ## Domain Context
 
-**密钥管理概念：**
-- **Provider（提供商）**：API 服务（如 OpenAI、Anthropic），包含基础 URL 和元数据
-- **Token（令牌）**：与提供商关联的 API 密钥/凭证
-- **User Isolation（用户隔离）**：每个用户只能访问自己的提供商和令牌
+**配置管理概念：**
+- **Group（组）**：配置数据的容器，包含多个键值对项目
+- **Group Item（组项）**：组内的键值对数据，可以附加标签
+- **Tag（标签）**：用于组织和搜索配置项的元数据
+- **Share（共享）**：将组共享给其他用户的机制（公共或私有）
+- **User Isolation（用户隔离）**：每个用户只能访问自己的组和共享
+
+**共享模型：**
+- 公共共享：任何人都可以通过链接访问（无需登录）
+- 私有共享：仅限邀请的用户访问（需要登录和接受邀请）
+- 邀请令牌：用于私有共享的临时邀请链接
 
 **安全模型：**
 - 通过外键实现数据库级隔离
 - 通过会话检查实现 API 级强制执行
-- UI 中的令牌遮罩（显示 `***...last4`）
-- 点击显示完整令牌值
-- 令牌以明文存储（未实现应用级加密）
+- 共享权限验证（公共链接或私有邀请）
 
 **多用户架构：**
 - 使用 Google OAuth 进行身份验证（无密码管理）
 - 每个用户拥有隔离的数据分区
-- 级联删除：user → providers → tokens
+- 级联删除：user → groups → group_items → item_tags
+- 级联删除：user → shares → share_invitations
 - 会话包含数据库用户 ID（非 OAuth ID）
 
 ## Important Constraints
 
 **安全性：**
 - 所有数据库查询必须按 `userId` 过滤（用户隔离）
-- 永远不要在日志或错误消息中暴露令牌
+- 永远不要在日志或错误消息中暴露敏感数据
 - GET/UPDATE/DELETE 操作前始终验证所有权
 - 不向未授权用户泄露资源存在性（所有失败返回 404）
+- 共享访问需要适当的权限验证
 
 **身份验证：**
 - Google OAuth 是唯一的身份验证方法
@@ -171,7 +183,7 @@ tokens（提供商所有）
 - React 19 自动 JSX 转换（无需导入 React）
 
 **性能：**
-- 使用关系查询获取连接数据（`include: { tokens: true }`）
+- 使用关系查询获取连接数据（`include: { items: true }`）
 - 最小化客户端 JavaScript（优先使用服务器组件）
 - 当前无缓存策略（直接数据库查询）
 
