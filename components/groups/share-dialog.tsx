@@ -125,14 +125,14 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] bg-slate-950/90 border-cyan-800/50 text-cyan-100 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/20">
+      <DialogContent className="sm:max-w-[500px] bg-background/90 border/50 text-foreground backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/20">
         <DialogHeader>
-          <DialogTitle className="text-cyan-400 font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] flex items-center gap-2">
+          <DialogTitle className="text-primary font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] flex items-center gap-2">
             <Share2 className="h-5 w-5" />
             SHARE_GROUP
           </DialogTitle>
           <DialogDescription className="text-cyan-600/70 font-mono text-xs">
-            // Sharing: <span className="text-cyan-400">{groupName}</span>
+            // Sharing: <span className="text-primary">{groupName}</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -146,19 +146,19 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
               </AlertDescription>
             </Alert>
             <div className="space-y-2">
-              <Label className="text-cyan-500 font-mono text-xs uppercase tracking-wider">
+              <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">
                 Share Link
               </Label>
               <div className="flex gap-2">
                 <Input
                   value={shareResult.shareUrl}
                   readOnly
-                  className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 font-mono text-sm"
+                  className="bg-card/50 border/50 text-foreground font-mono text-sm"
                 />
                 <Button
                   type="button"
                   onClick={handleCopyLink}
-                  className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50"
+                  className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50"
                 >
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 </Button>
@@ -168,7 +168,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
               <Button
                 type="button"
                 onClick={handleClose}
-                className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 font-mono uppercase tracking-wider"
+                className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono uppercase tracking-wider"
               >
                 CLOSE
               </Button>
@@ -179,7 +179,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
           <div className="py-4 space-y-6">
             {/* Share Type Selection */}
             <div className="space-y-3">
-              <Label className="text-cyan-500 font-mono text-xs uppercase tracking-wider">
+              <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">
                 Share Type
               </Label>
               <RadioGroup
@@ -191,7 +191,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                   className={`flex items-start space-x-3 p-3 rounded-lg border transition-all cursor-pointer ${
                     shareType === 'PUBLIC'
                       ? 'border-cyan-500/50 bg-cyan-950/30'
-                      : 'border-slate-700/50 bg-slate-900/30 hover:border-slate-600/50'
+                      : 'border-slate-700/50 bg-card/30 hover:border-slate-600/50'
                   }`}
                   onClick={() => setShareType('PUBLIC')}
                 >
@@ -199,7 +199,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                   <div className="space-y-1">
                     <Label
                       htmlFor="public"
-                      className="text-cyan-400 font-mono text-sm cursor-pointer flex items-center gap-2"
+                      className="text-primary font-mono text-sm cursor-pointer flex items-center gap-2"
                     >
                       <Globe className="h-4 w-4" />
                       Public Share
@@ -213,7 +213,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                   className={`flex items-start space-x-3 p-3 rounded-lg border transition-all cursor-pointer ${
                     shareType === 'PRIVATE'
                       ? 'border-cyan-500/50 bg-cyan-950/30'
-                      : 'border-slate-700/50 bg-slate-900/30 hover:border-slate-600/50'
+                      : 'border-slate-700/50 bg-card/30 hover:border-slate-600/50'
                   }`}
                   onClick={() => setShareType('PRIVATE')}
                 >
@@ -221,7 +221,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                   <div className="space-y-1">
                     <Label
                       htmlFor="private"
-                      className="text-cyan-400 font-mono text-sm cursor-pointer flex items-center gap-2"
+                      className="text-primary font-mono text-sm cursor-pointer flex items-center gap-2"
                     >
                       <Lock className="h-4 w-4" />
                       Private Share
@@ -237,7 +237,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
             {/* Email Input (only for PRIVATE) */}
             {shareType === 'PRIVATE' && (
               <div className="space-y-3">
-                <Label className="text-cyan-500 font-mono text-xs uppercase tracking-wider">
+                <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">
                   Invite Users (Email)
                 </Label>
                 <div className="flex gap-2">
@@ -247,12 +247,12 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 placeholder:text-cyan-900/50 font-mono"
+                    className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono"
                   />
                   <Button
                     type="button"
                     onClick={handleAddEmail}
-                    className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50"
+                    className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50"
                   >
                     Add
                   </Button>
@@ -263,7 +263,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                       <Badge
                         key={email}
                         variant="secondary"
-                        className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 font-mono text-xs"
+                        className="bg-cyan-950/50 text-primary border border/50 font-mono text-xs"
                       >
                         {email}
                         <button
@@ -295,7 +295,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                 type="button"
                 variant="outline"
                 onClick={handleClose}
-                className="bg-transparent text-cyan-600 border-cyan-800/50 hover:bg-slate-900/50 font-mono uppercase tracking-wider"
+                className="bg-transparent text-cyan-600 border/50 hover:bg-card/50 font-mono uppercase tracking-wider"
               >
                 CANCEL
               </Button>
@@ -303,7 +303,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                 type="button"
                 onClick={handleCreateShare}
                 disabled={loading || (shareType === 'PRIVATE' && emails.length === 0)}
-                className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 hover:text-cyan-300 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all font-mono uppercase tracking-wider"
+                className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 hover:text-primary hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all font-mono uppercase tracking-wider"
               >
                 {loading ? (
                   <>

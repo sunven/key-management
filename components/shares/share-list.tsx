@@ -189,10 +189,10 @@ export function ShareList() {
   if (shares.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-slate-900/50 border border-cyan-900/30 flex items-center justify-center mb-4">
+        <div className="w-16 h-16 rounded-2xl bg-card/50 border border/30 flex items-center justify-center mb-4">
           <Share2 className="w-8 h-8 text-cyan-900" />
         </div>
-        <h3 className="text-cyan-400 font-mono text-lg mb-2">NO_SHARES_FOUND</h3>
+        <h3 className="text-primary font-mono text-lg mb-2">NO_SHARES_FOUND</h3>
         <p className="text-cyan-600/70 font-mono text-sm max-w-md">
           You haven&apos;t shared any groups yet. Go to Groups and click the SHARE button to create
           your first share.
@@ -203,15 +203,15 @@ export function ShareList() {
 
   return (
     <>
-      <div className="rounded-lg border border-cyan-800/50 overflow-hidden bg-slate-950/50">
+      <div className="rounded-lg border border/50 overflow-hidden bg-background/50">
         <Table>
           <TableHeader>
-            <TableRow className="border-cyan-800/50 hover:bg-transparent">
-              <TableHead className="text-cyan-500 font-mono text-xs uppercase">Group</TableHead>
-              <TableHead className="text-cyan-500 font-mono text-xs uppercase">Type</TableHead>
-              <TableHead className="text-cyan-500 font-mono text-xs uppercase">Created</TableHead>
-              <TableHead className="text-cyan-500 font-mono text-xs uppercase">Status</TableHead>
-              <TableHead className="text-cyan-500 font-mono text-xs uppercase text-right">
+            <TableRow className="border/50 hover:bg-transparent">
+              <TableHead className="text-foreground0 font-mono text-xs uppercase">Group</TableHead>
+              <TableHead className="text-foreground0 font-mono text-xs uppercase">Type</TableHead>
+              <TableHead className="text-foreground0 font-mono text-xs uppercase">Created</TableHead>
+              <TableHead className="text-foreground0 font-mono text-xs uppercase">Status</TableHead>
+              <TableHead className="text-foreground0 font-mono text-xs uppercase text-right">
                 Actions
               </TableHead>
             </TableRow>
@@ -221,15 +221,15 @@ export function ShareList() {
               <React.Fragment key={share.id}>
                 <TableRow
                   key={share.id}
-                  className="border-cyan-800/30 hover:bg-cyan-950/20 transition-colors"
+                  className="border/30 hover:bg-cyan-950/20 transition-colors"
                 >
-                  <TableCell className="font-mono text-cyan-100">{share.group.name}</TableCell>
+                  <TableCell className="font-mono text-foreground">{share.group.name}</TableCell>
                   <TableCell>
                     <Badge
                       variant="outline"
                       className={`font-mono text-xs ${
                         share.type === 'PUBLIC'
-                          ? 'border-cyan-500/50 text-cyan-400 bg-cyan-950/30'
+                          ? 'border-cyan-500/50 text-primary bg-cyan-950/30'
                           : 'border-fuchsia-500/50 text-fuchsia-400 bg-fuchsia-950/30'
                       }`}
                     >
@@ -250,7 +250,7 @@ export function ShareList() {
                         onClick={() =>
                           setExpandedShareId(expandedShareId === share.id ? null : share.id)
                         }
-                        className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+                        className="flex items-center gap-2 text-primary hover:text-primary transition-colors"
                       >
                         <span className="font-mono text-xs">
                           {share.invitations.filter((i) => i.status === 'ACCEPTED').length}/
@@ -272,7 +272,7 @@ export function ShareList() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopyLink(share.id, share.shareUrl)}
-                        className="h-8 text-cyan-500 hover:text-cyan-300 hover:bg-cyan-950/50"
+                        className="h-8 text-foreground0 hover:text-primary hover:bg-cyan-950/50"
                       >
                         {copiedId === share.id ? (
                           <Check className="h-4 w-4" />
@@ -297,19 +297,19 @@ export function ShareList() {
 
                 {/* Expanded invitations */}
                 {expandedShareId === share.id && share.type === 'PRIVATE' && (
-                  <TableRow className="border-cyan-800/30 bg-slate-900/30">
+                  <TableRow className="border/30 bg-card/30">
                     <TableCell colSpan={5} className="p-4">
                       <div className="space-y-2">
-                        <h4 className="text-cyan-400 font-mono text-xs uppercase mb-3">
+                        <h4 className="text-primary font-mono text-xs uppercase mb-3">
                           Invitations
                         </h4>
                         {share.invitations.map((invitation) => (
                           <div
                             key={invitation.id}
-                            className="flex items-center justify-between p-3 rounded-lg bg-slate-950/50 border border-cyan-800/30"
+                            className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border/30"
                           >
                             <div className="flex items-center gap-3">
-                              <span className="font-mono text-sm text-cyan-100">
+                              <span className="font-mono text-sm text-foreground">
                                 {invitation.email}
                               </span>
                               <Badge
@@ -330,7 +330,7 @@ export function ShareList() {
                                   size="sm"
                                   onClick={() => handleResendInvitation(share.id, invitation.email)}
                                   disabled={resendingEmail === invitation.email}
-                                  className="h-7 text-cyan-500 hover:text-cyan-300 hover:bg-cyan-950/50 font-mono text-xs"
+                                  className="h-7 text-foreground0 hover:text-primary hover:bg-cyan-950/50 font-mono text-xs"
                                 >
                                   {resendingEmail === invitation.email ? (
                                     <div className="h-3 w-3 animate-spin rounded-full border border-cyan-500 border-r-transparent" />
@@ -355,16 +355,16 @@ export function ShareList() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+        <AlertDialogContent className="bg-background/90 border/50 text-foreground">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-cyan-400 font-mono">REVOKE_SHARE</AlertDialogTitle>
+            <AlertDialogTitle className="text-primary font-mono">REVOKE_SHARE</AlertDialogTitle>
             <AlertDialogDescription className="text-cyan-600/70 font-mono text-sm">
               Are you sure you want to revoke this share? The share link will immediately stop
               working and all invited users will lose access.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent text-cyan-600 border-cyan-800/50 hover:bg-slate-900/50 font-mono">
+            <AlertDialogCancel className="bg-transparent text-cyan-600 border/50 hover:bg-card/50 font-mono">
               CANCEL
             </AlertDialogCancel>
             <AlertDialogAction

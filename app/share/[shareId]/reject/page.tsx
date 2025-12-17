@@ -62,13 +62,13 @@ function RejectInvitationContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-background/90 border/50 text-foreground">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-center mb-4">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent" />
             </div>
-            <CardTitle className="text-cyan-400 font-mono">PROCESSING...</CardTitle>
+            <CardTitle className="text-primary font-mono">PROCESSING...</CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
               Processing your response to the invitation
             </CardDescription>
@@ -80,8 +80,8 @@ function RejectInvitationContent() {
 
   if (status === 'error') {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-background/90 border/50 text-foreground">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center mb-4">
               <AlertTriangle className="w-8 h-8 text-rose-400" />
@@ -93,7 +93,7 @@ function RejectInvitationContent() {
           </CardHeader>
           <CardContent>
             <Link href="/">
-              <Button className="w-full bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 font-mono">
+              <Button className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono">
                 <Home className="mr-2 h-4 w-4" />
                 RETURN_HOME
               </Button>
@@ -106,8 +106,8 @@ function RejectInvitationContent() {
 
   // Success state
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <Card className="max-w-md w-full bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="max-w-md w-full bg-background/90 border/50 text-foreground">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center mb-4">
             <XCircle className="w-8 h-8 text-rose-400" />
@@ -119,7 +119,7 @@ function RejectInvitationContent() {
         </CardHeader>
         <CardContent>
           <Link href="/">
-            <Button className="w-full bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 font-mono">
+            <Button className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono">
               <Home className="mr-2 h-4 w-4" />
               RETURN_HOME
             </Button>
@@ -134,7 +134,7 @@ export default function RejectInvitationPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent" />
         </div>
       }

@@ -35,22 +35,22 @@ export function UserMenu({ user }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-cyan-800/50 hover:ring-cyan-400 transition-all duration-300 shadow-[0_0_10px_rgba(6,182,212,0.1)] hover:shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage src={user.image || undefined} alt={user.name || 'User'} />
-            <AvatarFallback className="bg-slate-900 text-cyan-400 font-mono border border-cyan-800">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-muted text-foreground font-mono border">{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 bg-slate-900/95 border-cyan-800 text-cyan-100 backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+      <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none font-mono text-cyan-400">{user.name || 'User'}</p>
-            <p className="text-xs leading-none text-slate-500 font-mono">{user.email}</p>
+            <p className="text-sm font-medium leading-none font-mono">{user.name || 'User'}</p>
+            <p className="text-xs leading-none text-muted-foreground font-mono">{user.email}</p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-cyan-900/50" />
-        <DropdownMenuItem onClick={handleSignOut} className="focus:bg-cyan-950/50 focus:text-cyan-400 cursor-pointer font-mono text-xs uppercase tracking-wider text-slate-400">
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer font-mono text-xs uppercase tracking-wider">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sign out</span>
         </DropdownMenuItem>

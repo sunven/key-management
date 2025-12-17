@@ -147,7 +147,7 @@ export function TagInput({
           <Badge 
             key={tag} 
             variant="outline" 
-            className="gap-1 bg-cyan-950/50 border-cyan-800/50 text-cyan-400 hover:bg-cyan-900/50 shadow-[0_0_5px_rgba(6,182,212,0.2)] font-mono"
+            className="gap-1 bg-cyan-950/50 border/50 text-primary hover:bg-cyan-900/50 shadow-[0_0_5px_rgba(6,182,212,0.2)] font-mono"
           >
             {tag}
             {!disabled && (
@@ -174,26 +174,26 @@ export function TagInput({
             onBlur={handleBlur}
             placeholder={placeholder}
             autoComplete="off"
-            className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 placeholder:text-cyan-900/50 focus-visible:ring-cyan-500/20 focus-visible:border-cyan-500 font-mono transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+            className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 focus-visible:ring-cyan-500/20 focus-visible:border-cyan-500 font-mono transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
           />
           {showSuggestions && filteredSuggestions.length > 0 && (
             <div
               ref={suggestionsRef}
-              className="absolute z-50 w-full mt-1 max-h-48 overflow-auto rounded-md border border-cyan-800/50 bg-slate-950/95 p-1 shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-sm"
+              className="absolute z-50 w-full mt-1 max-h-48 overflow-auto rounded-md border border/50 bg-background/95 p-1 shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-sm"
             >
               {filteredSuggestions.map((tag, index) => (
                 <div
                   key={tag}
                   className={`relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none font-mono transition-colors ${
                     index === selectedIndex
-                      ? 'bg-cyan-950/50 text-cyan-300'
-                      : 'hover:bg-cyan-950/30 hover:text-cyan-400 text-slate-400'
+                      ? 'bg-cyan-950/50 text-primary'
+                      : 'hover:bg-cyan-950/30 hover:text-primary text-muted-foreground'
                   }`}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handleSuggestionClick(tag)}
                   onMouseEnter={() => setSelectedIndex(index)}
                 >
-                  <Badge variant="outline" className="mr-2 border-cyan-800/50 text-cyan-500 bg-slate-900/50">
+                  <Badge variant="outline" className="mr-2 border/50 text-foreground0 bg-card/50">
                     {tag}
                   </Badge>
                 </div>

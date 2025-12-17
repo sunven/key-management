@@ -100,7 +100,7 @@ export default function ShareViewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent"></div>
           <div className="text-cyan-600 font-mono text-sm animate-pulse">
@@ -114,8 +114,8 @@ export default function ShareViewPage() {
   // Handle access denied cases
   if (!accessResult?.canView) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-background/90 border/50 text-foreground">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center mb-4">
               <AlertTriangle className="w-8 h-8 text-rose-400" />
@@ -129,7 +129,7 @@ export default function ShareViewPage() {
             {accessResult?.needsLogin && (
               <Button
                 onClick={() => router.push(`/auth/signin?callbackUrl=/share/${shareId}`)}
-                className="w-full bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 font-mono"
+                className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono"
               >
                 <LogIn className="mr-2 h-4 w-4" />
                 LOGIN_TO_VIEW
@@ -147,7 +147,7 @@ export default function ShareViewPage() {
             <Link href="/">
               <Button
                 variant="outline"
-                className="w-full bg-transparent text-cyan-600 border-cyan-800/50 hover:bg-slate-900/50 font-mono"
+                className="w-full bg-transparent text-cyan-600 border/50 hover:bg-card/50 font-mono"
               >
                 RETURN_HOME
               </Button>
@@ -162,10 +162,10 @@ export default function ShareViewPage() {
   if (!share) return null;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-cyan-100">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Read-only Alert */}
-        <Alert className="mb-6 bg-cyan-950/30 border-cyan-500/50 text-cyan-400">
+        <Alert className="mb-6 bg-cyan-950/30 border-cyan-500/50 text-primary">
           <Info className="h-4 w-4" />
           <AlertDescription className="font-mono text-sm">
             This is a read-only share. You can view the content but cannot make changes.
@@ -173,12 +173,12 @@ export default function ShareViewPage() {
         </Alert>
 
         {/* Share Header */}
-        <Card className="mb-6 bg-slate-950/90 border-cyan-800/50">
+        <Card className="mb-6 bg-background/90 border/50">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-cyan-950/50 border border-cyan-800/50">
-                  <Share2 className="h-6 w-6 text-cyan-400" />
+                <div className="p-2 rounded-lg bg-cyan-950/50 border border/50">
+                  <Share2 className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <CardTitle className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 font-mono">
@@ -193,7 +193,7 @@ export default function ShareViewPage() {
                 variant="outline"
                 className={`font-mono text-xs ${
                   share.type === 'PUBLIC'
-                    ? 'border-cyan-500/50 text-cyan-400 bg-cyan-950/30'
+                    ? 'border-cyan-500/50 text-primary bg-cyan-950/30'
                     : 'border-fuchsia-500/50 text-fuchsia-400 bg-fuchsia-950/30'
                 }`}
               >
@@ -212,9 +212,9 @@ export default function ShareViewPage() {
         </Card>
 
         {/* Items Table */}
-        <Card className="bg-slate-950/90 border-cyan-800/50">
+        <Card className="bg-background/90 border/50">
           <CardHeader>
-            <CardTitle className="text-cyan-400 font-mono text-lg">
+            <CardTitle className="text-primary font-mono text-lg">
               ITEMS ({share.group.items.length})
             </CardTitle>
           </CardHeader>
@@ -224,32 +224,32 @@ export default function ShareViewPage() {
                 <p className="text-cyan-600/70 font-mono text-sm">No items in this group</p>
               </div>
             ) : (
-              <div className="rounded-lg border border-cyan-800/50 overflow-hidden">
+              <div className="rounded-lg border border/50 overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-cyan-800/50 hover:bg-transparent">
-                      <TableHead className="text-cyan-500 font-mono text-xs uppercase">
+                    <TableRow className="border/50 hover:bg-transparent">
+                      <TableHead className="text-foreground0 font-mono text-xs uppercase">
                         Key
                       </TableHead>
-                      <TableHead className="text-cyan-500 font-mono text-xs uppercase">
+                      <TableHead className="text-foreground0 font-mono text-xs uppercase">
                         Value
                       </TableHead>
-                      <TableHead className="text-cyan-500 font-mono text-xs uppercase">
+                      <TableHead className="text-foreground0 font-mono text-xs uppercase">
                         Tags
                       </TableHead>
-                      <TableHead className="text-cyan-500 font-mono text-xs uppercase w-16"></TableHead>
+                      <TableHead className="text-foreground0 font-mono text-xs uppercase w-16"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {share.group.items.map((item) => (
                       <TableRow
                         key={item.id}
-                        className="border-cyan-800/30 hover:bg-cyan-950/20 transition-colors"
+                        className="border/30 hover:bg-cyan-950/20 transition-colors"
                       >
-                        <TableCell className="font-mono text-cyan-100 font-medium">
+                        <TableCell className="font-mono text-foreground font-medium">
                           {item.key}
                         </TableCell>
-                        <TableCell className="font-mono text-cyan-300 text-sm max-w-xs truncate">
+                        <TableCell className="font-mono text-primary text-sm max-w-xs truncate">
                           {item.value}
                         </TableCell>
                         <TableCell>
@@ -258,7 +258,7 @@ export default function ShareViewPage() {
                               <Badge
                                 key={tag.id}
                                 variant="secondary"
-                                className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 font-mono text-xs"
+                                className="bg-cyan-950/50 text-primary border border/50 font-mono text-xs"
                               >
                                 {tag.tag}
                               </Badge>
@@ -270,7 +270,7 @@ export default function ShareViewPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleCopyValue(item.key, item.value)}
-                            className="h-8 w-8 p-0 text-cyan-500 hover:text-cyan-300 hover:bg-cyan-950/50"
+                            className="h-8 w-8 p-0 text-foreground0 hover:text-primary hover:bg-cyan-950/50"
                           >
                             {copiedKey === item.key ? (
                               <Check className="h-4 w-4" />

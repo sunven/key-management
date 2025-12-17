@@ -108,18 +108,18 @@ export function GroupList() {
     <div className="flex flex-col h-full space-y-4">
       <GlobalTagSearch />
 
-      <div className="flex flex-1 min-h-0 bg-slate-950/80 backdrop-blur-xl rounded-xl border border-cyan-800/50 overflow-hidden shadow-[0_0_50px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/20">
+      <div className="flex flex-1 min-h-0 bg-background/80 backdrop-blur-xl rounded-xl border border/50 overflow-hidden shadow-[0_0_50px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/20">
         {/* Sidebar */}
-        <div className="w-80 flex flex-col border-r border-cyan-800/50 bg-slate-900/50">
-          <div className="p-4 border-b border-cyan-800/50 bg-slate-900/50 space-y-4">
+        <div className="w-80 flex flex-col border-r border/50 bg-card/50">
+          <div className="p-4 border-b border/50 bg-card/50 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-cyan-400 flex items-center gap-2 font-mono tracking-tight shadow-cyan-500/50 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
+              <h2 className="font-bold text-primary flex items-center gap-2 font-mono tracking-tight shadow-cyan-500/50 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
                 <Database className="w-4 h-4 text-fuchsia-500" />
                 GROUPS
               </h2>
               <GroupDialog
                 trigger={
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-cyan-500 hover:bg-cyan-950/50 hover:text-cyan-300 hover:shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all duration-300">
+                  <Button size="icon" variant="ghost" className="h-8 w-8 text-foreground0 hover:bg-cyan-950/50 hover:text-primary hover:shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all duration-300">
                     <Plus className="h-4 w-4" />
                   </Button>
                 }
@@ -127,12 +127,12 @@ export function GroupList() {
               />
             </div>
             <div className="relative group">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-cyan-700 group-hover:text-cyan-500 transition-colors" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-cyan-700 group-hover:text-foreground0 transition-colors" />
               <Input 
                 placeholder="FILTER_NET..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-slate-950/50 border-cyan-900/50 text-cyan-100 placeholder:text-cyan-900/50 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500 font-mono text-xs h-9 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)]" 
+                className="pl-9 bg-background/50 border/50 text-foreground placeholder:text-cyan-900/50 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500 font-mono text-xs h-9 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)]" 
               />
             </div>
           </div>
@@ -150,8 +150,8 @@ export function GroupList() {
                   className={cn(
                     "w-full text-left p-3 rounded-lg transition-all border group relative overflow-hidden",
                     selectedGroupId === group.id
-                      ? "bg-cyan-950/30 border-cyan-500/50 text-cyan-100 shadow-[0_0_20px_rgba(6,182,212,0.15)] z-10"
-                      : "border-transparent hover:bg-cyan-950/20 hover:text-cyan-200 text-slate-500 hover:border-cyan-900/50"
+                      ? "bg-cyan-950/30 border-cyan-500/50 text-foreground shadow-[0_0_20px_rgba(6,182,212,0.15)] z-10"
+                      : "border-transparent hover:bg-cyan-950/20 hover:text-foreground text-muted-foreground hover:border/50"
                   )}
                 >
                   {selectedGroupId === group.id && (
@@ -160,21 +160,21 @@ export function GroupList() {
                   <div className="flex justify-between items-center mb-1">
                     <span className={cn(
                       "font-medium truncate font-mono text-sm tracking-wide",
-                      selectedGroupId === group.id ? "text-cyan-300 drop-shadow-[0_0_3px_rgba(6,182,212,0.5)]" : "text-slate-500 group-hover:text-cyan-400"
+                      selectedGroupId === group.id ? "text-primary drop-shadow-[0_0_3px_rgba(6,182,212,0.5)]" : "text-muted-foreground group-hover:text-primary"
                     )}>
                       {group.name}
                     </span>
                     <Badge variant="secondary" className={cn(
                       "text-[10px] font-mono h-5 px-1.5 border",
                       selectedGroupId === group.id 
-                        ? "bg-cyan-950/50 text-cyan-400 border-cyan-500/30" 
-                        : "bg-slate-900/50 text-slate-600 border-slate-800 group-hover:border-cyan-900/50 group-hover:text-cyan-600"
+                        ? "bg-cyan-950/50 text-primary border-cyan-500/30" 
+                        : "bg-card/50 text-muted-foreground border group-hover:border/50 group-hover:text-cyan-600"
                     )}>
                       {group._count.items}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] text-slate-600 truncate font-mono max-w-[180px] group-hover:text-slate-500 transition-colors">
+                    <div className="text-[10px] text-muted-foreground truncate font-mono max-w-[180px] group-hover:text-muted-foreground transition-colors">
                       {group.description || '// No description'}
                     </div>
                     {selectedGroupId === group.id && (
@@ -188,21 +188,21 @@ export function GroupList() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col bg-slate-950/50 relative bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-900/10 via-slate-950 to-slate-950">
+        <div className="flex-1 flex flex-col bg-background/50 relative bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-900/10 via-slate-950 to-slate-950">
           {selectedGroup ? (
             <>
               {/* Group Header */}
-              <div className="px-6 py-4 border-b border-cyan-900/30 bg-slate-900/30 backdrop-blur-sm flex justify-between items-start">
+              <div className="px-6 py-4 border-b border/30 bg-card/30 backdrop-blur-sm flex justify-between items-start">
                 <div>
                   <div className="flex items-center gap-3 mb-1">
                     <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 font-mono tracking-tight drop-shadow-[0_0_10px_rgba(6,182,212,0.3)]">
                       {selectedGroup.name}
                     </h1>
-                    <Badge variant="outline" className="font-mono text-xs border-cyan-800/50 text-cyan-600 bg-cyan-950/30">
+                    <Badge variant="outline" className="font-mono text-xs border/50 text-cyan-600 bg-cyan-950/30">
                       ID: {selectedGroup.id}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-500 font-mono flex items-center gap-2">
+                  <p className="text-sm text-muted-foreground font-mono flex items-center gap-2">
                     <span className="text-fuchsia-500">{'//'}</span>
                     {selectedGroup.description || 'System configuration node'}
                   </p>
@@ -211,7 +211,7 @@ export function GroupList() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 border-cyan-800/50 text-cyan-500 hover:bg-cyan-950/50 hover:text-cyan-300 hover:border-cyan-500/50 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] bg-slate-950/50"
+                    className="h-8 border/50 text-foreground0 hover:bg-cyan-950/50 hover:text-primary hover:border-cyan-500/50 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] bg-background/50"
                     onClick={() => handleOpenShareDialog(selectedGroup.id, selectedGroup.name)}
                   >
                     <Share2 className="mr-2 h-3 w-3" />
@@ -220,7 +220,7 @@ export function GroupList() {
                   <GroupDialog
                     group={selectedGroup}
                     trigger={
-                      <Button variant="outline" size="sm" className="h-8 border-cyan-800/50 text-cyan-500 hover:bg-cyan-950/50 hover:text-cyan-300 hover:border-cyan-500/50 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] bg-slate-950/50">
+                      <Button variant="outline" size="sm" className="h-8 border/50 text-foreground0 hover:bg-cyan-950/50 hover:text-primary hover:border-cyan-500/50 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] bg-background/50">
                         <Settings2 className="mr-2 h-3 w-3" />
                         CONFIG
                       </Button>
@@ -248,8 +248,8 @@ export function GroupList() {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-slate-600">
-              <div className="w-16 h-16 rounded-2xl bg-slate-900/50 border border-cyan-900/30 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(6,182,212,0.05)]">
+            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
+              <div className="w-16 h-16 rounded-2xl bg-card/50 border border/30 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(6,182,212,0.05)]">
                 <Database className="w-8 h-8 text-cyan-900" />
               </div>
               <p className="font-mono text-sm text-cyan-900/50 tracking-widest">SELECT_SYSTEM_GROUP</p>

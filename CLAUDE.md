@@ -228,8 +228,14 @@ Required environment variables (create `.env.local` in project root):
   - CSS variables for theming
   - Icon library: lucide-react
 - Design tokens in [app/globals.css](app/globals.css) using OKLCH color space
-- **Dark theme**: Application uses a custom dark cyberpunk theme with cyan/slate colors
-- Custom styling: Monospace fonts, neon glow effects, grid backgrounds
+- **Theme Switching**: Application supports light and dark themes with system preference detection
+  - Uses `next-themes` library for theme management
+  - Default theme: `system` (follows OS preference)
+  - Theme toggle available in user menu (Light, Dark, System options)
+  - Theme preference persisted in localStorage
+  - Light theme: Clean design with light gray/white backgrounds
+  - Dark theme: Custom cyberpunk theme with cyan/slate colors
+- Custom styling: Monospace fonts, grid backgrounds
 
 ## Development Notes
 

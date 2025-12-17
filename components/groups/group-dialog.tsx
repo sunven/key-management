@@ -79,10 +79,10 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-slate-950/90 border-cyan-800/50 text-cyan-100 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/20">
+      <DialogContent className="sm:max-w-[500px] bg-background/90 border/50 text-foreground backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/20">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle className="text-cyan-400 font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
+            <DialogTitle className="text-primary font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
               {isEdit ? 'EDIT_SYSTEM_GROUP' : 'INIT_NEW_GROUP'}
             </DialogTitle>
             <DialogDescription className="text-cyan-600/70 font-mono text-xs">
@@ -93,24 +93,24 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name" className="text-cyan-500 font-mono text-xs uppercase tracking-wider">Name</Label>
+              <Label htmlFor="name" className="text-foreground0 font-mono text-xs uppercase tracking-wider">Name</Label>
               <Input 
                 id="name" 
                 placeholder="SYSTEM_NODE_01" 
                 {...register('name')} 
-                className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.name && (
                 <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.name.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description" className="text-cyan-500 font-mono text-xs uppercase tracking-wider">Description</Label>
+              <Label htmlFor="description" className="text-foreground0 font-mono text-xs uppercase tracking-wider">Description</Label>
               <Textarea
                 id="description"
                 placeholder="// Optional system description"
                 {...register('description')}
-                className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 min-h-[100px] transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 min-h-[100px] transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.description && (
                 <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.description.message}</p>
@@ -121,7 +121,7 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
             <Button 
               type="submit" 
               disabled={loading}
-              className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 hover:text-cyan-300 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all font-mono uppercase tracking-wider"
+              className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 hover:text-primary hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all font-mono uppercase tracking-wider"
             >
               {loading ? (
                 <>

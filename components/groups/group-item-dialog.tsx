@@ -136,10 +136,10 @@ export function GroupItemDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-slate-950/90 border-cyan-800/50 text-cyan-100 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/20">
+      <DialogContent className="sm:max-w-[600px] bg-background/90 border/50 text-foreground backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/20">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle className="text-cyan-400 font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
+            <DialogTitle className="text-primary font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
               {isEdit ? 'MODIFY_CONFIG_ITEM' : 'INSERT_NEW_ITEM'}
             </DialogTitle>
             <DialogDescription className="text-cyan-600/70 font-mono text-xs">
@@ -150,32 +150,32 @@ export function GroupItemDialog({
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="key" className="text-cyan-500 font-mono text-xs uppercase tracking-wider">Key</Label>
+              <Label htmlFor="key" className="text-foreground0 font-mono text-xs uppercase tracking-wider">Key</Label>
               <Input 
                 id="key" 
                 placeholder="CONFIG_KEY_NAME" 
                 {...register('key')} 
-                className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.key && (
                 <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.key.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="value" className="text-cyan-500 font-mono text-xs uppercase tracking-wider">Value</Label>
+              <Label htmlFor="value" className="text-foreground0 font-mono text-xs uppercase tracking-wider">Value</Label>
               <Textarea
                 id="value"
                 placeholder="// Configuration value..."
                 rows={3}
                 {...register('value')}
-                className="bg-slate-900/50 border-cyan-800/50 text-cyan-100 placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.value && (
                 <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.value.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label className="text-cyan-500 font-mono text-xs uppercase tracking-wider">Tags</Label>
+              <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">Tags</Label>
               <Controller
                 name="tags"
                 control={control}
@@ -200,7 +200,7 @@ export function GroupItemDialog({
             <Button 
               type="submit" 
               disabled={loading}
-              className="bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 hover:text-cyan-300 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all font-mono uppercase tracking-wider"
+              className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 hover:text-primary hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all font-mono uppercase tracking-wider"
             >
               {loading ? (
                 <>

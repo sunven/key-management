@@ -94,13 +94,13 @@ export default function AcceptInvitationPage() {
 
   if (status === 'needsLogin') {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-background/90 border/50 text-foreground">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-center mb-4">
-              <LogIn className="w-8 h-8 text-cyan-400" />
+              <LogIn className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-cyan-400 font-mono">LOGIN_REQUIRED</CardTitle>
+            <CardTitle className="text-primary font-mono">LOGIN_REQUIRED</CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
               Please login to accept this invitation
             </CardDescription>
@@ -110,7 +110,7 @@ export default function AcceptInvitationPage() {
               onClick={() =>
                 router.push(`/auth/signin?callbackUrl=/share/${shareId}/accept${token ? `?token=${encodeURIComponent(token)}` : ''}`)
               }
-              className="w-full bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 font-mono"
+              className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono"
             >
               <LogIn className="mr-2 h-4 w-4" />
               LOGIN_TO_CONTINUE
@@ -123,8 +123,8 @@ export default function AcceptInvitationPage() {
 
   if (status === 'success') {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-background/90 border/50 text-foreground">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 flex items-center justify-center mb-4">
               <CheckCircle className="w-8 h-8 text-emerald-400" />
@@ -136,7 +136,7 @@ export default function AcceptInvitationPage() {
           </CardHeader>
           <CardContent>
             <Link href={`/share/${shareId}`}>
-              <Button className="w-full bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 font-mono">
+              <Button className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono">
                 VIEW_SHARE_NOW
               </Button>
             </Link>
@@ -148,8 +148,8 @@ export default function AcceptInvitationPage() {
 
   if (status === 'error') {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-background/90 border/50 text-foreground">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center mb-4">
               <AlertTriangle className="w-8 h-8 text-rose-400" />
@@ -161,7 +161,7 @@ export default function AcceptInvitationPage() {
           </CardHeader>
           <CardContent>
             <Link href="/">
-              <Button className="w-full bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 hover:bg-cyan-900/50 font-mono">
+              <Button className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono">
                 RETURN_HOME
               </Button>
             </Link>
@@ -173,13 +173,13 @@ export default function AcceptInvitationPage() {
 
   // Pending state - show accept/reject buttons
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <Card className="max-w-md w-full bg-slate-950/90 border-cyan-800/50 text-cyan-100">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="max-w-md w-full bg-background/90 border/50 text-foreground">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-center mb-4">
-            <CheckCircle className="w-8 h-8 text-cyan-400" />
+            <CheckCircle className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-cyan-400 font-mono">SHARE_INVITATION</CardTitle>
+          <CardTitle className="text-primary font-mono">SHARE_INVITATION</CardTitle>
           <CardDescription className="text-cyan-600/70 font-mono text-sm">
             You have been invited to view a shared group. Would you like to accept this invitation?
           </CardDescription>
