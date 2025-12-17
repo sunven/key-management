@@ -7,7 +7,12 @@ export default auth((req: NextRequest & { auth: Session | null }) => {
   const { pathname } = req.nextUrl;
 
   // Allow access to sign-in page and auth callback routes
-  if (pathname.startsWith('/auth/') || pathname.startsWith('/api/auth/')) {
+  if (
+    pathname.startsWith('/auth/') || 
+    pathname.startsWith('/api/auth/') ||
+    pathname.startsWith('/share/') ||
+    pathname.startsWith('/api/shares/')
+  ) {
     return NextResponse.next();
   }
 
