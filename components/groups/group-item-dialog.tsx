@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { TagInput } from './tag-input';
-import type { GroupItem, ItemTag } from '@prisma/client';
+import type { GroupItem, ItemTag } from '@/lib/generated/prisma/client';
 
 interface GroupItemWithTags extends GroupItem {
   tags: ItemTag[];

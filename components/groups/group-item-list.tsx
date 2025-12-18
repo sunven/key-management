@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GroupItemDialog } from './group-item-dialog';
 import { TagFilter } from './tag-filter';
-import type { GroupItem, ItemTag } from '@prisma/client';
+import type { GroupItem, ItemTag } from '@/lib/generated/prisma/client';
 
 interface GroupItemWithTags extends GroupItem {
   tags: ItemTag[];

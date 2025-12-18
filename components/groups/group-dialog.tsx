@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import type { Group } from '@prisma/client';
+import type { Group } from '@/lib/generated/prisma/client';
 
 interface GroupDialogProps {
   group?: Group;

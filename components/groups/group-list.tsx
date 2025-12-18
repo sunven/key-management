@@ -11,7 +11,7 @@ import { GroupDialog } from './group-dialog';
 import { ShareDialog } from './share-dialog';
 import { GroupItemList } from './group-item-list';
 import { GlobalTagSearch } from './global-tag-search';
-import type { Group, GroupItem, ItemTag } from '@prisma/client';
+import type { Group, GroupItem, ItemTag } from '@/lib/generated/prisma/client';
 
 interface GroupItemWithTags extends GroupItem {
   tags: ItemTag[];
