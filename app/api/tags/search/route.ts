@@ -1,18 +1,9 @@
-import { headers } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { withAuth } from '@/lib/api/with-auth';
 import { prisma } from '@/lib/db/prisma';
 
 // GET items across all groups filtered by tags
-export async function GET(request: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const GET = withAuth(async (request: NextRequest, { session }) => {
   try {
     const userId = session.user.id;
     const url = new URL(request.url);
@@ -66,4 +57,4 @@ export async function GET(request: NextRequest) {
       { status: 500 },
     );
   }
-}
+});

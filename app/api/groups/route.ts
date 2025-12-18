@@ -1,20 +1,11 @@
-import { headers } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
+import { withAuth } from '@/lib/api/with-auth';
 import { prisma } from '@/lib/db/prisma';
 import { groupSchema } from '@/lib/schemas';
 
 // GET all groups for the authenticated user
-export async function GET() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const GET = withAuth(async (_request, { session }) => {
   try {
     const userGroups = await prisma.group.findMany({
       where: {
@@ -43,18 +34,10 @@ export async function GET() {
       { status: 500 },
     );
   }
-}
+});
 
 // POST create a new group
-export async function POST(request: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const POST = withAuth(async (request: NextRequest, { session }) => {
   try {
     const body = await request.json();
     const validatedData = groupSchema.parse(body);
@@ -77,4 +60,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-}
+});

@@ -1,7 +1,6 @@
-import { headers } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/lib/auth';
+import { withAuth } from '@/lib/api/with-auth';
 import { prisma } from '@/lib/db/prisma';
 import { sendInvitationEmail } from '@/lib/email';
 import { shareSchema } from '@/lib/schemas';
@@ -13,15 +12,7 @@ import {
 } from '@/lib/share-utils';
 
 // GET all shares for the authenticated user
-export async function GET() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const GET = withAuth(async (_request, { session }) => {
   try {
     const userShares = await prisma.share.findMany({
       where: {
@@ -64,15 +55,11 @@ export async function GET() {
       { status: 500 },
     );
   }
-}
+});
 
 // POST create a new share
-export async function POST(request: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user?.id || !session.user.email || !session.user.name) {
+export const POST = withAuth(async (request: NextRequest, { session }) => {
+  if (!session.user.email || !session.user.name) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -185,4 +172,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-}
+});

@@ -1,18 +1,9 @@
-import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { withAuth } from '@/lib/api/with-auth';
 import { prisma } from '@/lib/db/prisma';
 
 // GET all unique tags for the authenticated user (for autocomplete)
-export async function GET() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const GET = withAuth(async (_request, { session }) => {
   try {
     const userId = session.user.id;
 
@@ -42,4 +33,4 @@ export async function GET() {
       { status: 500 },
     );
   }
-}
+});
