@@ -38,7 +38,7 @@ This is a **multi-user configuration management application** for securely stori
 pnpm dev          # Start development server at http://localhost:3100
 pnpm build        # Build production bundle
 pnpm start        # Start production server
-pnpm lint         # Run ESLint
+pnpm lint         # Run Biome linter and formatter
 ```
 
 ### Database Operations
@@ -57,10 +57,11 @@ pnpm db:studio    # Open Prisma Studio (visual database browser)
 - **Framework**: Next.js 16 (App Router, React Server Components)
 - **React**: 19.2.0 with automatic JSX transform
 - **Database**: Supabase PostgreSQL (hosted)
-- **ORM**: Prisma ORM with relational queries
+- **ORM**: Prisma 7 with PostgreSQL adapter (`@prisma/adapter-pg`)
 - **Authentication**: NextAuth.js v5 with Google OAuth
 - **UI**: shadcn/ui (New York style) with Tailwind CSS v4
-- **Validation**: Zod schemas
+- **Validation**: Zod 4.x schemas
+- **Linting**: Biome (replacing ESLint) with single quotes convention
 - **TypeScript**: Strict mode enabled
 
 ### Database Schema & Multi-User Isolation
@@ -178,7 +179,9 @@ All API routes follow a **consistent pattern** for user isolation:
 
 **Database:**
 - [prisma/schema.prisma](prisma/schema.prisma): Prisma schema with relations (users, groups, group_items, item_tags, shares, share_invitations)
-- [lib/db/prisma.ts](lib/db/prisma.ts): Prisma Client instance (database connection)
+- [prisma/prisma.config.ts](prisma/prisma.config.ts): Prisma 7 configuration file
+- [lib/db/prisma.ts](lib/db/prisma.ts): Prisma Client instance with PostgreSQL adapter
+- [lib/generated/prisma/](lib/generated/prisma/): Generated Prisma Client (custom output location)
 - [lib/schemas.ts](lib/schemas.ts): Zod validation schemas for all entities
 
 **API Routes:**
@@ -344,7 +347,11 @@ All forms use **React Hook Form + Zod**:
 - Updates: `prisma.table.update({ where: { id }, data: {...} })`
 - Deletes: `prisma.table.delete({ where: { id } })`
 
-**Prisma automatically returns the created/updated row without needing `.returning()`**
+**Prisma 7 specifics:**
+- Uses custom output directory: `lib/generated/prisma`
+- Import from: `import { PrismaClient } from '../generated/prisma/client'`
+- Uses `@prisma/adapter-pg` for PostgreSQL connection
+- Automatically returns created/updated rows without needing `.returning()`
 
 ### Next.js 16 Specifics
 
@@ -379,6 +386,21 @@ if (!confirm('Are you sure you want to delete...?')) {
 - Show spinner with cyan glow effect (see existing components)
 - Disable buttons during loading
 
+### Code Style & Conventions
+
+**Biome configuration** ([biome.json](biome.json)):
+- Single quotes for JavaScript/TypeScript
+- Space indentation (default)
+- Recommended linting rules enabled
+- Auto-organize imports on save
+- VCS integration with Git
+
+**Import conventions:**
+- Use `@/` path alias for imports from project root
+- Prisma Client: `import { PrismaClient } from '../generated/prisma/client'` (relative to lib/db)
+- Auth: `import { auth } from '@/auth'`
+- Components: `import { ComponentName } from '@/components/...`
+
 ### Common Tasks
 
 **Adding a shadcn/ui component:**
@@ -395,13 +417,20 @@ pnpm dlx shadcn@latest add [component-name]
 
 **Database schema changes:**
 1. Modify [prisma/schema.prisma](prisma/schema.prisma)
-2. Run `pnpm db:generate` to generate Prisma Client
+2. Run `pnpm db:generate` to generate Prisma Client to `lib/generated/prisma`
 3. Run `pnpm db:migrate` to create and apply migration (or `pnpm db:push` for prototyping)
 4. Never edit database directly; always change schema.prisma first
+5. If you see import errors after schema changes, restart the TypeScript server
 
 **Viewing database:**
 ```bash
 pnpm db:studio  # Opens Prisma Studio at http://localhost:5555
+```
+
+**Running linter:**
+```bash
+pnpm lint          # Check for issues
+# Note: Biome has auto-fix capabilities built-in
 ```
 
 ## Setup Requirements
@@ -415,3 +444,26 @@ Before running the application, developers must:
 5. Ensure Google OAuth redirect URI is `http://localhost:3100/api/auth/callback/google`
 
 If authentication fails, users will be stuck in redirect loop - check environment variables first.
+
+## Common Issues & Solutions
+
+**Prisma Client not found:**
+- Run `pnpm db:generate` to regenerate client in `lib/generated/prisma`
+- Restart TypeScript server in your IDE
+- Check that imports use correct path: `from '../generated/prisma/client'`
+
+**Database connection errors:**
+- Verify `DIRECT_URL` (not `DATABASE_URL`) is set in `.env.local`
+- Check Supabase project is active and connection string is correct
+- Ensure connection string uses Transaction mode (not Session pooling)
+
+**Authentication issues:**
+- Verify all AUTH_* environment variables are set
+- Check Google OAuth redirect URI matches exactly
+- Generate new AUTH_SECRET with `openssl rand -base64 32`
+- Clear cookies and try again
+
+**Type errors after schema changes:**
+- Run `pnpm db:generate` to regenerate Prisma Client
+- Restart TypeScript server (`Cmd+Shift+P` > "Restart TS Server" in VS Code)
+- Check that all imports reference the generated client correctly

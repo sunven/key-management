@@ -24,23 +24,37 @@
 **后端：**
 - **Next.js API Routes** - RESTful API 端点
 - **NextAuth.js v5** - Google OAuth 身份验证
-- **Prisma ORM** - 类型安全的数据库查询，支持关系查询
+- **Prisma 7** - 类型安全的数据库查询，使用 PostgreSQL 适配器（`@prisma/adapter-pg`）
 - **Supabase PostgreSQL** - 托管数据库（事务模式）
+- **Resend** - 邮件服务（用于发送共享邀请邮件）
+- **Zod 4.x** - 运行时类型验证和 schema 定义
 
 **开发工具：**
 - **pnpm** - 包管理器（必需，不使用 npm/yarn）
-- **ESLint** - 代码检查
+- **Biome** - 快速的代码检查器和格式化工具（替代 ESLint/Prettier）
 - **PostCSS** - CSS 处理与 Tailwind v4
+
+**UI 功能：**
+- **next-themes** - 主题管理（支持亮色/暗色/系统主题）
+- **sonner** - Toast 通知库
 
 ## Project Conventions
 
 ### Code Style
+
+**Biome 配置（`biome.json`）：**
+- **引号风格**：单引号（`'use client'`）
+- **缩进**：空格缩进
+- **导入组织**：自动排序和优化导入
+- **推荐规则**：启用所有推荐的 linting 规则
+- **VCS 集成**：与 Git 集成，使用 .gitignore
 
 **TypeScript：**
 - 启用严格模式
 - 路径别名：`@/*` 映射到项目根目录
 - 始终为函数参数和返回值使用显式类型
 - 对象形状优先使用 `interface`，联合/交叉类型使用 `type`
+- 目标：ES2017，JSX 转换：`react-jsx`（React 19 自动 JSX）
 
 **命名约定：**
 - 文件：kebab-case（`group-list.tsx`、`share-dialog.tsx`）
@@ -57,12 +71,19 @@
 - 数据库：`prisma/schema.prisma`（单一真实来源）
 - 认证：`auth.ts`（NextAuth 配置）
 
+**导入约定：**
+- 路径别名：`import { ... } from '@/...'`（项目根目录）
+- Prisma Client：`import { PrismaClient } from '../generated/prisma/client'`（相对于 lib/db）
+- 认证：`import { auth } from '@/auth'`
+- 组件：`import { ComponentName } from '@/components/...'`
+
 **代码质量规则：**
 - 除非绝对必要,否则不使用 `any` 类型
 - 在异步操作中始终使用 try/catch 处理错误
 - 永远不要将敏感数据（令牌、密码）记录到控制台
-- 对所有 INSERT/UPDATE 操作包含返回数据
+- Prisma 7 自动返回创建/更新的行（无需 `.returning()`）
 - 在 API 路由中始终使用 Zod schema 验证输入
+- 使用 `toast.error()` 和 `toast.success()` 提供用户反馈
 
 ### Architecture Patterns
 
@@ -81,15 +102,25 @@
 **数据库 Schema 模式：**
 ```
 users（NextAuth 自动同步）
-  ↓ userId FK（CASCADE delete）
-  ├── groups（用户所有的配置组）
-  │     ↓ groupId FK（CASCADE delete）
-  │     └── group_items（配置项）
-  │           ↓ itemId FK（CASCADE delete）
-  │           └── item_tags（标签）
+  ↓ (one-to-many)
+  ├── groups (userId FK with CASCADE delete)
+  │     ↓ (one-to-many)
+  │     ├── group_items (groupId FK with CASCADE delete)
+  │     │     ↓ (one-to-many)
+  │     │     └── item_tags (itemId FK with CASCADE delete)
+  │     │
+  │     └── share (one-to-one, optional - unique constraint on groupId)
   │
-  └── shares（用户创建的共享）
+  └── shares (userId FK with CASCADE delete)
+        ↓ (one-to-many)
+        └── share_invitations (shareId FK with CASCADE delete)
 ```
+
+**关键约束：**
+- `group_items`：unique(groupId, key) - 同一组内的 key 必须唯一
+- `shares`：unique(groupId) - 每个组最多只能有一个共享
+- `share_invitations`：unique(shareId, email) - 同一共享不能重复邀请同一邮箱
+- 所有关系使用 CASCADE 删除，确保数据完整性
 
 **API 路由模式：**
 - 始终使用 `await auth()` 检查会话
@@ -171,11 +202,14 @@ users（NextAuth 自动同步）
 - 除 `/auth/*` 外的所有路由都需要身份验证
 - 中间件处理重定向到登录页面
 
-**数据库：**
-- 始终先修改 `prisma/schema.prisma`，然后生成迁移
-- 开发使用 `pnpm db:push`，生产使用迁移
+**数据库（Prisma 7）：**
+- 始终先修改 `prisma/schema.prisma`，然后运行 `pnpm db:generate`
+- Prisma Client 生成到自定义目录：`lib/generated/prisma/`
+- 开发使用 `pnpm db:push`，生产使用 `pnpm db:migrate`
 - 永远不要直接编辑数据库 schema
-- 外键约束强制引用完整性
+- 使用 `@prisma/adapter-pg` 进行 PostgreSQL 连接
+- 配置文件：`prisma/prisma.config.ts`（Prisma 7 新特性）
+- 外键约束强制引用完整性，所有关系使用 CASCADE 删除
 
 **Next.js 16 特性：**
 - 动态路由参数必须 await：`const { id } = await params`
@@ -191,8 +225,12 @@ users（NextAuth 自动同步）
 
 **Supabase (PostgreSQL)：**
 - 托管数据库服务
-- 通过 Prisma Client 连接（事务模式）
-- 环境变量：`DATABASE_URL`、`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- 通过 Prisma 7 + PostgreSQL 适配器连接（事务模式）
+- **环境变量：**
+  - `DIRECT_URL` - PostgreSQL 连接字符串（Prisma 使用，**注意不是 DATABASE_URL**）
+  - `NEXT_PUBLIC_SUPABASE_URL` - Supabase 项目 URL
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase 匿名密钥
+  - `SUPABASE_SERVICE_ROLE_KEY` - 服务角色密钥（当前未使用）
 - 通过 Prisma ORM 进行直接 PostgreSQL 查询
 
 **Google OAuth：**
@@ -212,3 +250,19 @@ users（NextAuth 自动同步）
 - 通过 CLI 安装：`pnpm dlx shadcn@latest add [component]`
 - 不要直接编辑 `components/ui/*`（从 CLI 重新生成）
 - 使用 Tailwind CSS v4 与 CSS 变量进行主题化
+
+**Resend（邮件服务）：**
+- 用于发送私有共享的邀请邮件
+- **环境变量：**
+  - `RESEND_API_KEY` - Resend API 密钥
+  - `RESEND_FROM_EMAIL` - 发件人邮箱地址（如：noreply@yourdomain.com）
+- 邮件模板：HTML 格式，包含接受/拒绝按钮
+- 实现位置：`lib/email.ts`
+
+**主题系统（next-themes）：**
+- 支持三种模式：亮色（Light）、暗色（Dark）、系统（System）
+- 默认主题：`system`（跟随操作系统偏好）
+- 主题偏好保存在 localStorage
+- 暗色主题使用自定义赛博朋克风格（青色/灰色调）
+- 主题切换组件：`components/theme-toggle.tsx`
+- 用户菜单中可切换主题

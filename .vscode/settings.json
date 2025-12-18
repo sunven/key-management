@@ -1,0 +1,8 @@
+{
+  "prettier.enable": false,
+  // Auto fix
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports": "never"
+  }
+}
