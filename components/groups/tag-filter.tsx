@@ -1,6 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -15,6 +16,8 @@ export function TagFilter({
   selectedTags,
   onTagSelect,
 }: TagFilterProps) {
+  const t = useTranslations('tagFilter');
+
   const toggleTag = (tag: string) => {
     if (selectedTags.includes(tag)) {
       onTagSelect(selectedTags.filter((t) => t !== tag));
@@ -35,7 +38,7 @@ export function TagFilter({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-xs font-mono text-foreground0/70 uppercase tracking-wider">
-          FILTER_BY_TAGS:
+          {t('filterByTags')}
         </span>
         {selectedTags.length > 0 && (
           <Button
@@ -44,7 +47,7 @@ export function TagFilter({
             onClick={clearFilter}
             className="h-6 px-2 text-xs text-rose-500 hover:text-rose-400 hover:bg-rose-950/30 font-mono"
           >
-            CLEAR_FILTER
+            {t('clearFilter')}
           </Button>
         )}
       </div>

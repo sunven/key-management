@@ -9,7 +9,8 @@ import {
   Settings2,
   Share2,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,9 @@ interface GroupWithItems extends Group {
 }
 
 export function GroupList() {
+  const t = useTranslations('groups');
+  const tCommon = useTranslations('common');
+
   const [groups, setGroups] = useState<GroupWithItems[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
@@ -41,33 +45,29 @@ export function GroupList() {
   const [shareGroupId, setShareGroupId] = useState<number | null>(null);
   const [shareGroupName, setShareGroupName] = useState('');
 
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     try {
       const response = await fetch('/api/groups');
       if (!response.ok) throw new Error('Failed to fetch groups');
       const data = await response.json();
       setGroups(data);
       // Auto-select first group if none selected and groups exist
-      if (!selectedGroupId && data.length > 0) {
-        setSelectedGroupId(data[0].id);
+      if (data.length > 0) {
+        setSelectedGroupId((prev) => prev ?? data[0].id);
       }
     } catch (error) {
       console.error('Error fetching groups:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchGroups();
   }, [fetchGroups]);
 
   const handleDeleteGroup = async (id: number) => {
-    if (
-      !confirm(
-        'Are you sure you want to delete this group? All items and tags will be deleted.',
-      )
-    ) {
+    if (!confirm(t('confirmDelete'))) {
       return;
     }
 
@@ -82,10 +82,10 @@ export function GroupList() {
         setSelectedGroupId(null);
       }
       fetchGroups();
-      toast.success('Group deleted successfully');
+      toast.success(t('deleteSuccess'));
     } catch (error) {
       console.error('Error deleting group:', error);
-      toast.error('Failed to delete group. Please try again.');
+      toast.error(t('deleteError'));
     }
   };
 
@@ -107,7 +107,7 @@ export function GroupList() {
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent"></div>
           <div className="text-cyan-600 font-mono text-sm animate-pulse">
-            INITIALIZING_SYSTEM...
+            {t('initializingSystem')}
           </div>
         </div>
       </div>
@@ -125,7 +125,7 @@ export function GroupList() {
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-primary flex items-center gap-2 font-mono tracking-tight shadow-cyan-500/50 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
                 <Database className="w-4 h-4 text-fuchsia-500" />
-                GROUPS
+                {t('title')}
               </h2>
               <GroupDialog
                 trigger={
@@ -143,7 +143,7 @@ export function GroupList() {
             <div className="relative group">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-cyan-700 group-hover:text-foreground0 transition-colors" />
               <Input
-                placeholder="FILTER_NET..."
+                placeholder={t('filterPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 bg-background/50 border/50 text-foreground placeholder:text-cyan-900/50 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500 font-mono text-xs h-9 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
@@ -155,7 +155,7 @@ export function GroupList() {
             {filteredGroups.length === 0 ? (
               <div className="text-center py-8 px-4">
                 <p className="text-xs text-cyan-900/50 font-mono animate-pulse">
-                  NO_GROUPS_FOUND
+                  {t('noGroupsFound')}
                 </p>
               </div>
             ) : (
@@ -198,7 +198,7 @@ export function GroupList() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="text-[10px] text-muted-foreground truncate font-mono max-w-[180px] group-hover:text-muted-foreground transition-colors">
-                      {group.description || '// No description'}
+                      {group.description || tCommon('noDescription')}
                     </div>
                     {selectedGroupId === group.id && (
                       <ChevronRight className="w-3 h-3 text-fuchsia-500 animate-in fade-in slide-in-from-left-1 drop-shadow-[0_0_5px_rgba(217,70,239,0.8)]" />
@@ -230,7 +230,7 @@ export function GroupList() {
                   </div>
                   <p className="text-sm text-muted-foreground font-mono flex items-center gap-2">
                     <span className="text-fuchsia-500">{'//'}</span>
-                    {selectedGroup.description || 'System configuration node'}
+                    {selectedGroup.description || t('systemConfigNode')}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -246,7 +246,7 @@ export function GroupList() {
                     }
                   >
                     <Share2 className="mr-2 h-3 w-3" />
-                    SHARE
+                    {t('share')}
                   </Button>
                   <GroupDialog
                     group={selectedGroup}
@@ -257,7 +257,7 @@ export function GroupList() {
                         className="h-8 border/50 text-foreground0 hover:bg-cyan-950/50 hover:text-primary hover:border-cyan-500/50 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] bg-background/50"
                       >
                         <Settings2 className="mr-2 h-3 w-3" />
-                        CONFIG
+                        {t('config')}
                       </Button>
                     }
                     onSuccess={fetchGroups}
@@ -288,7 +288,7 @@ export function GroupList() {
                 <Database className="w-8 h-8 text-cyan-900" />
               </div>
               <p className="font-mono text-sm text-cyan-900/50 tracking-widest">
-                SELECT_SYSTEM_GROUP
+                {t('selectSystemGroup')}
               </p>
             </div>
           )}

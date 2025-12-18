@@ -26,9 +26,13 @@
       "Bash(pnpm db:studio:*)",
       "Bash(lsof:*)",
       "Bash(xargs kill -9)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(openspec list:*)",
+      "Bash(openspec validate:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["shadcn"]
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ]
 }

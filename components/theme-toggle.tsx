@@ -1,6 +1,7 @@
 'use client';
 
 import { Monitor, Moon, Sun } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const t = useTranslations('theme');
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -29,7 +31,7 @@ export function ThemeToggle() {
             ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
             : ''
         }`}
-        title="Light theme"
+        title={t('light')}
       >
         <Sun className="h-4 w-4" />
       </Button>
@@ -42,7 +44,7 @@ export function ThemeToggle() {
             ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
             : ''
         }`}
-        title="Dark theme"
+        title={t('dark')}
       >
         <Moon className="h-4 w-4" />
       </Button>
@@ -55,7 +57,7 @@ export function ThemeToggle() {
             ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
             : ''
         }`}
-        title="System theme"
+        title={t('system')}
       >
         <Monitor className="h-4 w-4" />
       </Button>

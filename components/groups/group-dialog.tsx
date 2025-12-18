@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -27,6 +28,10 @@ interface GroupDialogProps {
 }
 
 export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
+  const t = useTranslations('groupDialog');
+  const tCommon = useTranslations('common');
+  const tGroups = useTranslations('groups');
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const isEdit = !!group;
@@ -70,7 +75,7 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
       onSuccess();
     } catch (error) {
       console.error('Error saving group:', error);
-      toast.error('Failed to save group. Please try again.');
+      toast.error(tGroups('saveError'));
     } finally {
       setLoading(false);
     }
@@ -83,12 +88,10 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle className="text-primary font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
-              {isEdit ? 'EDIT_SYSTEM_GROUP' : 'INIT_NEW_GROUP'}
+              {isEdit ? t('editTitle') : t('createTitle')}
             </DialogTitle>
             <DialogDescription className="text-cyan-600/70 font-mono text-xs">
-              {isEdit
-                ? '// Update group configuration parameters.'
-                : '// Initialize a new configuration node cluster.'}
+              {isEdit ? t('editDescription') : t('createDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -97,11 +100,11 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
                 htmlFor="name"
                 className="text-foreground0 font-mono text-xs uppercase tracking-wider"
               >
-                Name
+                {t('nameLabel')}
               </Label>
               <Input
                 id="name"
-                placeholder="SYSTEM_NODE_01"
+                placeholder={t('namePlaceholder')}
                 {...register('name')}
                 className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
@@ -116,11 +119,11 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
                 htmlFor="description"
                 className="text-foreground0 font-mono text-xs uppercase tracking-wider"
               >
-                Description
+                {t('descriptionLabel')}
               </Label>
               <Textarea
                 id="description"
-                placeholder="// Optional system description"
+                placeholder={t('descriptionPlaceholder')}
                 {...register('description')}
                 className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 min-h-[100px] transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
@@ -140,12 +143,12 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
               {loading ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent mr-2 shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
-                  PROCESSING...
+                  {tCommon('processing')}
                 </>
               ) : isEdit ? (
-                'UPDATE_NODE'
+                t('updateButton')
               ) : (
-                'INITIALIZE_NODE'
+                t('createButton')
               )}
             </Button>
           </DialogFooter>

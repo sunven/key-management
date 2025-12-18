@@ -11,6 +11,7 @@ import {
   LogIn,
   Share2,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -65,6 +66,9 @@ interface AccessResult {
 }
 
 export default function ShareViewPage() {
+  const t = useTranslations('shareView');
+  const tCommon = useTranslations('common');
+
   const params = useParams();
   const router = useRouter();
   const shareId = params.shareId as string;
@@ -83,7 +87,7 @@ export default function ShareViewPage() {
         console.error('Error fetching share:', error);
         setAccessResult({
           canView: false,
-          reason: 'Failed to load share content',
+          reason: t('defaultDeniedReason'),
         });
       } finally {
         setLoading(false);
@@ -91,16 +95,16 @@ export default function ShareViewPage() {
     };
 
     fetchShareContent();
-  }, [shareId]);
+  }, [shareId, t]);
 
   const handleCopyValue = async (key: string, value: string) => {
     try {
       await navigator.clipboard.writeText(value);
       setCopiedKey(key);
-      toast.success('Value copied to clipboard');
+      toast.success(tCommon('copiedToClipboard'));
       setTimeout(() => setCopiedKey(null), 2000);
     } catch {
-      toast.error('Failed to copy value');
+      toast.error(tCommon('copyFailed'));
     }
   };
 
@@ -110,7 +114,7 @@ export default function ShareViewPage() {
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent"></div>
           <div className="text-cyan-600 font-mono text-sm animate-pulse">
-            LOADING_SHARE_CONTENT...
+            {t('loading')}
           </div>
         </div>
       </div>
@@ -127,11 +131,10 @@ export default function ShareViewPage() {
               <AlertTriangle className="w-8 h-8 text-rose-400" />
             </div>
             <CardTitle className="text-rose-400 font-mono">
-              ACCESS_DENIED
+              {t('accessDenied')}
             </CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
-              {accessResult?.reason ||
-                'You do not have permission to view this share'}
+              {accessResult?.reason || t('defaultDeniedReason')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -143,7 +146,7 @@ export default function ShareViewPage() {
                 className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono"
               >
                 <LogIn className="mr-2 h-4 w-4" />
-                LOGIN_TO_VIEW
+                {t('loginToView')}
               </Button>
             )}
             {accessResult?.needsAcceptance && (
@@ -152,7 +155,7 @@ export default function ShareViewPage() {
                 className="w-full bg-emerald-950/50 text-emerald-400 border border-emerald-800/50 hover:bg-emerald-900/50 font-mono"
               >
                 <CheckCircle className="mr-2 h-4 w-4" />
-                ACCEPT_INVITATION
+                {t('acceptInvitation')}
               </Button>
             )}
             <Link href="/">
@@ -160,7 +163,7 @@ export default function ShareViewPage() {
                 variant="outline"
                 className="w-full bg-transparent text-cyan-600 border/50 hover:bg-card/50 font-mono"
               >
-                RETURN_HOME
+                {tCommon('returnHome')}
               </Button>
             </Link>
           </CardContent>
@@ -179,8 +182,7 @@ export default function ShareViewPage() {
         <Alert className="mb-6 bg-cyan-950/30 border-cyan-500/50 text-primary">
           <Info className="h-4 w-4" />
           <AlertDescription className="font-mono text-sm">
-            This is a read-only share. You can view the content but cannot make
-            changes.
+            {t('readOnlyAlert')}
           </AlertDescription>
         </Alert>
 
@@ -197,7 +199,7 @@ export default function ShareViewPage() {
                     {share.group.name}
                   </CardTitle>
                   <CardDescription className="text-cyan-600/70 font-mono text-sm">
-                    {share.group.description || '// No description'}
+                    {share.group.description || tCommon('noDescription')}
                   </CardDescription>
                 </div>
               </div>
@@ -214,11 +216,11 @@ export default function ShareViewPage() {
                 ) : (
                   <Lock className="h-3 w-3 mr-1" />
                 )}
-                {share.type}
+                {share.type === 'PUBLIC' ? t('typePublic') : t('typePrivate')}
               </Badge>
             </div>
             <div className="mt-4 text-cyan-600/70 font-mono text-xs">
-              Shared by: {share.owner.name || share.owner.email}
+              {t('sharedBy', { name: share.owner.name || share.owner.email })}
             </div>
           </CardHeader>
         </Card>
@@ -227,14 +229,14 @@ export default function ShareViewPage() {
         <Card className="bg-background/90 border/50">
           <CardHeader>
             <CardTitle className="text-primary font-mono text-lg">
-              ITEMS ({share.group.items.length})
+              {t('itemsTitle', { count: share.group.items.length })}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {share.group.items.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-cyan-600/70 font-mono text-sm">
-                  No items in this group
+                  {t('noItemsInGroup')}
                 </p>
               </div>
             ) : (
@@ -243,13 +245,13 @@ export default function ShareViewPage() {
                   <TableHeader>
                     <TableRow className="border/50 hover:bg-transparent">
                       <TableHead className="text-foreground0 font-mono text-xs uppercase">
-                        Key
+                        {t('columnKey')}
                       </TableHead>
                       <TableHead className="text-foreground0 font-mono text-xs uppercase">
-                        Value
+                        {t('columnValue')}
                       </TableHead>
                       <TableHead className="text-foreground0 font-mono text-xs uppercase">
-                        Tags
+                        {t('columnTags')}
                       </TableHead>
                       <TableHead className="text-foreground0 font-mono text-xs uppercase w-16"></TableHead>
                     </TableRow>

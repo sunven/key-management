@@ -14,7 +14,8 @@ import {
   Trash2,
   XCircle,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -59,6 +60,9 @@ interface Share {
 }
 
 export function ShareList() {
+  const t = useTranslations('shares');
+  const tCommon = useTranslations('common');
+
   const [shares, setShares] = useState<Share[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -67,7 +71,7 @@ export function ShareList() {
   const [shareToDelete, setShareToDelete] = useState<string | null>(null);
   const [resendingEmail, setResendingEmail] = useState<string | null>(null);
 
-  const fetchShares = async () => {
+  const fetchShares = useCallback(async () => {
     try {
       const response = await fetch('/api/shares');
       if (!response.ok) throw new Error('Failed to fetch shares');
@@ -75,11 +79,11 @@ export function ShareList() {
       setShares(data);
     } catch (error) {
       console.error('Error fetching shares:', error);
-      toast.error('Failed to load shares');
+      toast.error(t('loadError'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchShares();
@@ -89,10 +93,10 @@ export function ShareList() {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopiedId(shareId);
-      toast.success('Link copied to clipboard');
+      toast.success(tCommon('copiedToClipboard'));
       setTimeout(() => setCopiedId(null), 2000);
     } catch {
-      toast.error('Failed to copy link');
+      toast.error(tCommon('copyFailed'));
     }
   };
 
@@ -106,11 +110,11 @@ export function ShareList() {
 
       if (!response.ok) throw new Error('Failed to revoke share');
 
-      toast.success('Share revoked successfully');
+      toast.success(t('revokeSuccess'));
       fetchShares();
     } catch (error) {
       console.error('Error revoking share:', error);
-      toast.error('Failed to revoke share');
+      toast.error(t('revokeError'));
     } finally {
       setDeleteDialogOpen(false);
       setShareToDelete(null);
@@ -130,11 +134,11 @@ export function ShareList() {
         throw new Error(error.error || 'Failed to resend invitation');
       }
 
-      toast.success(`Invitation resent to ${email}`);
+      toast.success(t('resendSuccess', { email }));
     } catch (error) {
       console.error('Error resending invitation:', error);
       toast.error(
-        error instanceof Error ? error.message : 'Failed to resend invitation',
+        error instanceof Error ? error.message : t('resendError'),
       );
     } finally {
       setResendingEmail(null);
@@ -183,7 +187,7 @@ export function ShareList() {
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent"></div>
           <div className="text-cyan-600 font-mono text-sm animate-pulse">
-            LOADING_SHARES...
+            {t('loading')}
           </div>
         </div>
       </div>
@@ -196,10 +200,9 @@ export function ShareList() {
         <div className="w-16 h-16 rounded-2xl bg-card/50 border border/30 flex items-center justify-center mb-4">
           <Share2 className="w-8 h-8 text-cyan-900" />
         </div>
-        <h3 className="text-primary font-mono text-lg mb-2">NO_SHARES_FOUND</h3>
+        <h3 className="text-primary font-mono text-lg mb-2">{t('noSharesTitle')}</h3>
         <p className="text-cyan-600/70 font-mono text-sm max-w-md">
-          You haven&apos;t shared any groups yet. Go to Groups and click the
-          SHARE button to create your first share.
+          {t('noSharesDescription')}
         </p>
       </div>
     );
@@ -212,19 +215,19 @@ export function ShareList() {
           <TableHeader>
             <TableRow className="border/50 hover:bg-transparent">
               <TableHead className="text-foreground0 font-mono text-xs uppercase">
-                Group
+                {t('columnGroup')}
               </TableHead>
               <TableHead className="text-foreground0 font-mono text-xs uppercase">
-                Type
+                {t('columnType')}
               </TableHead>
               <TableHead className="text-foreground0 font-mono text-xs uppercase">
-                Created
+                {t('columnCreated')}
               </TableHead>
               <TableHead className="text-foreground0 font-mono text-xs uppercase">
-                Status
+                {t('columnStatus')}
               </TableHead>
               <TableHead className="text-foreground0 font-mono text-xs uppercase text-right">
-                Actions
+                {t('columnActions')}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -252,7 +255,7 @@ export function ShareList() {
                       ) : (
                         <Lock className="h-3 w-3 mr-1" />
                       )}
-                      {share.type}
+                      {share.type === 'PUBLIC' ? t('typePublic') : t('typePrivate')}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-mono text-xs text-cyan-600">
@@ -269,12 +272,12 @@ export function ShareList() {
                         className="flex items-center gap-2 text-primary hover:text-primary transition-colors"
                       >
                         <span className="font-mono text-xs">
-                          {
-                            share.invitations.filter(
+                          {t('acceptedCount', {
+                            accepted: share.invitations.filter(
                               (i) => i.status === 'ACCEPTED',
-                            ).length
-                          }
-                          /{share.invitations.length} accepted
+                            ).length,
+                            total: share.invitations.length,
+                          })}
                         </span>
                         {expandedShareId === share.id ? (
                           <ChevronUp className="h-4 w-4" />
@@ -284,7 +287,7 @@ export function ShareList() {
                       </button>
                     ) : (
                       <span className="font-mono text-xs text-cyan-600">
-                        Public access
+                        {t('publicAccess')}
                       </span>
                     )}
                   </TableCell>
@@ -323,7 +326,7 @@ export function ShareList() {
                     <TableCell colSpan={5} className="p-4">
                       <div className="space-y-2">
                         <h4 className="text-primary font-mono text-xs uppercase mb-3">
-                          Invitations
+                          {t('invitations')}
                         </h4>
                         {share.invitations.map((invitation) => (
                           <div
@@ -340,7 +343,7 @@ export function ShareList() {
                               >
                                 {getStatusIcon(invitation.status)}
                                 <span className="ml-1">
-                                  {invitation.status}
+                                  {t(`status${invitation.status.charAt(0) + invitation.status.slice(1).toLowerCase()}`)}
                                 </span>
                               </Badge>
                             </div>
@@ -366,7 +369,7 @@ export function ShareList() {
                                   ) : (
                                     <Send className="h-3 w-3 mr-1" />
                                   )}
-                                  Resend
+                                  {t('resend')}
                                 </Button>
                               )}
                             </div>
@@ -387,22 +390,21 @@ export function ShareList() {
         <AlertDialogContent className="bg-background/90 border/50 text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-primary font-mono">
-              REVOKE_SHARE
+              {t('revokeTitle')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-cyan-600/70 font-mono text-sm">
-              Are you sure you want to revoke this share? The share link will
-              immediately stop working and all invited users will lose access.
+              {t('revokeDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-transparent text-cyan-600 border/50 hover:bg-card/50 font-mono">
-              CANCEL
+              {tCommon('cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteShare}
               className="bg-rose-950/50 text-rose-400 border border-rose-800/50 hover:bg-rose-900/50 font-mono"
             >
-              REVOKE
+              {t('revokeButton')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

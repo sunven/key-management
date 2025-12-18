@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, Copy, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +33,9 @@ export function GroupItemList({
   items,
   onRefresh,
 }: GroupItemListProps) {
+  const t = useTranslations('groupItems');
+  const tCommon = useTranslations('common');
+
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
@@ -53,7 +57,7 @@ export function GroupItemList({
   }, [items, selectedTags]);
 
   const handleDelete = async (itemId: number) => {
-    if (!confirm('Are you sure you want to delete this item?')) {
+    if (!confirm(t('confirmDelete'))) {
       return;
     }
 
@@ -67,7 +71,7 @@ export function GroupItemList({
       onRefresh();
     } catch (error) {
       console.error('Error deleting item:', error);
-      toast.error('Failed to delete item. Please try again.');
+      toast.error(t('deleteError'));
     }
   };
 
@@ -75,11 +79,11 @@ export function GroupItemList({
     try {
       await navigator.clipboard.writeText(value);
       setCopiedId(itemId);
-      toast.success('Value copied to clipboard');
+      toast.success(tCommon('copiedToClipboard'));
       setTimeout(() => setCopiedId(null), 2000);
     } catch (error) {
       console.error('Failed to copy:', error);
-      toast.error('Failed to copy value');
+      toast.error(tCommon('failedToCopy'));
     }
   };
 
@@ -99,7 +103,7 @@ export function GroupItemList({
               className="bg-card/50 text-foreground0 border border/50 hover:bg-cyan-950/50 hover:text-primary hover:border-cyan-500 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
             >
               <Plus className="mr-2 h-4 w-4" />
-              ADD_ITEM
+              {t('addItem')}
             </Button>
           }
           onSuccess={onRefresh}
@@ -109,7 +113,7 @@ export function GroupItemList({
       {filteredItems.length === 0 ? (
         <div className="flex-1 flex items-center justify-center border border-dashed border/50 rounded-lg bg-card/20 m-1">
           <p className="text-cyan-900/50 font-mono text-sm animate-pulse">
-            {items.length === 0 ? 'NO_ITEMS_DETECTED' : 'FILTER_MATCH_FAILED'}
+            {items.length === 0 ? t('noItemsDetected') : t('filterMatchFailed')}
           </p>
         </div>
       ) : (
@@ -118,13 +122,13 @@ export function GroupItemList({
             <TableHeader className="bg-background/80 sticky top-0 z-10 backdrop-blur-md shadow-sm">
               <TableRow className="border-b-cyan-800/50 hover:bg-transparent">
                 <TableHead className="w-[200px] text-foreground0/70 font-mono text-xs uppercase pl-4 tracking-wider">
-                  Key
+                  {t('keyHeader')}
                 </TableHead>
                 <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">
-                  Value
+                  {t('valueHeader')}
                 </TableHead>
                 <TableHead className="w-[200px] text-foreground0/70 font-mono text-xs uppercase tracking-wider">
-                  Tags
+                  {t('tagsHeader')}
                 </TableHead>
                 <TableHead className="w-[70px]"></TableHead>
               </TableRow>

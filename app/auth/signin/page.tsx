@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -11,6 +12,8 @@ import {
 import { authClient } from '@/lib/auth-client';
 
 export default function SignInPage() {
+  const t = useTranslations('auth');
+
   const handleGoogleSignIn = async () => {
     await authClient.signIn.social({
       provider: 'google',
@@ -22,9 +25,9 @@ export default function SignInPage() {
     <div className="flex h-full items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Key Management System</CardTitle>
+          <CardTitle className="text-2xl">{t('title')}</CardTitle>
           <CardDescription>
-            Sign in to manage your API providers and tokens
+            {t('description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -52,7 +55,7 @@ export default function SignInPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Sign in with Google
+            {t('signInWithGoogle')}
           </Button>
         </CardContent>
       </Card>

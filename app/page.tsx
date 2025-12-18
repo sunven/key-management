@@ -1,6 +1,7 @@
 import { Activity, FolderOpen, Share2 } from 'lucide-react';
 import { headers } from 'next/headers';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
@@ -14,6 +15,8 @@ export default async function Home() {
   if (!session?.user?.id) {
     return null;
   }
+
+  const t = await getTranslations('dashboard');
 
   // Fetch stats
   const userId = session.user.id;
@@ -36,10 +39,10 @@ export default async function Home() {
     <div className="container mx-auto p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight font-mono text-primary">
-          DASHBOARD
+          {t('title')}
         </h1>
         <p className="text-muted-foreground font-mono text-sm mt-1">
-          WELCOME_BACK :: {session.user.name}
+          {t('welcomeBack', { name: session.user.name })}
         </p>
       </div>
 
@@ -47,14 +50,14 @@ export default async function Home() {
         <Card className="backdrop-blur-sm transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium font-mono text-primary/70 uppercase tracking-wider">
-              Total Groups
+              {t('totalGroups')}
             </CardTitle>
             <FolderOpen className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono">{groupsCount}</div>
             <p className="text-xs text-muted-foreground font-mono">
-              Config groups created
+              {t('configGroupsCreated')}
             </p>
           </CardContent>
         </Card>
@@ -62,14 +65,14 @@ export default async function Home() {
         <Card className="backdrop-blur-sm transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium font-mono text-primary/70 uppercase tracking-wider">
-              Total Shares
+              {t('totalShares')}
             </CardTitle>
             <Share2 className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono">{sharesCount}</div>
             <p className="text-xs text-muted-foreground font-mono">
-              Active shares
+              {t('activeShares')}
             </p>
           </CardContent>
         </Card>
@@ -77,16 +80,16 @@ export default async function Home() {
         <Card className="backdrop-blur-sm transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium font-mono text-primary/70 uppercase tracking-wider">
-              Account Status
+              {t('accountStatus')}
             </CardTitle>
             <Activity className="h-4 w-4 text-rose-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono text-emerald-500">
-              Active
+              {t('active')}
             </div>
             <p className="text-xs text-muted-foreground font-mono">
-              All systems operational
+              {t('allSystemsOperational')}
             </p>
           </CardContent>
         </Card>
@@ -96,7 +99,7 @@ export default async function Home() {
         <Card className="backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-primary font-mono tracking-wider uppercase text-sm">
-              Quick Actions
+              {t('quickActions')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -106,7 +109,7 @@ export default async function Home() {
                 className="w-full justify-start font-mono text-xs transition-all duration-300 group"
               >
                 <FolderOpen className="mr-2 h-4 w-4 text-blue-500 transition-all" />
-                MANAGE_GROUPS
+                {t('manageGroups')}
               </Button>
             </Link>
             <Link href="/shares" className="block">
@@ -115,7 +118,7 @@ export default async function Home() {
                 className="w-full justify-start font-mono text-xs transition-all duration-300 group"
               >
                 <Share2 className="mr-2 h-4 w-4 text-purple-500 transition-all" />
-                MANAGE_SHARES
+                {t('manageShares')}
               </Button>
             </Link>
           </CardContent>

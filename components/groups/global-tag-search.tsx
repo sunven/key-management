@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, Copy, Search, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +25,9 @@ interface TagSearchResult {
 }
 
 export function GlobalTagSearch() {
+  const t = useTranslations('globalTagSearch');
+  const tCommon = useTranslations('common');
+
   const [allTags, setAllTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchResults, setSearchResults] = useState<TagSearchResult[]>([]);
@@ -87,11 +91,11 @@ export function GlobalTagSearch() {
     try {
       await navigator.clipboard.writeText(value);
       setCopiedId(itemId);
-      toast.success('Value copied to clipboard');
+      toast.success(tCommon('copiedToClipboard'));
       setTimeout(() => setCopiedId(null), 2000);
     } catch (error) {
       console.error('Failed to copy:', error);
-      toast.error('Failed to copy value');
+      toast.error(tCommon('copyFailed'));
     }
   };
 
@@ -112,14 +116,14 @@ export function GlobalTagSearch() {
       <div className="flex items-center gap-2">
         <Search className="h-4 w-4 text-foreground0" />
         <h3 className="font-medium text-foreground0 font-mono tracking-wider uppercase text-sm drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]">
-          Cross-Group Tag Search
+          {t('title')}
         </h3>
       </div>
 
       <div className="space-y-2">
         <Input
           type="text"
-          placeholder="FILTER_TAGS..."
+          placeholder={t('filterPlaceholder')}
           value={tagFilter}
           onChange={(e) => setTagFilter(e.target.value)}
           className="max-w-xs bg-background/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono text-sm focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
@@ -146,7 +150,7 @@ export function GlobalTagSearch() {
       {selectedTags.length > 0 && (
         <div className="flex items-center gap-2">
           <span className="text-sm text-foreground0/70 font-mono">
-            SELECTED:{' '}
+            {t('selected')}{' '}
             <span className="text-primary drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
               {selectedTags.join(', ')}
             </span>
@@ -157,7 +161,7 @@ export function GlobalTagSearch() {
             onClick={clearSelection}
             className="text-rose-500 hover:text-rose-400 hover:bg-rose-950/30 h-6 text-xs uppercase font-mono tracking-wider"
           >
-            Clear
+            {tCommon('clear')}
           </Button>
         </div>
       )}
@@ -165,13 +169,13 @@ export function GlobalTagSearch() {
       {loading && (
         <div className="flex items-center gap-2 text-foreground0/80 font-mono text-sm animate-pulse">
           <div className="h-2 w-2 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)]"></div>
-          SEARCHING_DATABASE...
+          {t('searching')}
         </div>
       )}
 
       {!loading && selectedTags.length > 0 && searchResults.length === 0 && (
         <p className="text-sm text-rose-500/80 font-mono">
-          ERROR: NO_MATCHING_ITEMS_FOUND
+          {t('noResults')}
         </p>
       )}
 
@@ -181,16 +185,16 @@ export function GlobalTagSearch() {
             <TableHeader className="bg-background/80">
               <TableRow className="border-b-cyan-800/50 hover:bg-transparent">
                 <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">
-                  Group
+                  {t('columnGroup')}
                 </TableHead>
                 <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">
-                  Key
+                  {t('columnKey')}
                 </TableHead>
                 <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">
-                  Value
+                  {t('columnValue')}
                 </TableHead>
                 <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">
-                  Tags
+                  {t('columnTags')}
                 </TableHead>
               </TableRow>
             </TableHeader>

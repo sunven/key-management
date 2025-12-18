@@ -1,8 +1,12 @@
 'use client';
 
+import { AlertTriangle, Check, Copy, Globe, Lock, Share2, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Share2, Globe, Lock, AlertTriangle, Copy, Check, X } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -11,12 +15,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 
 interface ShareDialogProps {
   groupId: number;
@@ -29,6 +30,9 @@ interface ShareDialogProps {
 type ShareType = 'PUBLIC' | 'PRIVATE';
 
 export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess }: ShareDialogProps) {
+  const t = useTranslations('shareDialog');
+  const tCommon = useTranslations('common');
+
   const [shareType, setShareType] = useState<ShareType>('PUBLIC');
   const [emails, setEmails] = useState<string[]>([]);
   const [emailInput, setEmailInput] = useState('');
@@ -43,12 +47,12 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error('Invalid email address');
+      toast.error(t('invalidEmail'));
       return;
     }
 
     if (emails.includes(email)) {
-      toast.error('Email already added');
+      toast.error(t('emailAlreadyAdded'));
       return;
     }
 
@@ -72,16 +76,16 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
     try {
       await navigator.clipboard.writeText(shareResult.shareUrl);
       setCopied(true);
-      toast.success('Link copied to clipboard');
+      toast.success(tCommon('linkCopied'));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy link');
+      toast.error(tCommon('failedToCopyLink'));
     }
   };
 
   const handleCreateShare = async () => {
     if (shareType === 'PRIVATE' && emails.length === 0) {
-      toast.error('Please add at least one email for private share');
+      toast.error(t('atLeastOneEmail'));
       return;
     }
 
@@ -104,11 +108,11 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
 
       const data = await response.json();
       setShareResult({ shareUrl: data.shareUrl, id: data.id });
-      toast.success('Share created successfully');
+      toast.success(t('createSuccess'));
       onSuccess();
     } catch (error) {
       console.error('Error creating share:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create share');
+      toast.error(error instanceof Error ? error.message : t('createError'));
     } finally {
       setLoading(false);
     }
@@ -129,10 +133,10 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
         <DialogHeader>
           <DialogTitle className="text-primary font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] flex items-center gap-2">
             <Share2 className="h-5 w-5" />
-            SHARE_GROUP
+            {t('title')}
           </DialogTitle>
           <DialogDescription className="text-cyan-600/70 font-mono text-xs">
-            // Sharing: <span className="text-primary">{groupName}</span>
+            {t('sharingLabel')} <span className="text-primary">{groupName}</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -142,12 +146,12 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
             <Alert className="bg-emerald-950/30 border-emerald-500/50 text-emerald-400">
               <Check className="h-4 w-4" />
               <AlertDescription className="font-mono text-xs">
-                Share created successfully!
+                {t('shareCreatedSuccess')}
               </AlertDescription>
             </Alert>
             <div className="space-y-2">
               <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">
-                Share Link
+                {t('shareLink')}
               </Label>
               <div className="flex gap-2">
                 <Input
@@ -170,7 +174,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                 onClick={handleClose}
                 className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono uppercase tracking-wider"
               >
-                CLOSE
+                {tCommon('close')}
               </Button>
             </DialogFooter>
           </div>
@@ -180,7 +184,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
             {/* Share Type Selection */}
             <div className="space-y-3">
               <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">
-                Share Type
+                {t('shareType')}
               </Label>
               <RadioGroup
                 value={shareType}
@@ -202,10 +206,10 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                       className="text-primary font-mono text-sm cursor-pointer flex items-center gap-2"
                     >
                       <Globe className="h-4 w-4" />
-                      Public Share
+                      {t('publicShare')}
                     </Label>
                     <p className="text-cyan-600/70 font-mono text-xs">
-                      Anyone with the link can view (no login required)
+                      {t('publicShareDescription')}
                     </p>
                   </div>
                 </div>
@@ -224,10 +228,10 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                       className="text-primary font-mono text-sm cursor-pointer flex items-center gap-2"
                     >
                       <Lock className="h-4 w-4" />
-                      Private Share
+                      {t('privateShare')}
                     </Label>
                     <p className="text-cyan-600/70 font-mono text-xs">
-                      Only invited users can view (login required)
+                      {t('privateShareDescription')}
                     </p>
                   </div>
                 </div>
@@ -238,12 +242,12 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
             {shareType === 'PRIVATE' && (
               <div className="space-y-3">
                 <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">
-                  Invite Users (Email)
+                  {t('inviteUsers')}
                 </Label>
                 <div className="flex gap-2">
                   <Input
                     type="email"
-                    placeholder="user@example.com"
+                    placeholder={t('emailPlaceholder')}
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -254,7 +258,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                     onClick={handleAddEmail}
                     className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50"
                   >
-                    Add
+                    {tCommon('add')}
                   </Button>
                 </div>
                 {emails.length > 0 && (
@@ -285,7 +289,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
               <Alert className="bg-amber-950/30 border-amber-500/50 text-amber-400">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription className="font-mono text-xs">
-                  Public share links can be accessed by anyone. Do not share sensitive data.
+                  {t('publicWarning')}
                 </AlertDescription>
               </Alert>
             )}
@@ -297,7 +301,7 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                 onClick={handleClose}
                 className="bg-transparent text-cyan-600 border/50 hover:bg-card/50 font-mono uppercase tracking-wider"
               >
-                CANCEL
+                {tCommon('cancel')}
               </Button>
               <Button
                 type="button"
@@ -308,10 +312,10 @@ export function ShareDialog({ groupId, groupName, open, onOpenChange, onSuccess 
                 {loading ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent mr-2" />
-                    PROCESSING...
+                    {tCommon('processing')}
                   </>
                 ) : (
-                  'CREATE_SHARE'
+                  t('createShare')
                 )}
               </Button>
             </DialogFooter>

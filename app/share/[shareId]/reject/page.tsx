@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertTriangle, Home, XCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
@@ -15,6 +16,9 @@ import {
 } from '@/components/ui/card';
 
 function RejectInvitationContent() {
+  const t = useTranslations('rejectInvitation');
+  const tCommon = useTranslations('common');
+
   const params = useParams();
   const searchParams = useSearchParams();
   const _router = useRouter();
@@ -36,7 +40,7 @@ function RejectInvitationContent() {
     const rejectInvitation = async () => {
       if (!token) {
         setStatus('error');
-        setErrorMessage('Invalid invitation link');
+        setErrorMessage(t('invalidLink'));
         setLoading(false);
         return;
       }
@@ -49,18 +53,18 @@ function RejectInvitationContent() {
 
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.error || 'Failed to reject invitation');
+          throw new Error(data.error || t('rejectError'));
         }
 
         setStatus('success');
-        toast.success('Invitation rejected');
+        toast.success(t('rejectSuccess'));
       } catch (error) {
         console.error('Error rejecting invitation:', error);
         setStatus('error');
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : 'Failed to reject invitation',
+            : t('rejectError'),
         );
       } finally {
         setLoading(false);
@@ -68,7 +72,7 @@ function RejectInvitationContent() {
     };
 
     rejectInvitation();
-  }, [shareId, token, success]);
+  }, [shareId, token, success, t]);
 
   if (loading) {
     return (
@@ -79,10 +83,10 @@ function RejectInvitationContent() {
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent" />
             </div>
             <CardTitle className="text-primary font-mono">
-              PROCESSING...
+              {t('processing')}
             </CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
-              Processing your response to the invitation
+              {t('processingDescription')}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -98,7 +102,7 @@ function RejectInvitationContent() {
             <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center mb-4">
               <AlertTriangle className="w-8 h-8 text-rose-400" />
             </div>
-            <CardTitle className="text-rose-400 font-mono">ERROR</CardTitle>
+            <CardTitle className="text-rose-400 font-mono">{tCommon('error')}</CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
               {errorMessage}
             </CardDescription>
@@ -107,7 +111,7 @@ function RejectInvitationContent() {
             <Link href="/">
               <Button className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono">
                 <Home className="mr-2 h-4 w-4" />
-                RETURN_HOME
+                {tCommon('returnHome')}
               </Button>
             </Link>
           </CardContent>
@@ -125,18 +129,17 @@ function RejectInvitationContent() {
             <XCircle className="w-8 h-8 text-rose-400" />
           </div>
           <CardTitle className="text-rose-400 font-mono">
-            INVITATION_REJECTED
+            {t('invitationRejected')}
           </CardTitle>
           <CardDescription className="text-cyan-600/70 font-mono text-sm">
-            You have rejected this share invitation. You will not have access to
-            the shared content.
+            {t('rejectedDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Link href="/">
             <Button className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono">
               <Home className="mr-2 h-4 w-4" />
-              RETURN_HOME
+              {tCommon('returnHome')}
             </Button>
           </Link>
         </CardContent>

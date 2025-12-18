@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertTriangle, CheckCircle, LogIn, XCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,6 +16,9 @@ import {
 } from '@/components/ui/card';
 
 export default function AcceptInvitationPage() {
+  const t = useTranslations('acceptInvitation');
+  const tCommon = useTranslations('common');
+
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -54,11 +58,11 @@ export default function AcceptInvitationPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to accept invitation');
+        throw new Error(data.error || t('acceptError'));
       }
 
       setStatus('success');
-      toast.success('Invitation accepted!');
+      toast.success(t('acceptSuccess'));
 
       // Redirect to share view after a short delay
       setTimeout(() => {
@@ -68,10 +72,10 @@ export default function AcceptInvitationPage() {
       console.error('Error accepting invitation:', error);
       setStatus('error');
       setErrorMessage(
-        error instanceof Error ? error.message : 'Failed to accept invitation',
+        error instanceof Error ? error.message : t('acceptError'),
       );
       toast.error(
-        error instanceof Error ? error.message : 'Failed to accept invitation',
+        error instanceof Error ? error.message : t('acceptError'),
       );
     } finally {
       setAccepting(false);
@@ -82,7 +86,7 @@ export default function AcceptInvitationPage() {
     setLoading(true);
     try {
       if (!token) {
-        throw new Error('Invalid invitation link');
+        throw new Error(t('invalidLink'));
       }
 
       const response = await fetch(
@@ -92,14 +96,14 @@ export default function AcceptInvitationPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to reject invitation');
+        throw new Error(data.error || t('rejectError'));
       }
 
       router.push(`/share/${shareId}/reject?success=true`);
     } catch (error) {
       console.error('Error rejecting invitation:', error);
       toast.error(
-        error instanceof Error ? error.message : 'Failed to reject invitation',
+        error instanceof Error ? error.message : t('rejectError'),
       );
     } finally {
       setLoading(false);
@@ -115,10 +119,10 @@ export default function AcceptInvitationPage() {
               <LogIn className="w-8 h-8 text-primary" />
             </div>
             <CardTitle className="text-primary font-mono">
-              LOGIN_REQUIRED
+              {t('loginRequired')}
             </CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
-              Please login to accept this invitation
+              {t('loginDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -131,7 +135,7 @@ export default function AcceptInvitationPage() {
               className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono"
             >
               <LogIn className="mr-2 h-4 w-4" />
-              LOGIN_TO_CONTINUE
+              {t('loginToContinue')}
             </Button>
           </CardContent>
         </Card>
@@ -148,16 +152,16 @@ export default function AcceptInvitationPage() {
               <CheckCircle className="w-8 h-8 text-emerald-400" />
             </div>
             <CardTitle className="text-emerald-400 font-mono">
-              INVITATION_ACCEPTED
+              {t('invitationAccepted')}
             </CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
-              You now have access to this shared group. Redirecting...
+              {t('acceptedDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Link href={`/share/${shareId}`}>
               <Button className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono">
-                VIEW_SHARE_NOW
+                {t('viewShareNow')}
               </Button>
             </Link>
           </CardContent>
@@ -174,7 +178,7 @@ export default function AcceptInvitationPage() {
             <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center mb-4">
               <AlertTriangle className="w-8 h-8 text-rose-400" />
             </div>
-            <CardTitle className="text-rose-400 font-mono">ERROR</CardTitle>
+            <CardTitle className="text-rose-400 font-mono">{tCommon('error')}</CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
               {errorMessage}
             </CardDescription>
@@ -182,7 +186,7 @@ export default function AcceptInvitationPage() {
           <CardContent>
             <Link href="/">
               <Button className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono">
-                RETURN_HOME
+                {tCommon('returnHome')}
               </Button>
             </Link>
           </CardContent>
@@ -200,11 +204,10 @@ export default function AcceptInvitationPage() {
             <CheckCircle className="w-8 h-8 text-primary" />
           </div>
           <CardTitle className="text-primary font-mono">
-            SHARE_INVITATION
+            {t('shareInvitation')}
           </CardTitle>
           <CardDescription className="text-cyan-600/70 font-mono text-sm">
-            You have been invited to view a shared group. Would you like to
-            accept this invitation?
+            {t('inviteDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -216,12 +219,12 @@ export default function AcceptInvitationPage() {
             {accepting ? (
               <>
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-r-transparent mr-2" />
-                PROCESSING...
+                {tCommon('processing')}
               </>
             ) : (
               <>
                 <CheckCircle className="mr-2 h-4 w-4" />
-                ACCEPT_INVITATION
+                {t('acceptButton')}
               </>
             )}
           </Button>
@@ -234,12 +237,12 @@ export default function AcceptInvitationPage() {
             {loading ? (
               <>
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-rose-500 border-r-transparent mr-2" />
-                PROCESSING...
+                {tCommon('processing')}
               </>
             ) : (
               <>
                 <XCircle className="mr-2 h-4 w-4" />
-                REJECT_INVITATION
+                {t('rejectButton')}
               </>
             )}
           </Button>

@@ -1,7 +1,10 @@
 import { Share2 } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { ShareList } from '@/components/shares/share-list';
 
-export default function SharesPage() {
+export default async function SharesPage() {
+  const t = await getTranslations('shares');
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
@@ -11,11 +14,11 @@ export default function SharesPage() {
               <Share2 className="h-6 w-6 text-primary" />
             </div>
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500 font-mono tracking-tight">
-              MY_SHARES
+              {t('title')}
             </h1>
           </div>
           <p className="text-muted-foreground font-mono text-sm">
-            // Manage your shared groups and invitations
+            {t('description')}
           </p>
         </div>
 

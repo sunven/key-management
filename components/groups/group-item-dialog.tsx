@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -38,6 +39,9 @@ export function GroupItemDialog({
   trigger,
   onSuccess,
 }: GroupItemDialogProps) {
+  const t = useTranslations('groupItemDialog');
+  const tCommon = useTranslations('common');
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
@@ -116,7 +120,7 @@ export function GroupItemDialog({
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.error === 'Key already exists in this group') {
-          setError('key', { message: 'This key already exists in this group' });
+          setError('key', { message: t('keyExistsError') });
           return;
         }
         throw new Error('Failed to save item');
@@ -127,7 +131,7 @@ export function GroupItemDialog({
       onSuccess();
     } catch (error) {
       console.error('Error saving item:', error);
-      toast.error('Failed to save item. Please try again.');
+      toast.error(t('saveError'));
     } finally {
       setLoading(false);
     }
@@ -140,12 +144,10 @@ export function GroupItemDialog({
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle className="text-primary font-mono tracking-wider uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
-              {isEdit ? 'MODIFY_CONFIG_ITEM' : 'INSERT_NEW_ITEM'}
+              {isEdit ? t('editTitle') : t('createTitle')}
             </DialogTitle>
             <DialogDescription className="text-cyan-600/70 font-mono text-xs">
-              {isEdit
-                ? '// Update the key-value configuration below.'
-                : '// Add a new key-value pair to this group.'}
+              {isEdit ? t('editDescription') : t('createDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -154,11 +156,11 @@ export function GroupItemDialog({
                 htmlFor="key"
                 className="text-foreground0 font-mono text-xs uppercase tracking-wider"
               >
-                Key
+                {t('keyLabel')}
               </Label>
               <Input
                 id="key"
-                placeholder="CONFIG_KEY_NAME"
+                placeholder={t('keyPlaceholder')}
                 {...register('key')}
                 className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
@@ -173,11 +175,11 @@ export function GroupItemDialog({
                 htmlFor="value"
                 className="text-foreground0 font-mono text-xs uppercase tracking-wider"
               >
-                Value
+                {t('valueLabel')}
               </Label>
               <Textarea
                 id="value"
-                placeholder="// Configuration value..."
+                placeholder={t('valuePlaceholder')}
                 rows={3}
                 {...register('value')}
                 className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
@@ -190,7 +192,7 @@ export function GroupItemDialog({
             </div>
             <div className="grid gap-2">
               <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">
-                Tags
+                {t('tagsLabel')}
               </Label>
               <Controller
                 name="tags"
@@ -199,7 +201,7 @@ export function GroupItemDialog({
                   <TagInput
                     value={field.value || []}
                     onChange={field.onChange}
-                    placeholder="ADD_TAGS..."
+                    placeholder={t('tagsPlaceholder')}
                     suggestions={tagSuggestions}
                     onFetchSuggestions={fetchTagSuggestions}
                   />
@@ -223,12 +225,12 @@ export function GroupItemDialog({
               {loading ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent mr-2 shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
-                  PROCESSING...
+                  {tCommon('processing')}
                 </>
               ) : isEdit ? (
-                'UPDATE_ITEM'
+                t('updateButton')
               ) : (
-                'INSERT_ITEM'
+                t('createButton')
               )}
             </Button>
           </DialogFooter>
