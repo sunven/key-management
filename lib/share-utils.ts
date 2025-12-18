@@ -50,7 +50,9 @@ export function createInvitationToken(email: string, shareId: string): string {
  * Decode an invitation token
  * Returns null if the token is invalid
  */
-export function decodeInvitationToken(token: string): { email: string; shareId: string; ts: number } | null {
+export function decodeInvitationToken(
+  token: string,
+): { email: string; shareId: string; ts: number } | null {
   try {
     const data = Buffer.from(token, 'base64url').toString('utf-8');
     const parsed = JSON.parse(data);

@@ -23,7 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **multi-user configuration management application** for securely storing and managing configuration groups with sharing capabilities. Built with Next.js 16 (App Router), React 19, TypeScript, Supabase (PostgreSQL), Prisma ORM, NextAuth.js v5, and shadcn/ui components.
+This is a **multi-user configuration management application** for securely storing and managing configuration groups with sharing capabilities. Built with Next.js 16 (App Router), React 19, TypeScript, Supabase (PostgreSQL), Prisma ORM, Better Auth, and shadcn/ui components.
 
 **Core Features:**
 - Google OAuth authentication with multi-user isolation
@@ -58,7 +58,7 @@ pnpm db:studio    # Open Prisma Studio (visual database browser)
 - **React**: 19.2.0 with automatic JSX transform
 - **Database**: Supabase PostgreSQL (hosted)
 - **ORM**: Prisma 7 with PostgreSQL adapter (`@prisma/adapter-pg`)
-- **Authentication**: NextAuth.js v5 with Google OAuth
+- **Authentication**: Better Auth with Google OAuth
 - **UI**: shadcn/ui (New York style) with Tailwind CSS v4
 - **Validation**: Zod 4.x schemas
 - **Linting**: Biome (replacing ESLint) with single quotes convention
@@ -70,7 +70,7 @@ The application uses a **multi-table relational schema** with user isolation enf
 
 **Schema hierarchy:**
 ```
-users (from NextAuth)
+users (from Better Auth)
   ↓ (one-to-many)
   ├── groups (user_id FK with CASCADE delete)
   │     ↓ (one-to-many)
@@ -86,7 +86,7 @@ users (from NextAuth)
 ```
 
 **Key schema details** ([prisma/schema.prisma](prisma/schema.prisma)):
-- `users`: Auto-synced during Google OAuth sign-in (see [auth.ts](auth.ts) callbacks)
+- `users`: Auto-synced during Google OAuth sign-in (see [lib/auth.ts](lib/auth.ts) configuration)
 - `groups`: Key-value storage system per user with tagging
 - `group_items`: Key-value pairs within a group (unique constraint on groupId + key)
 - `item_tags`: Tags for group items with indexing for fast search
@@ -101,32 +101,38 @@ users (from NextAuth)
 
 ### Authentication Flow
 
-**Authentication architecture** ([auth.ts](auth.ts)):
+**Authentication architecture** ([lib/auth.ts](lib/auth.ts)):
 
-1. **User sign-in** (NextAuth.js v5):
-   - Google OAuth configured in [auth.ts](auth.ts)
-   - `signIn` callback automatically creates user in database if new
-   - `session` callback enriches session with database user ID
+1. **User sign-in** (Better Auth):
+   - Google OAuth configured in [lib/auth.ts](lib/auth.ts)
+   - User automatically created in database on first sign-in
+   - Session includes database user ID for query filtering
 
 2. **Session management**:
    - Session includes `user.id` (database primary key, not OAuth ID)
-   - All API routes use `await auth()` to get current session
+   - Server routes use `auth.api.getSession()` with headers to get current session
+   - Client components use `useSession()` from [lib/auth-client.ts](lib/auth-client.ts)
    - Session user ID is used to filter database queries
 
 3. **Route protection**:
-   - NextAuth.js v5 handles route protection automatically
-   - Unauthenticated users redirected to `/auth/signin` with callback URL
-   - Custom sign-in page at [app/auth/signin/page.tsx](app/auth/signin/page.tsx)
+   - Better Auth handles route protection with middleware
+   - Unauthenticated users redirected to sign-in page
+   - Sign-in/sign-out handled via Better Auth API endpoints at `/api/auth/*`
 
 **Adding authentication to new routes:**
 ```typescript
-import { auth } from '@/auth';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 export async function GET() {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
   const userId = parseInt(session.user.id);
   // Use userId to filter queries
 }
@@ -158,7 +164,7 @@ All API routes follow a **consistent pattern** for user isolation:
 - Pages ([app/*/page.tsx](app/page.tsx)): Server Components that fetch data
 - Lists/Dialogs ([components/groups/*](components/groups/), [components/shares/*](components/shares/)): Client Components with `'use client'`
 - Layout ([components/layout/navbar.tsx](components/layout/navbar.tsx)): Server Component
-- User Menu ([components/layout/user-menu.tsx](components/layout/user-menu.tsx)): Client Component (uses `signOut` from `next-auth/react`)
+- User Menu ([components/layout/user-menu.tsx](components/layout/user-menu.tsx)): Client Component (uses Better Auth client for sign-out)
 
 **Data fetching pattern:**
 - Server Components: Direct database queries via Prisma
@@ -174,8 +180,9 @@ All API routes follow a **consistent pattern** for user isolation:
 ### Key Files & Responsibilities
 
 **Authentication:**
-- [auth.ts](auth.ts): NextAuth.js configuration, user sync, session enrichment
-- [types/next-auth.d.ts](types/next-auth.d.ts): TypeScript augmentation for session.user.id
+- [lib/auth.ts](lib/auth.ts): Better Auth server configuration, Google OAuth setup
+- [lib/auth-client.ts](lib/auth-client.ts): Better Auth client for React components
+- [types/better-auth.d.ts](types/better-auth.d.ts): TypeScript augmentation for session types (if needed)
 
 **Database:**
 - [prisma/schema.prisma](prisma/schema.prisma): Prisma schema with relations (users, groups, group_items, item_tags, shares, share_invitations)
@@ -185,7 +192,7 @@ All API routes follow a **consistent pattern** for user isolation:
 - [lib/schemas.ts](lib/schemas.ts): Zod validation schemas for all entities
 
 **API Routes:**
-- [app/api/auth/[...nextauth]/route.ts](app/api/auth/[...nextauth]/route.ts): NextAuth.js handlers export
+- [app/api/auth/[...all]/route.ts](app/api/auth/[...all]/route.ts): Better Auth API handlers
 - [app/api/groups/*](app/api/groups/): Group CRUD with nested items and tags
 - [app/api/tags/*](app/api/tags/): Tag search and management
 - [app/api/shares/*](app/api/shares/): Share management (create, list, revoke, content access, invitations)
@@ -205,11 +212,12 @@ Required environment variables (create `.env.local` in project root):
 - `SUPABASE_SERVICE_ROLE_KEY`: Service role key (not currently used)
 - `DIRECT_URL`: PostgreSQL connection string (used by Prisma - Transaction mode)
 
-**NextAuth.js:**
-- `AUTH_SECRET`: Random secret (generate with `openssl rand -base64 32`)
+**Better Auth:**
+- `BETTER_AUTH_SECRET`: Random secret (generate with `openssl rand -base64 32`)
+- `BETTER_AUTH_URL`: Auth API base URL (http://localhost:3100 for dev)
+- `NEXT_PUBLIC_APP_URL`: Public app URL (http://localhost:3100 for dev)
 - `AUTH_GOOGLE_ID`: Google OAuth client ID
 - `AUTH_GOOGLE_SECRET`: Google OAuth client secret
-- `NEXTAUTH_URL`: App URL (http://localhost:3100 for dev)
 
 **Email Service (Resend):**
 - `RESEND_API_KEY`: Resend API key for sending invitation emails
@@ -398,7 +406,7 @@ if (!confirm('Are you sure you want to delete...?')) {
 **Import conventions:**
 - Use `@/` path alias for imports from project root
 - Prisma Client: `import { PrismaClient } from '../generated/prisma/client'` (relative to lib/db)
-- Auth: `import { auth } from '@/auth'`
+- Auth: `import { auth } from '@/lib/auth'` (server), `import { authClient } from '@/lib/auth-client'` (client)
 - Components: `import { ComponentName } from '@/components/...`
 
 ### Common Tasks
@@ -410,10 +418,11 @@ pnpm dlx shadcn@latest add [component-name]
 
 **Debugging authentication issues:**
 1. Check `.env.local` has all required variables
-2. Verify Google OAuth redirect URI matches exactly (`http://localhost:3100/api/auth/callback/google`)
-3. Verify `AUTH_SECRET` is set (generate with `openssl rand -base64 32`)
-4. Inspect session with `console.log(await auth())` in API route
-5. Check browser console for NextAuth errors
+2. Verify Google OAuth redirect URI matches exactly (use Better Auth's callback URL)
+3. Verify `BETTER_AUTH_SECRET` is set (generate with `openssl rand -base64 32`)
+4. Inspect session with `console.log(await auth.api.getSession({ headers: await headers() }))` in API route
+5. Check browser console and Network tab for Better Auth errors
+6. Ensure `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` match your development URL
 
 **Database schema changes:**
 1. Modify [prisma/schema.prisma](prisma/schema.prisma)
@@ -439,9 +448,9 @@ Before running the application, developers must:
 
 1. Create Supabase project and get connection string
 2. Set up Google OAuth credentials (see README.md)
-3. Configure `.env.local` with all required variables
+3. Configure `.env.local` with all required variables (see Environment Variables section)
 4. Run `pnpm db:push` or `pnpm db:migrate` to create database tables
-5. Ensure Google OAuth redirect URI is `http://localhost:3100/api/auth/callback/google`
+5. Ensure Google OAuth redirect URI matches Better Auth's callback endpoint
 
 If authentication fails, users will be stuck in redirect loop - check environment variables first.
 
@@ -458,10 +467,11 @@ If authentication fails, users will be stuck in redirect loop - check environmen
 - Ensure connection string uses Transaction mode (not Session pooling)
 
 **Authentication issues:**
-- Verify all AUTH_* environment variables are set
-- Check Google OAuth redirect URI matches exactly
-- Generate new AUTH_SECRET with `openssl rand -base64 32`
-- Clear cookies and try again
+- Verify all Better Auth environment variables are set (`BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`)
+- Check Google OAuth redirect URI matches Better Auth's callback endpoint
+- Generate new `BETTER_AUTH_SECRET` with `openssl rand -base64 32`
+- Clear cookies and browser cache, then try again
+- Check that `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` are correctly set for your environment
 
 **Type errors after schema changes:**
 - Run `pnpm db:generate` to regenerate Prisma Client

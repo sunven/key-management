@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { decodeInvitationToken } from '@/lib/share-utils';
 
 // POST reject an invitation (no login required)
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ shareId: string }> }
+  { params }: { params: Promise<{ shareId: string }> },
 ) {
   const { shareId } = await params;
 
@@ -15,13 +15,19 @@ export async function POST(
     const token = url.searchParams.get('token');
 
     if (!token) {
-      return NextResponse.json({ error: 'Invitation token is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invitation token is required' },
+        { status: 400 },
+      );
     }
 
     // Verify the token
     const decoded = decodeInvitationToken(token);
     if (!decoded || decoded.shareId !== shareId) {
-      return NextResponse.json({ error: 'Invalid invitation token' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid invitation token' },
+        { status: 400 },
+      );
     }
 
     // Find the share
@@ -34,7 +40,10 @@ export async function POST(
     }
 
     if (share.type !== 'PRIVATE') {
-      return NextResponse.json({ error: 'This share does not require rejection' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'This share does not require rejection' },
+        { status: 400 },
+      );
     }
 
     // Find the invitation
@@ -48,7 +57,10 @@ export async function POST(
     });
 
     if (!invitation) {
-      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Invitation not found' },
+        { status: 404 },
+      );
     }
 
     // Update invitation status to REJECTED
@@ -63,6 +75,9 @@ export async function POST(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error rejecting invitation:', error);
-    return NextResponse.json({ error: 'Failed to reject invitation' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to reject invitation' },
+      { status: 500 },
+    );
   }
 }

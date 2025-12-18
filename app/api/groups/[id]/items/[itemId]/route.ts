@@ -1,15 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { headers } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
 import { groupItemUpdateSchema } from '@/lib/schemas';
-import { z } from 'zod';
 
 // GET a specific item
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string; itemId: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string; itemId: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const { id, itemId } = await params;
 
   if (!session?.user?.id) {
@@ -20,8 +23,8 @@ export async function GET(
     // First verify the group belongs to the user
     const group = await prisma.group.findFirst({
       where: {
-        id: parseInt(id),
-        userId: parseInt(session.user.id),
+        id: parseInt(id, 10),
+        userId: session.user.id,
       },
     });
 
@@ -31,8 +34,8 @@ export async function GET(
 
     const item = await prisma.groupItem.findFirst({
       where: {
-        id: parseInt(itemId),
-        groupId: parseInt(id),
+        id: parseInt(itemId, 10),
+        groupId: parseInt(id, 10),
       },
       include: {
         tags: true,
@@ -46,16 +49,21 @@ export async function GET(
     return NextResponse.json(item);
   } catch (error) {
     console.error('Error fetching item:', error);
-    return NextResponse.json({ error: 'Failed to fetch item' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch item' },
+      { status: 500 },
+    );
   }
 }
 
 // PUT update an item
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; itemId: string }> }
+  { params }: { params: Promise<{ id: string; itemId: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const { id, itemId } = await params;
 
   if (!session?.user?.id) {
@@ -66,8 +74,8 @@ export async function PUT(
     // First verify the group belongs to the user
     const group = await prisma.group.findFirst({
       where: {
-        id: parseInt(id),
-        userId: parseInt(session.user.id),
+        id: parseInt(id, 10),
+        userId: session.user.id,
       },
     });
 
@@ -78,8 +86,8 @@ export async function PUT(
     // Verify item exists
     const existingItem = await prisma.groupItem.findFirst({
       where: {
-        id: parseInt(itemId),
-        groupId: parseInt(id),
+        id: parseInt(itemId, 10),
+        groupId: parseInt(id, 10),
       },
     });
 
@@ -94,14 +102,17 @@ export async function PUT(
     if (validatedData.key && validatedData.key !== existingItem.key) {
       const duplicateKey = await prisma.groupItem.findFirst({
         where: {
-          groupId: parseInt(id),
+          groupId: parseInt(id, 10),
           key: validatedData.key,
-          id: { not: parseInt(itemId) },
+          id: { not: parseInt(itemId, 10) },
         },
       });
 
       if (duplicateKey) {
-        return NextResponse.json({ error: 'Key already exists in this group' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'Key already exists in this group' },
+          { status: 400 },
+        );
       }
     }
 
@@ -111,7 +122,7 @@ export async function PUT(
     const updatedItem = await prisma.$transaction(async (tx) => {
       // Update item data
       await tx.groupItem.update({
-        where: { id: parseInt(itemId) },
+        where: { id: parseInt(itemId, 10) },
         data: {
           ...itemData,
           updatedAt: new Date(),
@@ -122,14 +133,14 @@ export async function PUT(
       if (tags !== undefined) {
         // Delete existing tags
         await tx.itemTag.deleteMany({
-          where: { itemId: parseInt(itemId) },
+          where: { itemId: parseInt(itemId, 10) },
         });
 
         // Create new tags
         if (tags.length > 0) {
           await tx.itemTag.createMany({
             data: tags.map((tag) => ({
-              itemId: parseInt(itemId),
+              itemId: parseInt(itemId, 10),
               tag,
             })),
           });
@@ -138,7 +149,7 @@ export async function PUT(
 
       // Return updated item with tags
       return tx.groupItem.findUnique({
-        where: { id: parseInt(itemId) },
+        where: { id: parseInt(itemId, 10) },
         include: { tags: true },
       });
     });
@@ -149,16 +160,21 @@ export async function PUT(
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
     console.error('Error updating item:', error);
-    return NextResponse.json({ error: 'Failed to update item' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to update item' },
+      { status: 500 },
+    );
   }
 }
 
 // DELETE an item
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string; itemId: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string; itemId: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const { id, itemId } = await params;
 
   if (!session?.user?.id) {
@@ -169,8 +185,8 @@ export async function DELETE(
     // First verify the group belongs to the user
     const group = await prisma.group.findFirst({
       where: {
-        id: parseInt(id),
-        userId: parseInt(session.user.id),
+        id: parseInt(id, 10),
+        userId: session.user.id,
       },
     });
 
@@ -181,8 +197,8 @@ export async function DELETE(
     // Delete item (tags will be cascade deleted)
     const deletedItem = await prisma.groupItem.deleteMany({
       where: {
-        id: parseInt(itemId),
-        groupId: parseInt(id),
+        id: parseInt(itemId, 10),
+        groupId: parseInt(id, 10),
       },
     });
 
@@ -193,6 +209,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting item:', error);
-    return NextResponse.json({ error: 'Failed to delete item' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete item' },
+      { status: 500 },
+    );
   }
 }

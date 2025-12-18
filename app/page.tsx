@@ -1,19 +1,22 @@
-import { auth } from '@/auth';
-import { prisma } from '@/lib/db/prisma';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, FolderOpen, Share2 } from 'lucide-react';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db/prisma';
 
 export default async function Home() {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   if (!session?.user?.id) {
     return null;
   }
 
   // Fetch stats
-  const userId = parseInt(session.user.id);
+  const userId = session.user.id;
 
   // Fetch groups count
   const groupsCount = await prisma.group.count({
@@ -32,41 +35,59 @@ export default async function Home() {
   return (
     <div className="container mx-auto p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight font-mono text-primary">DASHBOARD</h1>
-        <p className="text-muted-foreground font-mono text-sm mt-1">WELCOME_BACK :: {session.user.name}</p>
+        <h1 className="text-3xl font-bold tracking-tight font-mono text-primary">
+          DASHBOARD
+        </h1>
+        <p className="text-muted-foreground font-mono text-sm mt-1">
+          WELCOME_BACK :: {session.user.name}
+        </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
         <Card className="backdrop-blur-sm transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium font-mono text-primary/70 uppercase tracking-wider">Total Groups</CardTitle>
+            <CardTitle className="text-sm font-medium font-mono text-primary/70 uppercase tracking-wider">
+              Total Groups
+            </CardTitle>
             <FolderOpen className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono">{groupsCount}</div>
-            <p className="text-xs text-muted-foreground font-mono">Config groups created</p>
+            <p className="text-xs text-muted-foreground font-mono">
+              Config groups created
+            </p>
           </CardContent>
         </Card>
 
         <Card className="backdrop-blur-sm transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium font-mono text-primary/70 uppercase tracking-wider">Total Shares</CardTitle>
+            <CardTitle className="text-sm font-medium font-mono text-primary/70 uppercase tracking-wider">
+              Total Shares
+            </CardTitle>
             <Share2 className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono">{sharesCount}</div>
-            <p className="text-xs text-muted-foreground font-mono">Active shares</p>
+            <p className="text-xs text-muted-foreground font-mono">
+              Active shares
+            </p>
           </CardContent>
         </Card>
 
         <Card className="backdrop-blur-sm transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium font-mono text-primary/70 uppercase tracking-wider">Account Status</CardTitle>
+            <CardTitle className="text-sm font-medium font-mono text-primary/70 uppercase tracking-wider">
+              Account Status
+            </CardTitle>
             <Activity className="h-4 w-4 text-rose-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono text-emerald-500">Active</div>
-            <p className="text-xs text-muted-foreground font-mono">All systems operational</p>
+            <div className="text-2xl font-bold font-mono text-emerald-500">
+              Active
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">
+              All systems operational
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -74,17 +95,25 @@ export default async function Home() {
       <div className="grid gap-4 md:grid-cols-1">
         <Card className="backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-primary font-mono tracking-wider uppercase text-sm">Quick Actions</CardTitle>
+            <CardTitle className="text-primary font-mono tracking-wider uppercase text-sm">
+              Quick Actions
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <Link href="/groups" className="block">
-              <Button variant="outline" className="w-full justify-start font-mono text-xs transition-all duration-300 group">
+              <Button
+                variant="outline"
+                className="w-full justify-start font-mono text-xs transition-all duration-300 group"
+              >
                 <FolderOpen className="mr-2 h-4 w-4 text-blue-500 transition-all" />
                 MANAGE_GROUPS
               </Button>
             </Link>
             <Link href="/shares" className="block">
-              <Button variant="outline" className="w-full justify-start font-mono text-xs transition-all duration-300 group">
+              <Button
+                variant="outline"
+                className="w-full justify-start font-mono text-xs transition-all duration-300 group"
+              >
                 <Share2 className="mr-2 h-4 w-4 text-purple-500 transition-all" />
                 MANAGE_SHARES
               </Button>

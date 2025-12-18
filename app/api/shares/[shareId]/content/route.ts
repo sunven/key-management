@@ -1,5 +1,6 @@
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
 
 interface AccessResult {
@@ -31,9 +32,11 @@ interface AccessResult {
 // GET share content (public or authorized access)
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ shareId: string }> }
+  { params }: { params: Promise<{ shareId: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const { shareId } = await params;
 
   try {
@@ -110,7 +113,7 @@ export async function GET(
     }
 
     // Check if the user is the owner
-    if (session.user.id && parseInt(session.user.id) === share.userId) {
+    if (session.user.id && session.user.id === share.userId) {
       const result: AccessResult = {
         canView: true,
         share: {
@@ -187,6 +190,9 @@ export async function GET(
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching share content:', error);
-    return NextResponse.json({ error: 'Failed to fetch share content' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch share content' },
+      { status: 500 },
+    );
   }
 }

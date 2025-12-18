@@ -61,9 +61,7 @@ export function TagFilter({
             onClick={() => toggleTag(tag)}
           >
             {tag}
-            {selectedTags.includes(tag) && (
-              <X className="ml-1 h-3 w-3" />
-            )}
+            {selectedTags.includes(tag) && <X className="ml-1 h-3 w-3" />}
           </Badge>
         ))}
       </div>

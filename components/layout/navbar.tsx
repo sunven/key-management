@@ -1,15 +1,21 @@
+import { headers } from 'next/headers';
 import Link from 'next/link';
-import { auth } from '@/auth';
-import { UserMenu } from './user-menu';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { auth } from '@/lib/auth';
+import { UserMenu } from './user-menu';
 
 export async function Navbar() {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   return (
     <nav className="border-b bg-background/80 backdrop-blur-md sticky top-0 z-50">
       <div className="flex h-16 items-center px-4 container mx-auto">
-        <Link href="/" className="font-bold text-xl mr-8 font-mono tracking-tight text-primary">
+        <Link
+          href="/"
+          className="font-bold text-xl mr-8 font-mono tracking-tight text-primary"
+        >
           KEY_MANAGEMENT
         </Link>
         <div className="flex gap-6 mr-auto">

@@ -1,14 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
-import { prisma } from '@/lib/db/prisma';
-import { shareSchema } from '@/lib/schemas';
-import { getShareUrl, createInvitationToken, getInvitationAcceptUrl, getInvitationRejectUrl } from '@/lib/share-utils';
-import { sendInvitationEmail } from '@/lib/email';
+import { headers } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db/prisma';
+import { sendInvitationEmail } from '@/lib/email';
+import { shareSchema } from '@/lib/schemas';
+import {
+  createInvitationToken,
+  getInvitationAcceptUrl,
+  getInvitationRejectUrl,
+  getShareUrl,
+} from '@/lib/share-utils';
 
 // GET all shares for the authenticated user
 export async function GET() {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -17,7 +25,7 @@ export async function GET() {
   try {
     const userShares = await prisma.share.findMany({
       where: {
-        userId: parseInt(session.user.id),
+        userId: session.user.id,
       },
       include: {
         group: {
@@ -51,13 +59,18 @@ export async function GET() {
     return NextResponse.json(sharesWithUrls);
   } catch (error) {
     console.error('Error fetching shares:', error);
-    return NextResponse.json({ error: 'Failed to fetch shares' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch shares' },
+      { status: 500 },
+    );
   }
 }
 
 // POST create a new share
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   if (!session?.user?.id || !session.user.email || !session.user.name) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -66,7 +79,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = shareSchema.parse(body);
-    const userId = parseInt(session.user.id);
+    const userId = session.user.id;
 
     // Verify group ownership
     const group = await prisma.group.findFirst({
@@ -89,8 +102,11 @@ export async function POST(request: NextRequest) {
 
     if (existingShare) {
       return NextResponse.json(
-        { error: 'This group already has an active share. Please revoke it first.' },
-        { status: 400 }
+        {
+          error:
+            'This group already has an active share. Please revoke it first.',
+        },
+        { status: 400 },
       );
     }
 
@@ -115,7 +131,11 @@ export async function POST(request: NextRequest) {
     // For PRIVATE shares, create invitations and send emails
     const invitations: { email: string; status: string }[] = [];
 
-    if (validatedData.type === 'PRIVATE' && validatedData.emails && validatedData.emails.length > 0) {
+    if (
+      validatedData.type === 'PRIVATE' &&
+      validatedData.emails &&
+      validatedData.emails.length > 0
+    ) {
       for (const email of validatedData.emails) {
         // Create invitation record
         const invitation = await prisma.shareInvitation.create({
@@ -153,13 +173,16 @@ export async function POST(request: NextRequest) {
         invitations,
         createdAt: newShare.createdAt,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
     console.error('Error creating share:', error);
-    return NextResponse.json({ error: 'Failed to create share' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create share' },
+      { status: 500 },
+    );
   }
 }

@@ -1,15 +1,22 @@
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
-import { createInvitationToken, getInvitationAcceptUrl, getInvitationRejectUrl } from '@/lib/share-utils';
 import { sendInvitationEmail } from '@/lib/email';
+import {
+  createInvitationToken,
+  getInvitationAcceptUrl,
+  getInvitationRejectUrl,
+} from '@/lib/share-utils';
 
 // POST resend invitation email
 export async function POST(
   _request: Request,
-  { params }: { params: Promise<{ shareId: string; email: string }> }
+  { params }: { params: Promise<{ shareId: string; email: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   if (!session?.user?.id || !session.user.email || !session.user.name) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -18,7 +25,7 @@ export async function POST(
   try {
     const { shareId, email: encodedEmail } = await params;
     const email = decodeURIComponent(encodedEmail);
-    const userId = parseInt(session.user.id);
+    const userId = session.user.id;
 
     // Find the share and verify ownership
     const share = await prisma.share.findUnique({
@@ -39,7 +46,10 @@ export async function POST(
     }
 
     if (share.type !== 'PRIVATE') {
-      return NextResponse.json({ error: 'Cannot resend invitation for public share' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Cannot resend invitation for public share' },
+        { status: 400 },
+      );
     }
 
     // Find the invitation
@@ -53,13 +63,16 @@ export async function POST(
     });
 
     if (!invitation) {
-      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Invitation not found' },
+        { status: 404 },
+      );
     }
 
     if (invitation.status !== 'PENDING') {
       return NextResponse.json(
         { error: 'Can only resend pending invitations' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -76,13 +89,16 @@ export async function POST(
     if (!result.success) {
       return NextResponse.json(
         { error: `Failed to send email: ${result.error}` },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error resending invitation:', error);
-    return NextResponse.json({ error: 'Failed to resend invitation' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to resend invitation' },
+      { status: 500 },
+    );
   }
 }

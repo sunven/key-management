@@ -1,15 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { headers } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
 import { groupItemSchema } from '@/lib/schemas';
-import { z } from 'zod';
 
 // GET all items for a group (with optional tag filtering)
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const { id } = await params;
 
   if (!session?.user?.id) {
@@ -20,8 +23,8 @@ export async function GET(
     // First verify the group belongs to the user
     const group = await prisma.group.findFirst({
       where: {
-        id: parseInt(id),
-        userId: parseInt(session.user.id),
+        id: parseInt(id, 10),
+        userId: session.user.id,
       },
     });
 
@@ -37,7 +40,7 @@ export async function GET(
     // Build the query
     const items = await prisma.groupItem.findMany({
       where: {
-        groupId: parseInt(id),
+        groupId: parseInt(id, 10),
         ...(filterTags.length > 0 && {
           tags: {
             some: {
@@ -57,16 +60,21 @@ export async function GET(
     return NextResponse.json(items);
   } catch (error) {
     console.error('Error fetching items:', error);
-    return NextResponse.json({ error: 'Failed to fetch items' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch items' },
+      { status: 500 },
+    );
   }
 }
 
 // POST create a new item in the group
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const { id } = await params;
 
   if (!session?.user?.id) {
@@ -77,8 +85,8 @@ export async function POST(
     // First verify the group belongs to the user
     const group = await prisma.group.findFirst({
       where: {
-        id: parseInt(id),
-        userId: parseInt(session.user.id),
+        id: parseInt(id, 10),
+        userId: session.user.id,
       },
     });
 
@@ -93,14 +101,17 @@ export async function POST(
     const existingItem = await prisma.groupItem.findUnique({
       where: {
         groupId_key: {
-          groupId: parseInt(id),
+          groupId: parseInt(id, 10),
           key: validatedData.key,
         },
       },
     });
 
     if (existingItem) {
-      return NextResponse.json({ error: 'Key already exists in this group' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Key already exists in this group' },
+        { status: 400 },
+      );
     }
 
     // Create item with tags
@@ -108,7 +119,7 @@ export async function POST(
     const newItem = await prisma.groupItem.create({
       data: {
         ...itemData,
-        groupId: parseInt(id),
+        groupId: parseInt(id, 10),
         tags: tags?.length
           ? {
               create: tags.map((tag) => ({ tag })),
@@ -126,6 +137,9 @@ export async function POST(
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
     console.error('Error creating item:', error);
-    return NextResponse.json({ error: 'Failed to create item' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create item' },
+      { status: 500 },
+    );
   }
 }

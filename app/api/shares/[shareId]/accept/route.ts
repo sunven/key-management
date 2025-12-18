@@ -1,14 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { headers } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
 import { decodeInvitationToken } from '@/lib/share-utils';
 
 // POST accept an invitation
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ shareId: string }> }
+  { params }: { params: Promise<{ shareId: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const { shareId } = await params;
 
   if (!session?.user?.email) {
@@ -24,12 +27,18 @@ export async function POST(
     if (token) {
       const decoded = decodeInvitationToken(token);
       if (!decoded || decoded.shareId !== shareId) {
-        return NextResponse.json({ error: 'Invalid invitation token' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'Invalid invitation token' },
+          { status: 400 },
+        );
       }
       if (decoded.email !== session.user.email) {
         return NextResponse.json(
-          { error: 'This invitation was sent to a different email address. Please login with the correct account.' },
-          { status: 403 }
+          {
+            error:
+              'This invitation was sent to a different email address. Please login with the correct account.',
+          },
+          { status: 403 },
         );
       }
     }
@@ -44,7 +53,10 @@ export async function POST(
     }
 
     if (share.type !== 'PRIVATE') {
-      return NextResponse.json({ error: 'This share does not require acceptance' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'This share does not require acceptance' },
+        { status: 400 },
+      );
     }
 
     // Find the invitation
@@ -58,7 +70,10 @@ export async function POST(
     });
 
     if (!invitation) {
-      return NextResponse.json({ error: 'You have not been invited to this share' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'You have not been invited to this share' },
+        { status: 403 },
+      );
     }
 
     // Update invitation status to ACCEPTED
@@ -73,6 +88,9 @@ export async function POST(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error accepting invitation:', error);
-    return NextResponse.json({ error: 'Failed to accept invitation' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to accept invitation' },
+      { status: 500 },
+    );
   }
 }

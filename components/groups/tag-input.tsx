@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 interface TagInputProps {
   value: string[];
@@ -34,7 +34,7 @@ export function TagInput({
   const filteredSuggestions = suggestions.filter(
     (tag) =>
       !value.includes(tag) &&
-      tag.toLowerCase().includes(inputValue.toLowerCase())
+      tag.toLowerCase().includes(inputValue.toLowerCase()),
   );
 
   // Fetch suggestions when component mounts or gets focus
@@ -63,7 +63,7 @@ export function TagInput({
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         setSelectedIndex((prev) =>
-          prev < filteredSuggestions.length - 1 ? prev + 1 : prev
+          prev < filteredSuggestions.length - 1 ? prev + 1 : prev,
         );
         return;
       }
@@ -144,9 +144,9 @@ export function TagInput({
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
         {value.map((tag) => (
-          <Badge 
-            key={tag} 
-            variant="outline" 
+          <Badge
+            key={tag}
+            variant="outline"
             className="gap-1 bg-cyan-950/50 border/50 text-primary hover:bg-cyan-900/50 shadow-[0_0_5px_rgba(6,182,212,0.2)] font-mono"
           >
             {tag}
@@ -193,7 +193,10 @@ export function TagInput({
                   onClick={() => handleSuggestionClick(tag)}
                   onMouseEnter={() => setSelectedIndex(index)}
                 >
-                  <Badge variant="outline" className="mr-2 border/50 text-foreground0 bg-card/50">
+                  <Badge
+                    variant="outline"
+                    className="mr-2 border/50 text-foreground0 bg-card/50"
+                  >
                     {tag}
                   </Badge>
                 </div>

@@ -153,7 +153,7 @@ function escapeHtml(text: string): string {
  */
 export async function sendInvitationEmail(
   to: string,
-  data: InvitationEmailData
+  data: InvitationEmailData,
 ): Promise<{ success: boolean; error?: string }> {
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@yourdomain.com';
 
@@ -175,7 +175,7 @@ export async function sendInvitationEmail(
     console.error('Error sending invitation email:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }

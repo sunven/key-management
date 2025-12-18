@@ -1,23 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
-  Share2,
-  Globe,
-  Lock,
-  Info,
   AlertTriangle,
-  LogIn,
+  Check,
   CheckCircle,
   Copy,
-  Check,
+  Globe,
+  Info,
+  Lock,
+  LogIn,
+  Share2,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -26,7 +33,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { toast } from 'sonner';
 
 interface ShareItem {
   id: number;
@@ -120,15 +126,20 @@ export default function ShareViewPage() {
             <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center mb-4">
               <AlertTriangle className="w-8 h-8 text-rose-400" />
             </div>
-            <CardTitle className="text-rose-400 font-mono">ACCESS_DENIED</CardTitle>
+            <CardTitle className="text-rose-400 font-mono">
+              ACCESS_DENIED
+            </CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
-              {accessResult?.reason || 'You do not have permission to view this share'}
+              {accessResult?.reason ||
+                'You do not have permission to view this share'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {accessResult?.needsLogin && (
               <Button
-                onClick={() => router.push(`/auth/signin?callbackUrl=/share/${shareId}`)}
+                onClick={() =>
+                  router.push(`/auth/signin?callbackUrl=/share/${shareId}`)
+                }
                 className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono"
               >
                 <LogIn className="mr-2 h-4 w-4" />
@@ -168,7 +179,8 @@ export default function ShareViewPage() {
         <Alert className="mb-6 bg-cyan-950/30 border-cyan-500/50 text-primary">
           <Info className="h-4 w-4" />
           <AlertDescription className="font-mono text-sm">
-            This is a read-only share. You can view the content but cannot make changes.
+            This is a read-only share. You can view the content but cannot make
+            changes.
           </AlertDescription>
         </Alert>
 
@@ -221,7 +233,9 @@ export default function ShareViewPage() {
           <CardContent>
             {share.group.items.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-cyan-600/70 font-mono text-sm">No items in this group</p>
+                <p className="text-cyan-600/70 font-mono text-sm">
+                  No items in this group
+                </p>
               </div>
             ) : (
               <div className="rounded-lg border border/50 overflow-hidden">
@@ -269,7 +283,9 @@ export default function ShareViewPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleCopyValue(item.key, item.value)}
+                            onClick={() =>
+                              handleCopyValue(item.key, item.value)
+                            }
                             className="h-8 w-8 p-0 text-foreground0 hover:text-primary hover:bg-cyan-950/50"
                           >
                             {copiedKey === item.key ? (

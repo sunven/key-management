@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useCallback, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { groupItemSchema, type GroupItemFormData } from '@/lib/schemas';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -14,12 +14,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { TagInput } from './tag-input';
+import { Textarea } from '@/components/ui/textarea';
 import type { GroupItem, ItemTag } from '@/lib/generated/prisma/client';
+import { type GroupItemFormData, groupItemSchema } from '@/lib/schemas';
+import { TagInput } from './tag-input';
 
 interface GroupItemWithTags extends GroupItem {
   tags: ItemTag[];
@@ -92,7 +92,7 @@ export function GroupItemDialog({
               key: '',
               value: '',
               tags: [],
-            }
+            },
       );
       // Fetch suggestions when dialog opens
       fetchTagSuggestions();
@@ -150,19 +150,31 @@ export function GroupItemDialog({
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="key" className="text-foreground0 font-mono text-xs uppercase tracking-wider">Key</Label>
-              <Input 
-                id="key" 
-                placeholder="CONFIG_KEY_NAME" 
-                {...register('key')} 
+              <Label
+                htmlFor="key"
+                className="text-foreground0 font-mono text-xs uppercase tracking-wider"
+              >
+                Key
+              </Label>
+              <Input
+                id="key"
+                placeholder="CONFIG_KEY_NAME"
+                {...register('key')}
                 className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.key && (
-                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.key.message}</p>
+                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">
+                  {errors.key.message}
+                </p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="value" className="text-foreground0 font-mono text-xs uppercase tracking-wider">Value</Label>
+              <Label
+                htmlFor="value"
+                className="text-foreground0 font-mono text-xs uppercase tracking-wider"
+              >
+                Value
+              </Label>
               <Textarea
                 id="value"
                 placeholder="// Configuration value..."
@@ -171,11 +183,15 @@ export function GroupItemDialog({
                 className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.value && (
-                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.value.message}</p>
+                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">
+                  {errors.value.message}
+                </p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">Tags</Label>
+              <Label className="text-foreground0 font-mono text-xs uppercase tracking-wider">
+                Tags
+              </Label>
               <Controller
                 name="tags"
                 control={control}
@@ -191,14 +207,16 @@ export function GroupItemDialog({
               />
               {errors.tags && (
                 <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">
-                  {errors.tags.message || (errors.tags as unknown as { root?: { message?: string } })?.root?.message}
+                  {errors.tags.message ||
+                    (errors.tags as unknown as { root?: { message?: string } })
+                      ?.root?.message}
                 </p>
               )}
             </div>
           </div>
           <DialogFooter>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 hover:text-primary hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all font-mono uppercase tracking-wider"
             >
@@ -207,8 +225,10 @@ export function GroupItemDialog({
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent mr-2 shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
                   PROCESSING...
                 </>
+              ) : isEdit ? (
+                'UPDATE_ITEM'
               ) : (
-                isEdit ? 'UPDATE_ITEM' : 'INSERT_ITEM'
+                'INSERT_ITEM'
               )}
             </Button>
           </DialogFooter>

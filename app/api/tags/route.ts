@@ -1,17 +1,20 @@
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
 
 // GET all unique tags for the authenticated user (for autocomplete)
 export async function GET() {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const userId = parseInt(session.user.id);
+    const userId = session.user.id;
 
     // Get all unique tags from user's groups
     const tags = await prisma.itemTag.findMany({
@@ -34,6 +37,9 @@ export async function GET() {
     return NextResponse.json(tags.map((t) => t.tag));
   } catch (error) {
     console.error('Error fetching tags:', error);
-    return NextResponse.json({ error: 'Failed to fetch tags' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch tags' },
+      { status: 500 },
+    );
   }
 }

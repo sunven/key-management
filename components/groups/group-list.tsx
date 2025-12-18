@@ -1,17 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Plus, Search, Database, Layers, ChevronRight, Settings2, Share2 } from 'lucide-react';
+import {
+  ChevronRight,
+  Database,
+  Layers,
+  Plus,
+  Search,
+  Settings2,
+  Share2,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { GroupDialog } from './group-dialog';
-import { ShareDialog } from './share-dialog';
-import { GroupItemList } from './group-item-list';
-import { GlobalTagSearch } from './global-tag-search';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import type { Group, GroupItem, ItemTag } from '@/lib/generated/prisma/client';
+import { cn } from '@/lib/utils';
+import { GlobalTagSearch } from './global-tag-search';
+import { GroupDialog } from './group-dialog';
+import { GroupItemList } from './group-item-list';
+import { ShareDialog } from './share-dialog';
 
 interface GroupItemWithTags extends GroupItem {
   tags: ItemTag[];
@@ -52,12 +60,12 @@ export function GroupList() {
 
   useEffect(() => {
     fetchGroups();
-  }, []);
+  }, [fetchGroups]);
 
   const handleDeleteGroup = async (id: number) => {
     if (
       !confirm(
-        'Are you sure you want to delete this group? All items and tags will be deleted.'
+        'Are you sure you want to delete this group? All items and tags will be deleted.',
       )
     ) {
       return;
@@ -88,7 +96,7 @@ export function GroupList() {
   };
 
   const filteredGroups = groups.filter((group) =>
-    group.name.toLowerCase().includes(searchQuery.toLowerCase())
+    group.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const selectedGroup = groups.find((g) => g.id === selectedGroupId);
@@ -98,7 +106,9 @@ export function GroupList() {
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent"></div>
-          <div className="text-cyan-600 font-mono text-sm animate-pulse">INITIALIZING_SYSTEM...</div>
+          <div className="text-cyan-600 font-mono text-sm animate-pulse">
+            INITIALIZING_SYSTEM...
+          </div>
         </div>
       </div>
     );
@@ -119,7 +129,11 @@ export function GroupList() {
               </h2>
               <GroupDialog
                 trigger={
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-foreground0 hover:bg-cyan-950/50 hover:text-primary hover:shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all duration-300">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-foreground0 hover:bg-cyan-950/50 hover:text-primary hover:shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all duration-300"
+                  >
                     <Plus className="h-4 w-4" />
                   </Button>
                 }
@@ -128,11 +142,11 @@ export function GroupList() {
             </div>
             <div className="relative group">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-cyan-700 group-hover:text-foreground0 transition-colors" />
-              <Input 
-                placeholder="FILTER_NET..." 
+              <Input
+                placeholder="FILTER_NET..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-background/50 border/50 text-foreground placeholder:text-cyan-900/50 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500 font-mono text-xs h-9 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)]" 
+                className="pl-9 bg-background/50 border/50 text-foreground placeholder:text-cyan-900/50 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500 font-mono text-xs h-9 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
               />
             </div>
           </div>
@@ -140,7 +154,9 @@ export function GroupList() {
           <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
             {filteredGroups.length === 0 ? (
               <div className="text-center py-8 px-4">
-                <p className="text-xs text-cyan-900/50 font-mono animate-pulse">NO_GROUPS_FOUND</p>
+                <p className="text-xs text-cyan-900/50 font-mono animate-pulse">
+                  NO_GROUPS_FOUND
+                </p>
               </div>
             ) : (
               filteredGroups.map((group) => (
@@ -148,28 +164,35 @@ export function GroupList() {
                   key={group.id}
                   onClick={() => setSelectedGroupId(group.id)}
                   className={cn(
-                    "w-full text-left p-3 rounded-lg transition-all border group relative overflow-hidden",
+                    'w-full text-left p-3 rounded-lg transition-all border group relative overflow-hidden',
                     selectedGroupId === group.id
-                      ? "bg-cyan-950/30 border-cyan-500/50 text-foreground shadow-[0_0_20px_rgba(6,182,212,0.15)] z-10"
-                      : "border-transparent hover:bg-cyan-950/20 hover:text-foreground text-muted-foreground hover:border/50"
+                      ? 'bg-cyan-950/30 border-cyan-500/50 text-foreground shadow-[0_0_20px_rgba(6,182,212,0.15)] z-10'
+                      : 'border-transparent hover:bg-cyan-950/20 hover:text-foreground text-muted-foreground hover:border/50',
                   )}
                 >
                   {selectedGroupId === group.id && (
                     <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)]" />
                   )}
                   <div className="flex justify-between items-center mb-1">
-                    <span className={cn(
-                      "font-medium truncate font-mono text-sm tracking-wide",
-                      selectedGroupId === group.id ? "text-primary drop-shadow-[0_0_3px_rgba(6,182,212,0.5)]" : "text-muted-foreground group-hover:text-primary"
-                    )}>
+                    <span
+                      className={cn(
+                        'font-medium truncate font-mono text-sm tracking-wide',
+                        selectedGroupId === group.id
+                          ? 'text-primary drop-shadow-[0_0_3px_rgba(6,182,212,0.5)]'
+                          : 'text-muted-foreground group-hover:text-primary',
+                      )}
+                    >
                       {group.name}
                     </span>
-                    <Badge variant="secondary" className={cn(
-                      "text-[10px] font-mono h-5 px-1.5 border",
-                      selectedGroupId === group.id 
-                        ? "bg-cyan-950/50 text-primary border-cyan-500/30" 
-                        : "bg-card/50 text-muted-foreground border group-hover:border/50 group-hover:text-cyan-600"
-                    )}>
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        'text-[10px] font-mono h-5 px-1.5 border',
+                        selectedGroupId === group.id
+                          ? 'bg-cyan-950/50 text-primary border-cyan-500/30'
+                          : 'bg-card/50 text-muted-foreground border group-hover:border/50 group-hover:text-cyan-600',
+                      )}
+                    >
                       {group._count.items}
                     </Badge>
                   </div>
@@ -198,7 +221,10 @@ export function GroupList() {
                     <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 font-mono tracking-tight drop-shadow-[0_0_10px_rgba(6,182,212,0.3)]">
                       {selectedGroup.name}
                     </h1>
-                    <Badge variant="outline" className="font-mono text-xs border/50 text-cyan-600 bg-cyan-950/30">
+                    <Badge
+                      variant="outline"
+                      className="font-mono text-xs border/50 text-cyan-600 bg-cyan-950/30"
+                    >
                       ID: {selectedGroup.id}
                     </Badge>
                   </div>
@@ -212,7 +238,12 @@ export function GroupList() {
                     variant="outline"
                     size="sm"
                     className="h-8 border/50 text-foreground0 hover:bg-cyan-950/50 hover:text-primary hover:border-cyan-500/50 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] bg-background/50"
-                    onClick={() => handleOpenShareDialog(selectedGroup.id, selectedGroup.name)}
+                    onClick={() =>
+                      handleOpenShareDialog(
+                        selectedGroup.id,
+                        selectedGroup.name,
+                      )
+                    }
                   >
                     <Share2 className="mr-2 h-3 w-3" />
                     SHARE
@@ -220,7 +251,11 @@ export function GroupList() {
                   <GroupDialog
                     group={selectedGroup}
                     trigger={
-                      <Button variant="outline" size="sm" className="h-8 border/50 text-foreground0 hover:bg-cyan-950/50 hover:text-primary hover:border-cyan-500/50 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] bg-background/50">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 border/50 text-foreground0 hover:bg-cyan-950/50 hover:text-primary hover:border-cyan-500/50 font-mono text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] bg-background/50"
+                      >
                         <Settings2 className="mr-2 h-3 w-3" />
                         CONFIG
                       </Button>
@@ -252,7 +287,9 @@ export function GroupList() {
               <div className="w-16 h-16 rounded-2xl bg-card/50 border border/30 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(6,182,212,0.05)]">
                 <Database className="w-8 h-8 text-cyan-900" />
               </div>
-              <p className="font-mono text-sm text-cyan-900/50 tracking-widest">SELECT_SYSTEM_GROUP</p>
+              <p className="font-mono text-sm text-cyan-900/50 tracking-widest">
+                SELECT_SYSTEM_GROUP
+              </p>
             </div>
           )}
         </div>

@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useSearchParams, useRouter } from 'next/navigation';
+import { AlertTriangle, CheckCircle, LogIn, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { CheckCircle, XCircle, LogIn, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export default function AcceptInvitationPage() {
   const params = useParams();
@@ -17,7 +23,9 @@ export default function AcceptInvitationPage() {
 
   const [loading, setLoading] = useState(false);
   const [accepting, setAccepting] = useState(false);
-  const [status, setStatus] = useState<'pending' | 'success' | 'error' | 'needsLogin'>('pending');
+  const [status, setStatus] = useState<
+    'pending' | 'success' | 'error' | 'needsLogin'
+  >('pending');
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
@@ -59,8 +67,12 @@ export default function AcceptInvitationPage() {
     } catch (error) {
       console.error('Error accepting invitation:', error);
       setStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Failed to accept invitation');
-      toast.error(error instanceof Error ? error.message : 'Failed to accept invitation');
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Failed to accept invitation',
+      );
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to accept invitation',
+      );
     } finally {
       setAccepting(false);
     }
@@ -75,7 +87,7 @@ export default function AcceptInvitationPage() {
 
       const response = await fetch(
         `/api/shares/${shareId}/reject?token=${encodeURIComponent(token)}`,
-        { method: 'POST' }
+        { method: 'POST' },
       );
 
       if (!response.ok) {
@@ -86,7 +98,9 @@ export default function AcceptInvitationPage() {
       router.push(`/share/${shareId}/reject?success=true`);
     } catch (error) {
       console.error('Error rejecting invitation:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to reject invitation');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to reject invitation',
+      );
     } finally {
       setLoading(false);
     }
@@ -100,7 +114,9 @@ export default function AcceptInvitationPage() {
             <div className="mx-auto w-16 h-16 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-center mb-4">
               <LogIn className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-primary font-mono">LOGIN_REQUIRED</CardTitle>
+            <CardTitle className="text-primary font-mono">
+              LOGIN_REQUIRED
+            </CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
               Please login to accept this invitation
             </CardDescription>
@@ -108,7 +124,9 @@ export default function AcceptInvitationPage() {
           <CardContent className="space-y-4">
             <Button
               onClick={() =>
-                router.push(`/auth/signin?callbackUrl=/share/${shareId}/accept${token ? `?token=${encodeURIComponent(token)}` : ''}`)
+                router.push(
+                  `/auth/signin?callbackUrl=/share/${shareId}/accept${token ? `?token=${encodeURIComponent(token)}` : ''}`,
+                )
               }
               className="w-full bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 font-mono"
             >
@@ -129,7 +147,9 @@ export default function AcceptInvitationPage() {
             <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 flex items-center justify-center mb-4">
               <CheckCircle className="w-8 h-8 text-emerald-400" />
             </div>
-            <CardTitle className="text-emerald-400 font-mono">INVITATION_ACCEPTED</CardTitle>
+            <CardTitle className="text-emerald-400 font-mono">
+              INVITATION_ACCEPTED
+            </CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
               You now have access to this shared group. Redirecting...
             </CardDescription>
@@ -179,9 +199,12 @@ export default function AcceptInvitationPage() {
           <div className="mx-auto w-16 h-16 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-center mb-4">
             <CheckCircle className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-primary font-mono">SHARE_INVITATION</CardTitle>
+          <CardTitle className="text-primary font-mono">
+            SHARE_INVITATION
+          </CardTitle>
           <CardDescription className="text-cyan-600/70 font-mono text-sm">
-            You have been invited to view a shared group. Would you like to accept this invitation?
+            You have been invited to view a shared group. Would you like to
+            accept this invitation?
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -1,10 +1,10 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { groupSchema, type GroupFormData } from '@/lib/schemas';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -14,11 +14,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import type { Group } from '@/lib/generated/prisma/client';
+import { type GroupFormData, groupSchema } from '@/lib/schemas';
 
 interface GroupDialogProps {
   group?: Group;
@@ -93,19 +93,31 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name" className="text-foreground0 font-mono text-xs uppercase tracking-wider">Name</Label>
-              <Input 
-                id="name" 
-                placeholder="SYSTEM_NODE_01" 
-                {...register('name')} 
+              <Label
+                htmlFor="name"
+                className="text-foreground0 font-mono text-xs uppercase tracking-wider"
+              >
+                Name
+              </Label>
+              <Input
+                id="name"
+                placeholder="SYSTEM_NODE_01"
+                {...register('name')}
                 className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.name && (
-                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.name.message}</p>
+                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">
+                  {errors.name.message}
+                </p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description" className="text-foreground0 font-mono text-xs uppercase tracking-wider">Description</Label>
+              <Label
+                htmlFor="description"
+                className="text-foreground0 font-mono text-xs uppercase tracking-wider"
+              >
+                Description
+              </Label>
               <Textarea
                 id="description"
                 placeholder="// Optional system description"
@@ -113,13 +125,15 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
                 className="bg-card/50 border/50 text-foreground placeholder:text-cyan-900/50 font-mono focus:border-cyan-500 focus:ring-cyan-500/20 min-h-[100px] transition-all duration-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
               />
               {errors.description && (
-                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">{errors.description.message}</p>
+                <p className="text-sm text-rose-500 font-mono drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">
+                  {errors.description.message}
+                </p>
               )}
             </div>
           </div>
           <DialogFooter>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="bg-cyan-950/50 text-primary border border/50 hover:bg-cyan-900/50 hover:text-primary hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all font-mono uppercase tracking-wider"
             >
@@ -128,8 +142,10 @@ export function GroupDialog({ group, trigger, onSuccess }: GroupDialogProps) {
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent mr-2 shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
                   PROCESSING...
                 </>
+              ) : isEdit ? (
+                'UPDATE_NODE'
               ) : (
-                isEdit ? 'UPDATE_NODE' : 'INITIALIZE_NODE'
+                'INITIALIZE_NODE'
               )}
             </Button>
           </DialogFooter>

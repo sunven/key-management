@@ -1,13 +1,16 @@
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
 
 // DELETE revoke a share
 export async function DELETE(
   _request: Request,
-  { params }: { params: Promise<{ shareId: string }> }
+  { params }: { params: Promise<{ shareId: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -15,7 +18,7 @@ export async function DELETE(
 
   try {
     const { shareId } = await params;
-    const userId = parseInt(session.user.id);
+    const userId = session.user.id;
 
     // Find the share and verify ownership
     const share = await prisma.share.findUnique({
@@ -42,16 +45,21 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting share:', error);
-    return NextResponse.json({ error: 'Failed to delete share' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete share' },
+      { status: 500 },
+    );
   }
 }
 
 // GET a single share (for management purposes)
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ shareId: string }> }
+  { params }: { params: Promise<{ shareId: string }> },
 ) {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -59,7 +67,7 @@ export async function GET(
 
   try {
     const { shareId } = await params;
-    const userId = parseInt(session.user.id);
+    const userId = session.user.id;
 
     const share = await prisma.share.findUnique({
       where: {
@@ -96,6 +104,9 @@ export async function GET(
     return NextResponse.json(share);
   } catch (error) {
     console.error('Error fetching share:', error);
-    return NextResponse.json({ error: 'Failed to fetch share' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch share' },
+      { status: 500 },
+    );
   }
 }

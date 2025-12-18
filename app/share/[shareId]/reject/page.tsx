@@ -1,24 +1,30 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useParams, useSearchParams, useRouter } from 'next/navigation';
+import { AlertTriangle, Home, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { XCircle, AlertTriangle, Home } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 function RejectInvitationContent() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const _router = useRouter();
   const shareId = params.shareId as string;
   const token = searchParams.get('token');
   const success = searchParams.get('success');
 
   const [loading, setLoading] = useState(!success);
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>(
-    success ? 'success' : 'processing'
+    success ? 'success' : 'processing',
   );
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -38,7 +44,7 @@ function RejectInvitationContent() {
       try {
         const response = await fetch(
           `/api/shares/${shareId}/reject?token=${encodeURIComponent(token)}`,
-          { method: 'POST' }
+          { method: 'POST' },
         );
 
         if (!response.ok) {
@@ -51,7 +57,11 @@ function RejectInvitationContent() {
       } catch (error) {
         console.error('Error rejecting invitation:', error);
         setStatus('error');
-        setErrorMessage(error instanceof Error ? error.message : 'Failed to reject invitation');
+        setErrorMessage(
+          error instanceof Error
+            ? error.message
+            : 'Failed to reject invitation',
+        );
       } finally {
         setLoading(false);
       }
@@ -68,7 +78,9 @@ function RejectInvitationContent() {
             <div className="mx-auto w-16 h-16 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-center mb-4">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent" />
             </div>
-            <CardTitle className="text-primary font-mono">PROCESSING...</CardTitle>
+            <CardTitle className="text-primary font-mono">
+              PROCESSING...
+            </CardTitle>
             <CardDescription className="text-cyan-600/70 font-mono text-sm">
               Processing your response to the invitation
             </CardDescription>
@@ -112,9 +124,12 @@ function RejectInvitationContent() {
           <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-center mb-4">
             <XCircle className="w-8 h-8 text-rose-400" />
           </div>
-          <CardTitle className="text-rose-400 font-mono">INVITATION_REJECTED</CardTitle>
+          <CardTitle className="text-rose-400 font-mono">
+            INVITATION_REJECTED
+          </CardTitle>
           <CardDescription className="text-cyan-600/70 font-mono text-sm">
-            You have rejected this share invitation. You will not have access to the shared content.
+            You have rejected this share invitation. You will not have access to
+            the shared content.
           </CardDescription>
         </CardHeader>
         <CardContent>

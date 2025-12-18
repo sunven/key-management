@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
+import { ThemeProvider } from 'next-themes';
 // import { Geist, Geist_Mono } from "next/font/google";
-import { Navbar } from "@/components/layout/navbar";
-import { Toaster } from "@/components/ui/sonner";
-import { ThemeProvider } from "next-themes";
-import "./globals.css";
+import { Navbar } from '@/components/layout/navbar';
+import { Toaster } from '@/components/ui/sonner';
+import './globals.css';
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -16,8 +16,8 @@ import "./globals.css";
 // });
 
 export const metadata: Metadata = {
-  title: "Key Management System",
-  description: "Manage your API providers and tokens",
+  title: 'Key Management System',
+  description: 'Manage your API providers and tokens',
 };
 
 export default function RootLayout({

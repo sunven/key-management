@@ -1,31 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { toast } from 'sonner';
 import {
-  Share2,
-  Globe,
-  Lock,
-  Copy,
   Check,
-  Trash2,
+  CheckCircle,
   ChevronDown,
   ChevronUp,
-  Send,
   Clock,
-  CheckCircle,
+  Copy,
+  Globe,
+  Lock,
+  Send,
+  Share2,
+  Trash2,
   XCircle,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +26,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface ShareInvitation {
   id: number;
@@ -83,7 +83,7 @@ export function ShareList() {
 
   useEffect(() => {
     fetchShares();
-  }, []);
+  }, [fetchShares]);
 
   const handleCopyLink = async (shareId: string, shareUrl: string) => {
     try {
@@ -122,7 +122,7 @@ export function ShareList() {
     try {
       const response = await fetch(
         `/api/shares/${shareId}/invitations/${encodeURIComponent(email)}/resend`,
-        { method: 'POST' }
+        { method: 'POST' },
       );
 
       if (!response.ok) {
@@ -133,7 +133,9 @@ export function ShareList() {
       toast.success(`Invitation resent to ${email}`);
     } catch (error) {
       console.error('Error resending invitation:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to resend invitation');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to resend invitation',
+      );
     } finally {
       setResendingEmail(null);
     }
@@ -180,7 +182,9 @@ export function ShareList() {
       <div className="flex h-64 items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500 border-r-transparent"></div>
-          <div className="text-cyan-600 font-mono text-sm animate-pulse">LOADING_SHARES...</div>
+          <div className="text-cyan-600 font-mono text-sm animate-pulse">
+            LOADING_SHARES...
+          </div>
         </div>
       </div>
     );
@@ -194,8 +198,8 @@ export function ShareList() {
         </div>
         <h3 className="text-primary font-mono text-lg mb-2">NO_SHARES_FOUND</h3>
         <p className="text-cyan-600/70 font-mono text-sm max-w-md">
-          You haven&apos;t shared any groups yet. Go to Groups and click the SHARE button to create
-          your first share.
+          You haven&apos;t shared any groups yet. Go to Groups and click the
+          SHARE button to create your first share.
         </p>
       </div>
     );
@@ -207,10 +211,18 @@ export function ShareList() {
         <Table>
           <TableHeader>
             <TableRow className="border/50 hover:bg-transparent">
-              <TableHead className="text-foreground0 font-mono text-xs uppercase">Group</TableHead>
-              <TableHead className="text-foreground0 font-mono text-xs uppercase">Type</TableHead>
-              <TableHead className="text-foreground0 font-mono text-xs uppercase">Created</TableHead>
-              <TableHead className="text-foreground0 font-mono text-xs uppercase">Status</TableHead>
+              <TableHead className="text-foreground0 font-mono text-xs uppercase">
+                Group
+              </TableHead>
+              <TableHead className="text-foreground0 font-mono text-xs uppercase">
+                Type
+              </TableHead>
+              <TableHead className="text-foreground0 font-mono text-xs uppercase">
+                Created
+              </TableHead>
+              <TableHead className="text-foreground0 font-mono text-xs uppercase">
+                Status
+              </TableHead>
               <TableHead className="text-foreground0 font-mono text-xs uppercase text-right">
                 Actions
               </TableHead>
@@ -223,7 +235,9 @@ export function ShareList() {
                   key={share.id}
                   className="border/30 hover:bg-cyan-950/20 transition-colors"
                 >
-                  <TableCell className="font-mono text-foreground">{share.group.name}</TableCell>
+                  <TableCell className="font-mono text-foreground">
+                    {share.group.name}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       variant="outline"
@@ -248,13 +262,19 @@ export function ShareList() {
                     {share.type === 'PRIVATE' ? (
                       <button
                         onClick={() =>
-                          setExpandedShareId(expandedShareId === share.id ? null : share.id)
+                          setExpandedShareId(
+                            expandedShareId === share.id ? null : share.id,
+                          )
                         }
                         className="flex items-center gap-2 text-primary hover:text-primary transition-colors"
                       >
                         <span className="font-mono text-xs">
-                          {share.invitations.filter((i) => i.status === 'ACCEPTED').length}/
-                          {share.invitations.length} accepted
+                          {
+                            share.invitations.filter(
+                              (i) => i.status === 'ACCEPTED',
+                            ).length
+                          }
+                          /{share.invitations.length} accepted
                         </span>
                         {expandedShareId === share.id ? (
                           <ChevronUp className="h-4 w-4" />
@@ -263,7 +283,9 @@ export function ShareList() {
                         )}
                       </button>
                     ) : (
-                      <span className="font-mono text-xs text-cyan-600">Public access</span>
+                      <span className="font-mono text-xs text-cyan-600">
+                        Public access
+                      </span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -317,7 +339,9 @@ export function ShareList() {
                                 className={`font-mono text-xs ${getStatusColor(invitation.status)}`}
                               >
                                 {getStatusIcon(invitation.status)}
-                                <span className="ml-1">{invitation.status}</span>
+                                <span className="ml-1">
+                                  {invitation.status}
+                                </span>
                               </Badge>
                             </div>
                             <div className="flex items-center gap-2">
@@ -328,7 +352,12 @@ export function ShareList() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleResendInvitation(share.id, invitation.email)}
+                                  onClick={() =>
+                                    handleResendInvitation(
+                                      share.id,
+                                      invitation.email,
+                                    )
+                                  }
                                   disabled={resendingEmail === invitation.email}
                                   className="h-7 text-foreground0 hover:text-primary hover:bg-cyan-950/50 font-mono text-xs"
                                 >
@@ -357,10 +386,12 @@ export function ShareList() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="bg-background/90 border/50 text-foreground">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-primary font-mono">REVOKE_SHARE</AlertDialogTitle>
+            <AlertDialogTitle className="text-primary font-mono">
+              REVOKE_SHARE
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-cyan-600/70 font-mono text-sm">
-              Are you sure you want to revoke this share? The share link will immediately stop
-              working and all invited users will lose access.
+              Are you sure you want to revoke this share? The share link will
+              immediately stop working and all invited users will lose access.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

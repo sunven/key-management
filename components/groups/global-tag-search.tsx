@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { Search, X, Copy, Check } from 'lucide-react';
+import { Check, Copy, Search, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -58,7 +58,7 @@ export function GlobalTagSearch() {
       setLoading(true);
       try {
         const response = await fetch(
-          `/api/tags/search?tags=${selectedTags.join(',')}`
+          `/api/tags/search?tags=${selectedTags.join(',')}`,
         );
         if (response.ok) {
           const items = await response.json();
@@ -75,7 +75,7 @@ export function GlobalTagSearch() {
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   };
 
@@ -99,7 +99,7 @@ export function GlobalTagSearch() {
   const filteredTags = useMemo(() => {
     if (!tagFilter) return allTags;
     return allTags.filter((tag) =>
-      tag.toLowerCase().includes(tagFilter.toLowerCase())
+      tag.toLowerCase().includes(tagFilter.toLowerCase()),
     );
   }, [allTags, tagFilter]);
 
@@ -111,7 +111,9 @@ export function GlobalTagSearch() {
     <div className="space-y-4 p-4 border border/50 rounded-lg bg-card/80 backdrop-blur-sm shadow-[0_0_20px_rgba(6,182,212,0.05)]">
       <div className="flex items-center gap-2">
         <Search className="h-4 w-4 text-foreground0" />
-        <h3 className="font-medium text-foreground0 font-mono tracking-wider uppercase text-sm drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]">Cross-Group Tag Search</h3>
+        <h3 className="font-medium text-foreground0 font-mono tracking-wider uppercase text-sm drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]">
+          Cross-Group Tag Search
+        </h3>
       </div>
 
       <div className="space-y-2">
@@ -128,8 +130,8 @@ export function GlobalTagSearch() {
               key={tag}
               variant="outline"
               className={`cursor-pointer transition-all duration-300 font-mono ${
-                selectedTags.includes(tag) 
-                  ? 'bg-cyan-950/50 text-primary border-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]' 
+                selectedTags.includes(tag)
+                  ? 'bg-cyan-950/50 text-primary border-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]'
                   : 'bg-card/50 text-muted-foreground border hover:border-cyan-500/50 hover:text-primary hover:shadow-[0_0_5px_rgba(6,182,212,0.3)]'
               }`}
               onClick={() => toggleTag(tag)}
@@ -144,9 +146,17 @@ export function GlobalTagSearch() {
       {selectedTags.length > 0 && (
         <div className="flex items-center gap-2">
           <span className="text-sm text-foreground0/70 font-mono">
-            SELECTED: <span className="text-primary drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">{selectedTags.join(', ')}</span>
+            SELECTED:{' '}
+            <span className="text-primary drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
+              {selectedTags.join(', ')}
+            </span>
           </span>
-          <Button variant="ghost" size="sm" onClick={clearSelection} className="text-rose-500 hover:text-rose-400 hover:bg-rose-950/30 h-6 text-xs uppercase font-mono tracking-wider">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearSelection}
+            className="text-rose-500 hover:text-rose-400 hover:bg-rose-950/30 h-6 text-xs uppercase font-mono tracking-wider"
+          >
             Clear
           </Button>
         </div>
@@ -170,17 +180,32 @@ export function GlobalTagSearch() {
           <Table>
             <TableHeader className="bg-background/80">
               <TableRow className="border-b-cyan-800/50 hover:bg-transparent">
-                <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">Group</TableHead>
-                <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">Key</TableHead>
-                <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">Value</TableHead>
-                <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">Tags</TableHead>
+                <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">
+                  Group
+                </TableHead>
+                <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">
+                  Key
+                </TableHead>
+                <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">
+                  Value
+                </TableHead>
+                <TableHead className="text-foreground0/70 font-mono text-xs uppercase tracking-wider">
+                  Tags
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {searchResults.map((item) => (
-                <TableRow key={item.id} className="border-b-cyan-900/30 hover:bg-cyan-950/20 transition-colors">
-                  <TableCell className="font-medium text-muted-foreground">{item.group.name}</TableCell>
-                  <TableCell className="font-mono text-sm text-fuchsia-400 drop-shadow-[0_0_3px_rgba(232,121,249,0.3)]">{item.key}</TableCell>
+                <TableRow
+                  key={item.id}
+                  className="border-b-cyan-900/30 hover:bg-cyan-950/20 transition-colors"
+                >
+                  <TableCell className="font-medium text-muted-foreground">
+                    {item.group.name}
+                  </TableCell>
+                  <TableCell className="font-mono text-sm text-fuchsia-400 drop-shadow-[0_0_3px_rgba(232,121,249,0.3)]">
+                    {item.key}
+                  </TableCell>
                   <TableCell className="max-w-xs">
                     <div className="flex items-center gap-2 group/value">
                       <span className="truncate font-mono text-sm text-muted-foreground group-hover/value:text-slate-300 transition-colors">
